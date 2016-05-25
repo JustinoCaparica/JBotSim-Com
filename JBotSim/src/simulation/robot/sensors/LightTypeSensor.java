@@ -18,13 +18,12 @@ public class LightTypeSensor extends ConeTypeSensor {
 
 	@Override
 	protected double calculateContributionToSensor(int sensorNumber, PhysicalObjectDistance source) {
-	
+
 		GeometricInfo sensorInfo = getSensorGeometricInfo(sensorNumber, source);
 		
 		if((sensorInfo.getDistance() < getCutOff()) && 
 		   (sensorInfo.getAngle() < (openingAngle / 2.0)) && 
 		   (sensorInfo.getAngle() > (-openingAngle / 2.0))) {
-
 			return (getRange() - sensorInfo.getDistance()) / getRange();
 		}
  		return 0;
