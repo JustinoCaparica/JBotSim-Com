@@ -16,9 +16,6 @@ public class Message {
     private MessageType msgType;    //message type
     
     
-    private int content;            //message content, 
-                                    //may depend on the type
-
     
     /**
      * Initializes a new instance
@@ -27,9 +24,8 @@ public class Message {
      * type
      * @param content the content
      */
-    public Message(MessageType msgType, Integer content) {
+    public Message(MessageType msgType) {
         this.msgType = msgType;
-        this.content = content;
     }
 
     /**
@@ -51,27 +47,6 @@ public class Message {
         this.msgType = msgType;
     }
 
-    
-    /**
-     * Gets the content
-     * of the message
-     * @return the content
-     * which may be null
-     */
-    public int getContent() {
-        return content;
-    }
-
-    /**
-     * Sets the content of 
-     * the message
-     * @param content the
-     * content which may 
-     * be null
-     */
-    public void setContent( int content ) {
-        this.content = content;
-    }
     
     
     

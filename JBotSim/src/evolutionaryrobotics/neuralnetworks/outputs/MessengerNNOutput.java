@@ -16,7 +16,11 @@ import simulation.util.Arguments;
  */
 public class MessengerNNOutput extends NNOutput {
 
-    private MessengerActuator msgActuator;     //the actuator 
+    private MessengerActuator msgActuator;      //the actuator 
+    
+    
+    
+    private double nnOutputValue;               //NN output value
     
     
     /**
@@ -42,7 +46,7 @@ public class MessengerNNOutput extends NNOutput {
         return 1;                   //number of output neurons
                                     //that are added to the NN
                                     //for the sake of this 
-                                    //actuator only
+                                    //actuator alone
     }
 
     
@@ -51,8 +55,8 @@ public class MessengerNNOutput extends NNOutput {
     @Override
     public void setValue( int index, double value ) {
         
-        msgActuator.setValue( value );          //send the NN output value
-                                                //to the msg actuator
+        this.nnOutputValue = value;
+        
     }
 
     
@@ -60,8 +64,8 @@ public class MessengerNNOutput extends NNOutput {
     @Override
     public void apply() {
         
-        //the usefullness of this method is not clear
-        //it is empty in other classes of ..NNOutput
+        msgActuator.setValue( nnOutputValue );  //send the NN output value
+                                                //to the msg actuator
         
     }
     

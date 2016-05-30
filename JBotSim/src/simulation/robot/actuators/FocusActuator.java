@@ -32,16 +32,13 @@ public class FocusActuator extends Actuator {
      * @param simulator the simulator
      * @param id the actuator's id
      * @param args arguments
-     * @param msgSocialSensor the
-     * social sensor that will be
-     * actuated upon by this 
-     * actuator
      */
-    public FocusActuator( Simulator simulator, int id, Arguments args,
-                            MessengerSocialSensor msgSocialSensor ) {
+    public FocusActuator( Simulator simulator, int id, Arguments args ) {
+        
         super(simulator, id, args);
         
-        this.msgSocialSensor = msgSocialSensor;
+        this.msgSocialSensor = null;
+        focused = false;
         
     }
 
@@ -61,8 +58,8 @@ public class FocusActuator extends Actuator {
     
     
     /**
-     * Sets the state of
-     * the actuator
+     * Focus or defocus the
+     * actuator
      * @param focused set
      * to true to focus 
      * or to false to
@@ -78,6 +75,10 @@ public class FocusActuator extends Actuator {
     
     @Override
     public void apply( Robot robot, double timeDelta ) {
+        
+        if( msgSocialSensor == null ){
+            msgSocialSensor = (MessengerSocialSensor)robot.getSensorByType( MessengerSocialSensor.class );
+        }
         
         msgSocialSensor.setFocus( focused );
         

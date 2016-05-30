@@ -200,6 +200,9 @@ public abstract class ConeTypeSensor extends Sensor {
 			closeObjects.update(time, teleported);
 //		if(robot.getId()==0)
 //			System.out.println(closeObjects.getNumberOfCloseObjects()+" "+time);
+
+                
+
 		try { 
 			for(int j = 0; j < readings.length; j++){
 				readings[j] = 0.0;

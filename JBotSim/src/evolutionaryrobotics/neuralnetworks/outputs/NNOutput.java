@@ -11,6 +11,15 @@ import simulation.util.Factory;
 
 public abstract class NNOutput implements Serializable{
 	public NNOutput(Actuator actuator, Arguments args){}
+        
+        /**
+         * Gets the number of output neurons
+         * that are added to the neural
+         * network for the sake of this
+         * actuator alone
+         * @return the number of 
+         * output neurons
+         */
 	public abstract int getNumberOfOutputValues();
 	public abstract void setValue(int index, double value);
 	public abstract void apply();

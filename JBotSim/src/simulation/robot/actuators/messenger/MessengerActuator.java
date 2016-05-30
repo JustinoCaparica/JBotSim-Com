@@ -5,13 +5,16 @@
  */
 package simulation.robot.actuators.messenger;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.actuators.Actuator;
 import simulation.robot.sensors.MessengerSensor;
+import simulation.robot.sensors.MessengerSocialSensor;
 import simulation.util.Arguments;
 
 /**
@@ -24,6 +27,8 @@ import simulation.util.Arguments;
  */
 public class MessengerActuator extends Actuator {
     
+    //TODO: allow the robot to direct messages to other robots;
+    //currently it is only possible to broadcast messages
     
     
     private HashMap<Integer, List<Robot> > robotsInRange;   //robots within
@@ -40,10 +45,6 @@ public class MessengerActuator extends Actuator {
     
     
     
-    private final MessageType possibleMsgs;                 //possible message
-                                                            //types
-                                                            
-    
     
     
     
@@ -53,14 +54,8 @@ public class MessengerActuator extends Actuator {
      * @param simulator the simulator
      * @param id the actuator id
      * @param args arguments (TODO: describe arguments)
-     * @param numOfSensors number 
-     * of individual sensors
-     * @param possibleMessages possible
-     * message types <MessageTypeID, Message>
      */
-    public MessengerActuator( Simulator simulator, int id, Arguments args,
-                                    int numOfSensors,
-                                    MessageType possibleMessages ) {
+    public MessengerActuator( Simulator simulator, int id, Arguments args ) {
         
         super(simulator, id, args);
         
@@ -68,7 +63,6 @@ public class MessengerActuator extends Actuator {
         
         msgs = new HashMap<>();
         
-        this.possibleMsgs = possibleMessages;
         
     }
     
@@ -84,18 +78,22 @@ public class MessengerActuator extends Actuator {
      */
     public void setValue( Double nnOutput ){
         
-        Message outboundMsg;                        //message to send
+        Message outboundMsg = null;                 //message to send
         
         
         int slotsCount;                             //number of possible
-        slotsCount = MessageType.values().length;   //message types/slots
+        slotsCount = MessageType.values().length;   //message types
+                                                    //each message matchs
+                                                    //a slot
         
         
         Double slotSize = 1.0 / slotsCount;         //slot size
         
         
-        boolean found = false;                      //was the message type found yet?
-        double val;                                 //top limit value 
+        boolean found = false;                      //was the message type/slot
+                                                    //found yet?
+        
+        double slotTopLimit;                        //top limit value 
                                                     //of the current slot
         
                                                     
@@ -103,16 +101,17 @@ public class MessengerActuator extends Actuator {
                                                     //search the possible slots
                                                     //to determine the slot
                                                     //where the NN output fits
-            val = slotID * slotSize + slotSize;
+            slotTopLimit = slotID * slotSize + slotSize;
             
-            if ( nnOutput <= val ) {                   
-                outboundMsg = new Message( MessageType.values()[slotID], null);
+            if ( nnOutput <= slotTopLimit ) {                   
+                outboundMsg = new Message( MessageType.values()[slotID] );
                 found = true;
             }
             
         }
         
-        
+        clearMessages();
+        setBroadcastMessage( outboundMsg );
         
     }
     
@@ -130,7 +129,12 @@ public class MessengerActuator extends Actuator {
      */
     public void addRobotInRange( Robot robotInRange, int sensorId ) {
         
-        robotsInRange.get( id ).add( robotInRange );
+        if ( robotsInRange.get( sensorId ) == null ) {          //if theres no
+            robotsInRange.put( sensorId, new LinkedList<>() );  //mapping for the
+        }                                                       //sensor, create it
+        
+        robotsInRange.get( sensorId ).add( robotInRange );      //map the robot 
+                                                                //to the sensor
     
     }
     
@@ -184,8 +188,8 @@ public class MessengerActuator extends Actuator {
      */
     public void setBroadcastMessage( Message msg ){
         
-        List< List<Robot> > listsOfRobots;
-        listsOfRobots = ( List< List<Robot> > ) robotsInRange.values();
+        Collection< List<Robot> > listsOfRobots;
+        listsOfRobots = ( Collection< List<Robot> > ) robotsInRange.values();
         
         for (List<Robot> listOfRobot : listsOfRobots) {
             for (Robot recipientRobot : listOfRobot) {
@@ -200,7 +204,7 @@ public class MessengerActuator extends Actuator {
     @Override
     public void apply( Robot robot, double timeDelta ) {
         
-        MessengerSensor msgSensor;
+        MessengerSocialSensor msgSensor;
         
         List<Robot> robots;
         Set<Integer> sensorsID = robotsInRange.keySet();
@@ -212,7 +216,7 @@ public class MessengerActuator extends Actuator {
                 
                                                         //get the recipient robot
                                                         //messages sensor
-                msgSensor = (MessengerSensor) robotInRange.getSensorByType(MessengerSensor.class);
+                msgSensor = (MessengerSocialSensor) robotInRange.getSensorByType(MessengerSocialSensor.class);
                 
                                                         //if there's a msg for the
                 if ( msgs.get(robotInRange) != null )   //recipient robot, send the msg

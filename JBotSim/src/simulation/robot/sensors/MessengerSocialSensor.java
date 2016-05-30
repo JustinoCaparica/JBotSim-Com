@@ -10,6 +10,7 @@ import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.physicalobjects.GeometricInfo;
 import simulation.physicalobjects.PhysicalObjectDistance;
+import simulation.physicalobjects.checkers.AllowAllRobotsChecker;
 import simulation.robot.Robot;
 import simulation.robot.actuators.messenger.Message;
 import simulation.robot.actuators.messenger.MessageType;
@@ -49,10 +50,21 @@ public class MessengerSocialSensor extends ConeTypeSensor {
     
     
     
-    
+    /**
+     * Initializes a new instance with 
+     * a given simulator, id, robot
+     * and arguments
+     * @param simulator the simulator
+     * @param id the id
+     * @param robot the robot that
+     * holds this sensor
+     * @param args the arguments
+     */
     public MessengerSocialSensor( Simulator simulator, int id, Robot robot, Arguments args ) {
         
         super(simulator, id, robot, args);
+        
+        setAllowedObjectsChecker( new AllowAllRobotsChecker( robot.getId() ) );
         
         msgs = new HashMap<>();
     }
@@ -68,9 +80,9 @@ public class MessengerSocialSensor extends ConeTypeSensor {
         emitterRobot = (Robot)source.getObject();                   //robot
         
         
-        if( focusedRobot != null && focusedRobot != emitterRobot )  //focused on
+        if( focusedRobot != null && focusedRobot != emitterRobot )  //being focused on
             return 0;                                               //another robot
-        
+                                                                    //contributes 0
         
         
         
