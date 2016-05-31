@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import mathutils.Vector2d;
 import simulation.Simulator;
@@ -23,199 +25,229 @@ import simulation.util.Factory;
 
 public abstract class Environment implements KeyListener, Serializable {
 
-	private static double MAX_APPROX_SPEED = 0.15;
+    private static double MAX_APPROX_SPEED = 0.15;
 
-	protected final int MAXOBJECTS = 5000;
-	
-	protected ArrayList<Robot> robots = new ArrayList<Robot>(MAXOBJECTS);
-	protected ArrayList<Prey>  prey   = new ArrayList<Prey>(MAXOBJECTS);
-	protected ArrayList<PhysicalObject> allObjects = new ArrayList<PhysicalObject>(MAXOBJECTS);
-	protected ArrayList<PhysicalObject> staticObjects = new ArrayList<PhysicalObject>(MAXOBJECTS);
-	protected ArrayList<MovableObject> movableObjects = new ArrayList<MovableObject>(MAXOBJECTS);
-	protected ArrayList<PhysicalObject> teleported = new ArrayList<PhysicalObject>(MAXOBJECTS);
-	
-	protected CollisionManager collisionManager;
-	@ArgumentsAnnotation(name="width", defaultValue="4")
-	protected double height;
-	@ArgumentsAnnotation(name="height", defaultValue="4")
-	protected double width;
-	@ArgumentsAnnotation(name="steps", defaultValue="100")
-	protected int steps;
-	
-	protected boolean setup = false;
+    protected final int MAXOBJECTS = 5000;
 
-	private GeometricCalculator geometricCalculator;
+    protected ArrayList<Robot> robots = new ArrayList<Robot>(MAXOBJECTS);
+    protected ArrayList<Prey>  prey   = new ArrayList<Prey>(MAXOBJECTS);
+    protected ArrayList<PhysicalObject> allObjects = new ArrayList<PhysicalObject>(MAXOBJECTS);
+    protected ArrayList<PhysicalObject> staticObjects = new ArrayList<PhysicalObject>(MAXOBJECTS);
+    protected ArrayList<MovableObject> movableObjects = new ArrayList<MovableObject>(MAXOBJECTS);
+    protected ArrayList<PhysicalObject> teleported = new ArrayList<PhysicalObject>(MAXOBJECTS);
 
-	public Environment(Simulator simulator, Arguments args) {
-		this.width = args.getArgumentAsDoubleOrSetDefault("width", 4);
-		this.height = args.getArgumentAsDoubleOrSetDefault("height", 4);
-		this.steps = args.getArgumentAsIntOrSetDefault("steps", 100);
-		collisionManager = new SimpleCollisionManager(simulator);
-		this.geometricCalculator = new GeometricCalculator();//simulator.getGeoCalculator();
-	}
-	
-	public void setup(Simulator simulator) {
-		
-		/* eliminate the problem where the first random number can be similar even though
-		 * the random seed is different (0 to 100 in the case of post-evaluations)
-		 * See for more details: http://stackoverflow.com/questions/12282628/why-are-initial-random-numbers-similar-when-using-similar-seeds
-		 */
-		simulator.getRandom().nextDouble();
-		
-		this.setup = true;
-	}
+    protected CollisionManager collisionManager;
+    @ArgumentsAnnotation(name="width", defaultValue="4")
+    protected double height;
+    @ArgumentsAnnotation(name="height", defaultValue="4")
+    protected double width;
+    @ArgumentsAnnotation(name="steps", defaultValue="100")
+    protected int steps;
 
-	public abstract void update(double time);
+    protected boolean setup = false;
 
-	public ArrayList<Robot> getRobots() {
-		return robots;
-	}
+    private GeometricCalculator geometricCalculator;
+                 
 
-	public ArrayList<MovableObject> getMovableObjects() {
-		return movableObjects;
-	}
+    public Environment(Simulator simulator, Arguments args) {
+            this.width = args.getArgumentAsDoubleOrSetDefault("width", 4);
+            this.height = args.getArgumentAsDoubleOrSetDefault("height", 4);
+            this.steps = args.getArgumentAsIntOrSetDefault("steps", 100);
+            collisionManager = new SimpleCollisionManager(simulator);
+            this.geometricCalculator = new GeometricCalculator();//simulator.getGeoCalculator();
+            
+    }
 
-	public ArrayList<PhysicalObject> getAllObjects() {
-		return allObjects;
-	}
-	
-	public ArrayList<Prey> getPrey() {
-		return prey;
-	}
+    public void setup(Simulator simulator) {
 
-	public ArrayList<PhysicalObject> getStaticObjects() {
-		return staticObjects;
-	}
+            /* eliminate the problem where the first random number can be similar even though
+             * the random seed is different (0 to 100 in the case of post-evaluations)
+             * See for more details: http://stackoverflow.com/questions/12282628/why-are-initial-random-numbers-similar-when-using-similar-seeds
+             */
+            simulator.getRandom().nextDouble();
 
-	public double getWidth() {
-		return width;
-	}
+            this.setup = true;
+    }
 
-	public double getHeight() {
-		return height;
-	}
+    public abstract void update(double time);
 
-	public GeometricInfo getGeometricInfoBetween(PhysicalObject fromObject,
-			PhysicalObject toObject, int time) {
-		return geometricCalculator.getGeometricInfoBetween(fromObject,
-				toObject, time);
-	}
+    public ArrayList<Robot> getRobots() {
+            return robots;
+    }
 
-	public ArrayList<PhysicalObject> getTeleported() {
-		return teleported;
-	}
+    public ArrayList<MovableObject> getMovableObjects() {
+            return movableObjects;
+    }
 
-	public void addTeleported(PhysicalObject object) {
-		teleported.add(object);
-	}
+    public ArrayList<PhysicalObject> getAllObjects() {
+            return allObjects;
+    }
 
-	public void clearTeleported() {
-		teleported.clear();
-	}
+    public ArrayList<Prey> getPrey() {
+            return prey;
+    }
 
-	public void addRobot(Robot r) {
-		robots.add(r);
-		addMovableObject(r);
-	}
+    public ArrayList<PhysicalObject> getStaticObjects() {
+            return staticObjects;
+    }
 
-	public void addPrey(Prey p) {
-		addMovableObject(p);
-		prey.add(p);
-	}
+    public double getWidth() {
+            return width;
+    }
 
-	public void addStaticObject(PhysicalObject o) {
-		staticObjects.add(o);
-		addObject(o);
-	}
+    public double getHeight() {
+            return height;
+    }
 
-	public GeometricInfo getGeometricInfoBetween(Vector2d fromPoint,
-			double orientation, PhysicalObject toObject, int time) {
-		return geometricCalculator.getGeometricInfoBetween(fromPoint,
-				orientation, toObject, time);
-	}
+    public GeometricInfo getGeometricInfoBetween(PhysicalObject fromObject,
+                    PhysicalObject toObject, int time) {
+            return geometricCalculator.getGeometricInfoBetween(fromObject,
+                            toObject, time);
+    }
 
-	public GeometricInfo getGeometricInfoBetweenPoints(Vector2d fromPoint,
-			double orientation, Vector2d toPoint, int time) {
-		return geometricCalculator.getGeometricInfoBetweenPoints(fromPoint,
-				orientation, toPoint, time);
-	}
-	
-	public double getDistanceBetween(Vector2d fromPoint,
-			PhysicalObject toObject, int time) {
-		return geometricCalculator
-				.getDistanceBetween(fromPoint, toObject, time);
-	}
+    public ArrayList<PhysicalObject> getTeleported() {
+            return teleported;
+    }
 
-	protected void addMovableObject(MovableObject o) {
-		movableObjects.add(o);
-		addObject(o);
-	}
-	
-	protected void addObject(PhysicalObject physicalObject) {
-		allObjects.add(physicalObject);
-		teleported.add(physicalObject);
-	}
-	
-	protected void removeObject(PhysicalObject physicalObject) {
-		allObjects.remove(physicalObject);
-		teleported.remove(physicalObject);
-	}
+    public void addTeleported(PhysicalObject object) {
+            teleported.add(object);
+    }
 
-	public void updateCollisions(double time) {
+    public void clearTeleported() {
+            teleported.clear();
+    }
+
+    public void addRobot(Robot r) {
+            robots.add(r);
+            addMovableObject(r);
+    }
+
+    public void addPrey(Prey p) {
+            addMovableObject(p);
+            prey.add(p);
+    }
+
+    public void addStaticObject(PhysicalObject o) {
+            staticObjects.add(o);
+            addObject(o);
+    }
+
+    public GeometricInfo getGeometricInfoBetween(Vector2d fromPoint,
+                    double orientation, PhysicalObject toObject, int time) {
+            return geometricCalculator.getGeometricInfoBetween(fromPoint,
+                            orientation, toObject, time);
+    }
+
+    public GeometricInfo getGeometricInfoBetweenPoints(Vector2d fromPoint,
+                    double orientation, Vector2d toPoint, int time) {
+            return geometricCalculator.getGeometricInfoBetweenPoints(fromPoint,
+                            orientation, toPoint, time);
+    }
+
+    public double getDistanceBetween(Vector2d fromPoint,
+                    PhysicalObject toObject, int time) {
+            return geometricCalculator
+                            .getDistanceBetween(fromPoint, toObject, time);
+    }
+
+    protected void addMovableObject(MovableObject o) {
+            movableObjects.add(o);
+            addObject(o);
+    }
+
+    protected void addObject(PhysicalObject physicalObject) {
+            allObjects.add(physicalObject);
+            teleported.add(physicalObject);
+    }
+
+    protected void removeObject(PhysicalObject physicalObject) {
+            allObjects.remove(physicalObject);
+            teleported.remove(physicalObject);
+    }
+
+    public void updateCollisions(double time) {
 //		 updateRobotCloseObjects(time);
-		collisionManager.handleCollisions(this, time);
-	}
+            collisionManager.handleCollisions(this, time);
+    }
 
-	public void updateRobotCloseObjects(double time) {
-		for (Robot r : robots) {
-			r.updateCloseObjects(time, teleported);
-		}
-	}
+    public void updateRobotCloseObjects(double time) {
+            for (Robot r : robots) {
+                    r.updateCloseObjects(time, teleported);
+            }
+    }
 
-	public double getMaxApproximationSpeed() {
-		return MAX_APPROX_SPEED;
-	}
-	
-	public int getSteps() {
-		return steps;
-	}
+    public double getMaxApproximationSpeed() {
+            return MAX_APPROX_SPEED;
+    }
 
-	public void reset() {
-	}
+    public int getSteps() {
+            return steps;
+    }
 
-	public void keyPressed(KeyEvent e) {
-		for (PhysicalObject o : allObjects) {
-			o.keyPressed(e);
-		}
-	}
+    public void reset() {
+    }
 
-	public void keyReleased(KeyEvent e) {
-		for (PhysicalObject o : allObjects) {
-			o.keyReleased(e);
-		}
-	}
+    public void keyPressed(KeyEvent e) {
+            for (PhysicalObject o : allObjects) {
+                    o.keyPressed(e);
+            }
+    }
 
-	public void keyTyped(KeyEvent e) {
-		for (PhysicalObject o : allObjects) {
-			o.keyTyped(e);
-		}
-	}
+    public void keyReleased(KeyEvent e) {
+            for (PhysicalObject o : allObjects) {
+                    o.keyReleased(e);
+            }
+    }
 
-	public void draw(Renderer renderer) {}
-	
-	public void addRobots(ArrayList<Robot> robots) {
-		for(Robot r : robots)
-			addRobot(r);
-	}
-	
-	public static Environment getEnvironment(Simulator simulator, Arguments arguments) {
-		if (!arguments.getArgumentIsDefined("classname"))
-			throw new RuntimeException("Environment 'classname' not defined: "+ arguments.toString());
-		
-		return (Environment)Factory.getInstance(arguments.getArgumentAsString("classname"),simulator,arguments);
-	}
-	
-	public boolean isSetup() {
-		return setup;
-	}
+    public void keyTyped(KeyEvent e) {
+            for (PhysicalObject o : allObjects) {
+                    o.keyTyped(e);
+            }
+    }
+
+    public void draw(Renderer renderer) {}
+
+    public void addRobots(ArrayList<Robot> robots) {
+            for(Robot r : robots)
+                    addRobot(r);
+    }
+
+    public static Environment getEnvironment(Simulator simulator, Arguments arguments) {
+            if (!arguments.getArgumentIsDefined("classname"))
+                    throw new RuntimeException("Environment 'classname' not defined: "+ arguments.toString());
+
+            return (Environment)Factory.getInstance(arguments.getArgumentAsString("classname"),simulator,arguments);
+    }
+
+    public boolean isSetup() {
+            return setup;
+    }
+
+        
+    /**
+     * Gets the robots that are located
+     * within a radius of a position
+     * @param position the position
+     * @param radius the radius,
+     * incl.
+     * @return a list with
+     * the robots that are
+     * within radius
+     */
+    public List<Robot> getClosestRobots( Vector2d position, Double radius ) {
+        
+        List<Robot> closestRobots;
+        closestRobots = new LinkedList<>();
+
+        for ( Robot robot : getRobots() ) {                 //robot is within
+                                                            //radius. Thus,
+                                                            
+            if ( robot.getPosition().distanceTo( position ) <= radius ) {
+                closestRobots.add( robot );                 //register robot
+            }
+        }
+        
+        return closestRobots;                               //return registered 
+                                                            //robots
+    }
 }
