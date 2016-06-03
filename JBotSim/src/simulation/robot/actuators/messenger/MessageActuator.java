@@ -13,19 +13,14 @@ import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.actuators.Actuator;
-import simulation.robot.sensors.MessengerSensor;
-import simulation.robot.sensors.MessengerSocialSensor;
+import simulation.robot.sensors.MessageSocialSensor;
 import simulation.util.Arguments;
 
 /**
- * An array of MessengerActuator 
- * actuators placed around the 
- * body of a robot, evenly spaced.
- * Each actuator is identified by 
- * its position in the array
+ * Actuator to send messages
  * @author gus
  */
-public class MessengerActuator extends Actuator {
+public class MessageActuator extends Actuator {
     
     //TODO: allow the robot to direct messages to other robots;
     //currently it is only possible to broadcast messages
@@ -55,7 +50,7 @@ public class MessengerActuator extends Actuator {
      * @param id the actuator id
      * @param args arguments (TODO: describe arguments)
      */
-    public MessengerActuator( Simulator simulator, int id, Arguments args ) {
+    public MessageActuator( Simulator simulator, int id, Arguments args ) {
         
         super(simulator, id, args);
         
@@ -204,7 +199,7 @@ public class MessengerActuator extends Actuator {
     @Override
     public void apply( Robot robot, double timeDelta ) {
         
-        MessengerSocialSensor msgSensor;
+        MessageSocialSensor msgSensor;
         
         List<Robot> robots;
         Set<Integer> sensorsID = robotsInRange.keySet();
@@ -216,7 +211,7 @@ public class MessengerActuator extends Actuator {
                 
                                                         //get the recipient robot
                                                         //messages sensor
-                msgSensor = (MessengerSocialSensor) robotInRange.getSensorByType(MessengerSocialSensor.class);
+                msgSensor = (MessageSocialSensor) robotInRange.getSensorByType(MessageSocialSensor.class);
                 
                                                         //if there's a msg for the
                 if ( msgs.get(robotInRange) != null )   //recipient robot, send the msg

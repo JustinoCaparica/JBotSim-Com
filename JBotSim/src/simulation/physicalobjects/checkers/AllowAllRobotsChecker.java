@@ -13,11 +13,13 @@ public class AllowAllRobotsChecker extends AllowedObjectsChecker {
 
 	@Override
 	public boolean isAllowed(PhysicalObject physicalObject) {
-		if(physicalObject.getId()!=id && physicalObject.getType()==PhysicalObjectType.ROBOT) {
-			Robot r = (Robot)physicalObject;
-			return !r.getDescription().equals("prey");
-		}
-		return false;
+            
+            if(physicalObject.getId()!=id && physicalObject.getType()==PhysicalObjectType.ROBOT) {
+                Robot r = (Robot)physicalObject;
+                return !r.getDescription().equals("prey");
+            }
+
+            return false;
 	}
 	
 }

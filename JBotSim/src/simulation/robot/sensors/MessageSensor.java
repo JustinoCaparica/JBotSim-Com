@@ -10,15 +10,15 @@ import simulation.physicalobjects.GeometricInfo;
 import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.robot.Robot;
 import simulation.robot.actuators.messenger.Message;
-import simulation.robot.actuators.messenger.MessengerActuator;
+import simulation.robot.actuators.messenger.MessageActuator;
 import simulation.util.Arguments;
 
 /**
  * A sensor to receive messages
- * from MessengerActuator
+ from MessageActuator
  * @author gus
  */
-public class MessengerSensor extends ConeTypeSensor {
+public class MessageSensor extends ConeTypeSensor {
 
     
     private Message msg;                //last received message
@@ -26,7 +26,7 @@ public class MessengerSensor extends ConeTypeSensor {
     
     
     
-    public MessengerSensor( Simulator simulator, int id, Robot robot, Arguments args ) {
+    public MessageSensor( Simulator simulator, int id, Robot robot, Arguments args ) {
         super(simulator, id, robot, args);
     }
 
@@ -47,9 +47,9 @@ public class MessengerSensor extends ConeTypeSensor {
                     Robot msgEmitter;
                     msgEmitter = (Robot)source.getObject();            //emitting robot
 
-                    MessengerActuator act;
-                    Class type = MessengerActuator.class;
-                    act = (MessengerActuator)robot.getActuatorByType( type );
+                    MessageActuator act;
+                    Class type = MessageActuator.class;
+                    act = (MessageActuator)robot.getActuatorByType( type );
 
                     act.addRobotInRange( msgEmitter, sensorNumber );    //register emitting
                                                                         //robot

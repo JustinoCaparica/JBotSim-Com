@@ -14,15 +14,15 @@ import simulation.physicalobjects.checkers.AllowAllRobotsChecker;
 import simulation.robot.Robot;
 import simulation.robot.actuators.messenger.Message;
 import simulation.robot.actuators.messenger.MessageType;
-import simulation.robot.actuators.messenger.MessengerActuator;
+import simulation.robot.actuators.messenger.MessageActuator;
 import simulation.util.Arguments;
 
 /**
  * A sensor to receive messages
- * from MessengerActuator
+ from MessageActuator
  * @author gus
  */
-public class MessengerSocialSensor extends ConeTypeSensor {
+public class MessageSocialSensor extends ConeTypeSensor {
 
     
     private HashMap<Robot, Message> msgs;       //last received messages
@@ -60,7 +60,7 @@ public class MessengerSocialSensor extends ConeTypeSensor {
      * holds this sensor
      * @param args the arguments
      */
-    public MessengerSocialSensor( Simulator simulator, int id, Robot robot, Arguments args ) {
+    public MessageSocialSensor( Simulator simulator, int id, Robot robot, Arguments args ) {
         
         super(simulator, id, robot, args);
         
@@ -92,9 +92,9 @@ public class MessengerSocialSensor extends ConeTypeSensor {
             (sensorInfo.getAngle() < (openingAngle / 2.0)) &&       //within range
             (sensorInfo.getAngle() > (-openingAngle / 2.0)) ) {     //and distance
 
-                MessengerActuator act;
-                Class type = MessengerActuator.class;
-                act = (MessengerActuator)robot.getActuatorByType( type );
+                MessageActuator act;
+                Class type = MessageActuator.class;
+                act = (MessageActuator)robot.getActuatorByType( type );
 
                 //TODO the following lines are so messy!
                 if( focusedRobot == null ){                             //defocused

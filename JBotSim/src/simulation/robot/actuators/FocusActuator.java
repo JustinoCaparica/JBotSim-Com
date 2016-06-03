@@ -7,18 +7,18 @@ package simulation.robot.actuators;
 
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.sensors.MessengerSocialSensor;
+import simulation.robot.sensors.MessageSocialSensor;
 import simulation.util.Arguments;
 
 /**
- * Acts on MessengerSocialSensor
- * to focus or defocus
+ * Acts on MessageSocialSensor
+ to focus or defocus
  * @author gus
  */
 public class FocusActuator extends Actuator {
     
     
-    private MessengerSocialSensor msgSocialSensor;  //the social sensor
+    private MessageSocialSensor msgSocialSensor;  //the social sensor
                                                     //that will be controlled
                                                     //by this actuator
     
@@ -77,7 +77,7 @@ public class FocusActuator extends Actuator {
     public void apply( Robot robot, double timeDelta ) {
         
         if( msgSocialSensor == null ){
-            msgSocialSensor = (MessengerSocialSensor)robot.getSensorByType( MessengerSocialSensor.class );
+            msgSocialSensor = (MessageSocialSensor)robot.getSensorByType(MessageSocialSensor.class );
         }
         
         msgSocialSensor.setFocus( focused );
