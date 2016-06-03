@@ -11,6 +11,8 @@ import simulation.util.Arguments;
 public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
 	protected Vector2d   nestPosition = new Vector2d(0, 0);
 	protected int numberOfFoodForaged = 0;
+        
+        private Simulator simulator;
 
 	public CooperativeForagingEvaluationFunction(Arguments args) {
 		super(args);	
@@ -18,13 +20,17 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
 
 	//@Override
 	public double getFitness() {
+            
 		return fitness + numberOfFoodForaged;
 	}
 
 	//@Override
 	public void update(Simulator simulator) {
             
-            int numberOfRobotsWithPrey              = 0;
+            if( simulator == null )
+                this.simulator = simulator;
+            
+            
             int numberOfRobotsBeyondForbidenLimit   = 0;
             int numberOfRobotsBeyondForagingLimit   = 0;
 
@@ -46,8 +52,13 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
 
             }
             
+            //TODO why is fitness incremental instead of instantaneous?
             fitness += (double) numberOfRobotsBeyondForbidenLimit * -0.1 + numberOfRobotsBeyondForagingLimit * -0.0001;
             numberOfFoodForaged = ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getNumberOfFoodSuccessfullyForaged();
+            
+            //TODO account for distance run by robots; 
+            //the higher the distance the lower the fitness, for the same level of foragedFood
+            
             
 	}
 }
