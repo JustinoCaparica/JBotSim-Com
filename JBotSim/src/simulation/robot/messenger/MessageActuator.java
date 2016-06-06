@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.actuators.messenger;
+package simulation.robot.messenger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.actuators.Actuator;
-import simulation.robot.sensors.MessageSocialSensor;
+import simulation.robot.messenger.MessageSocialSensor;
 import simulation.util.Arguments;
 
 /**
@@ -22,8 +22,6 @@ import simulation.util.Arguments;
  */
 public class MessageActuator extends Actuator {
     
-    //TODO: allow the robot to direct messages to other robots;
-    //currently it is only possible to broadcast messages
     
     
     private HashMap<Integer, List<Robot> > robotsInRange;   //robots within
@@ -48,7 +46,7 @@ public class MessageActuator extends Actuator {
      * Initializes a new object
      * @param simulator the simulator
      * @param id the actuator id
-     * @param args arguments (TODO: describe arguments)
+     * @param args arguments 
      */
     public MessageActuator( Simulator simulator, int id, Arguments args ) {
         
@@ -161,7 +159,7 @@ public class MessageActuator extends Actuator {
      * Sets a message to be 
      * sent to a given robot 
      * within range.
-     * If a message already existed
+     * If a message already exists
      * for the recipient robot, 
      * the existing message is
      * replaced by the new message
@@ -178,7 +176,9 @@ public class MessageActuator extends Actuator {
     /**
      * Set a message to be 
      * broadcast to all robots 
-     * within range. 
+     * within range. All previously
+     * set messages are deleted
+     * and will not be sent
      * @param msg the message
      */
     public void setBroadcastMessage( Message msg ){
@@ -186,8 +186,8 @@ public class MessageActuator extends Actuator {
         Collection< List<Robot> > listsOfRobots;
         listsOfRobots = ( Collection< List<Robot> > ) robotsInRange.values();
         
-        for (List<Robot> listOfRobot : listsOfRobots) {
-            for (Robot recipientRobot : listOfRobot) {
+        for ( List<Robot> listOfRobots : listsOfRobots ) {
+            for ( Robot recipientRobot : listOfRobots ) {
                 msgs.put( recipientRobot, msg );
             }
         }
@@ -207,7 +207,7 @@ public class MessageActuator extends Actuator {
         for ( Integer sensorID : sensorsID ) {            
             
             robots = robotsInRange.get(sensorID);       //get the robots in range
-            for (Robot robotInRange : robots) {         //of each individual actuator
+            for ( Robot robotInRange : robots ) {       //of each individual actuator
                 
                                                         //get the recipient robot
                                                         //messages sensor
@@ -218,9 +218,11 @@ public class MessageActuator extends Actuator {
                     msgSensor.setMessage( robot, msgs.get(robotInRange) );
             }
         }
+        
+        clearMessages();                                //empty the outbox
     }
 
-   
+    
     
     
     

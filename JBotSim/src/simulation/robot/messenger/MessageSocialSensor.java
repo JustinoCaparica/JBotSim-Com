@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.sensors;
+package simulation.robot.messenger;
 
 import java.util.HashMap;
 import mathutils.Vector2d;
@@ -12,20 +12,19 @@ import simulation.physicalobjects.GeometricInfo;
 import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.physicalobjects.checkers.AllowAllRobotsChecker;
 import simulation.robot.Robot;
-import simulation.robot.actuators.messenger.Message;
-import simulation.robot.actuators.messenger.MessageType;
-import simulation.robot.actuators.messenger.MessageActuator;
+import simulation.robot.sensors.ConeTypeSensor;
+import simulation.robot.sensors.Sensor;
 import simulation.util.Arguments;
 
 /**
  * A sensor to receive messages
- from MessageActuator
+ * from MessageActuator
  * @author gus
  */
-public class MessageSocialSensor extends ConeTypeSensor {
+public class MessageSocialSensor extends Sensor {
 
     
-    private HashMap<Robot, Message> msgs;       //last received messages
+    private HashMap< Robot, Message > msgs;     //last received messages
                                                 //<EmitterRobot, Message>
     
     
@@ -158,8 +157,8 @@ public class MessageSocialSensor extends ConeTypeSensor {
     
     /**
      * Adds a message in the sensor
-     * to be read later in the simulation
-     * cycle.
+     * to be read later in the
+     * next simulation cycle.
      * @param emitter the emitter
      * robot. If a message already
      * exists from the emitter
@@ -251,6 +250,15 @@ public class MessageSocialSensor extends ConeTypeSensor {
                                                                 //to own robot's
                                                                 //heading        
     }
+
+    
+    
+    @Override
+    public double getSensorReading(int sensorNumber) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
 
     
     

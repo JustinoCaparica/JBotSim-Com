@@ -22,6 +22,26 @@ public class Vector2d extends Point2d implements Serializable {
 		super(v.x, v.y);
 	}
 
+        
+        
+    /**
+     * Initializes a new vector
+     * with a given orientation
+     * and length = 1
+     * @param angleInRadians the 
+     * orientation in radians
+     * in the range [-PI, PI]
+     */
+    public Vector2d( double angleInRadians ) {
+        
+        double xCoord = Math.cos( angleInRadians ) * 1.0;
+        double yCoord = Math.sin( angleInRadians ) * 1.0;
+        
+        super.set( xCoord, yCoord );
+    }
+
+    
+    
 	/**  
 	 * Returns the length of this vector.
 	 * @return the length of this vector

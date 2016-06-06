@@ -56,6 +56,12 @@ public class PhysicalObject extends SimulatorObject implements
 		return position;
 	}
 
+        /**
+         * Gets the orientation of the object
+         * in the range [-PI,PI]
+         * //TODO which end of the range is open?
+         * @return 
+         */
 	public double getOrientation() {
 		return orientation;
 	}

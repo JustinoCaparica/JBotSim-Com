@@ -18,6 +18,12 @@ public abstract class Actuator extends SimulatorObject {
 		return id;
 	}
 	
+        /**
+         * Use the actuator to act
+         * @param robot the robot
+         * that has the actuator
+         * @param timeDelta 
+         */
 	public abstract void apply(Robot robot, double timeDelta);
 	
 	public static Actuator getActuator(Simulator simulator, String name, Arguments arguments) {

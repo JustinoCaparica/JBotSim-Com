@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.actuators.messenger;
+package simulation.robot.messenger;
 
 /**
  * A typified message to be exchanged 

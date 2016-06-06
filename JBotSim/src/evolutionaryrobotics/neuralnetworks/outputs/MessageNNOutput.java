@@ -5,16 +5,16 @@
  */
 package evolutionaryrobotics.neuralnetworks.outputs;
 
-import simulation.robot.actuators.messenger.MessageType;
-import simulation.robot.actuators.messenger.MessageActuator;
+import simulation.robot.messenger.MessageType;
+import simulation.robot.messenger.MessageActuator;
 import simulation.util.Arguments;
 
 /**
  * Manipulates the MessageActuator
- according to the neural network output
+ * according to the neural network output
  * @author gus
  */
-public class MessengerNNOutput extends NNOutput {
+public class MessageNNOutput extends NNOutput {
 
     private MessageActuator msgActuator;      //the actuator 
     
@@ -29,8 +29,7 @@ public class MessengerNNOutput extends NNOutput {
      * actuator
      * @param args the arguments 
      */
-    public MessengerNNOutput(   MessageActuator msgActuator, 
-                                Arguments args ) {
+    public MessageNNOutput( MessageActuator msgActuator, Arguments args ) {
         
         super(msgActuator, args);
         

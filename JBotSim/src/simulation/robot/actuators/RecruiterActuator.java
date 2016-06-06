@@ -8,10 +8,9 @@ package simulation.robot.actuators;
 import java.util.List;
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.actuators.messenger.Message;
-import simulation.robot.actuators.messenger.MessageActuator;
-import simulation.robot.actuators.messenger.MessageType;
-import simulation.robot.sensors.MessageSocialSensor;
+import simulation.robot.messenger.Message;
+import simulation.robot.messenger.MessageActuator;
+import simulation.robot.messenger.MessageType;
 import simulation.util.Arguments;
 
 /**
@@ -26,6 +25,8 @@ public class RecruiterActuator extends Actuator {
     private Message msg;                    //message to recruit robots
     
     
+    private boolean recruiting;             //is the robot recruiting?
+    
     
     /**
      * Initializes a new instance
@@ -37,6 +38,8 @@ public class RecruiterActuator extends Actuator {
         super(simulator, id, args);
         
         msg = new Message( MessageType.REQUEST_FOCUS );
+        
+        recruiting = false;
     }
 
     
@@ -59,6 +62,52 @@ public class RecruiterActuator extends Actuator {
     public void addRecruit( Robot recruit ){
         recruited.add( recruit );
     }
+
+    
+    /**
+     * Gets the recruited robot
+     * @return the recruit or
+     * null if no robot is under 
+     * recruitment
+     */
+    public Robot getRecruit(){
+        
+        if ( recruited.isEmpty() ) {
+            return null;
+        }
+        
+        return recruited.get( 0 );
+    }
+    
+    
+    
+    
+    /**
+     * Determines if the robot
+     * is recruiting
+     * @return true if the
+     * robot is recruiting, 
+     * false otherwise
+     */
+    public boolean isRecruiting() {
+        return recruiting;
+    }
+
+    /**
+     * Sets the recruiting state 
+     * of the robot
+     * @param recruiting if true 
+     * the robot is recruiting, if
+     * false the robot is not
+     * recruiting
+     */
+    public void setRecruiting( boolean recruiting ) {
+        this.recruiting = recruiting;
+    }
+    
+    
+    
+    
     
     
     
@@ -66,19 +115,23 @@ public class RecruiterActuator extends Actuator {
     @Override
     public void apply( Robot robot, double timeDelta ) {
         
-        MessageActuator msgAct;
+        if ( !recruiting ) {                    //the robot is not recruiting
+            return;                             //do nothing
+        }
+        
+                                                //the robot is recruiting
+        MessageActuator msgAct;                 //get the message actuator
         msgAct = ( MessageActuator )robot.getActuatorByType( MessageActuator.class );
         
         
-        if( recruited.size() == 0 ){            //none robot recruited
-            msgAct.broadcastMsg( msg );         //broadcast recruitment msg
+        if( recruited.isEmpty() ){              //none robot recruited
+            msgAct.setBroadcastMessage( msg );  //broadcast recruitment msg
         }
         else{                                   //some robot(s) recruited
             sendMsgToRecruits( msg );           //send recruited robots a recruitment msg
-        }
-        
-        //we allways send recruitment msgs to recruited 
-        //robots to keep the recruitment relationship alive
+        }                                       //we allways send recruitment msgs to already 
+                                                //recruited robots to keep the recruitment 
+                                                //relationship alive
     }
 
     
@@ -90,13 +143,15 @@ public class RecruiterActuator extends Actuator {
      */
     private void sendMsgToRecruits( Message msg ) {
         
-        MessageSocialSensor msgSocSensor;
+        MessageActuator msgAct;                             //the message actuator
         
-        for ( Robot robot : recruited ) {
-            msgSocSensor = (MessageSocialSensor) robot.getSensorByType( MessageSocialSensor.class );
-            msgSocSensor.addMessage( msg );
+        for ( Robot robot : recruited ) {                   //send ALL recruited robots
+            msgAct = ( MessageActuator )robot.getActuatorByType( MessageActuator.class );
+            msgAct.setMessage( msg, robot );                //a message
         }
         
     }
+
+    
     
 }

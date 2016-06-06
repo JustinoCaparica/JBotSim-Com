@@ -7,7 +7,7 @@ package simulation.robot.actuators;
 
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.sensors.MessageSocialSensor;
+import simulation.robot.messenger.MessageSocialSensor;
 import simulation.util.Arguments;
 
 /**
