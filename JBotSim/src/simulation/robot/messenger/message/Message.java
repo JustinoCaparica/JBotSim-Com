@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.messenger;
+package simulation.robot.messenger.message;
 
 /**
  * A typified message to be exchanged 
@@ -22,9 +22,8 @@ public class Message {
      * with a given type and content
      * @param msgType the message
      * type
-     * @param content the content
      */
-    public Message(MessageType msgType) {
+    public Message( MessageType msgType ) {
         this.msgType = msgType;
     }
 
@@ -43,7 +42,7 @@ public class Message {
      * @param msgType the 
      * message type
      */
-    public void setMsgType(MessageType msgType) {
+    public void setMsgType( MessageType msgType ) {
         this.msgType = msgType;
     }
 

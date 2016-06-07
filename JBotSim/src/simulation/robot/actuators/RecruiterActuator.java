@@ -8,9 +8,9 @@ package simulation.robot.actuators;
 import java.util.List;
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.messenger.Message;
-import simulation.robot.messenger.MessageActuator;
-import simulation.robot.messenger.MessageType;
+import simulation.robot.messenger.message.Message;
+import simulation.robot.messenger.garbage.MessageActuator;
+import simulation.robot.messenger.message.MessageType;
 import simulation.util.Arguments;
 
 /**

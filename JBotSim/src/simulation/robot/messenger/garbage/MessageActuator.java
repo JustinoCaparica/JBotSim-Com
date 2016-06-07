@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.messenger;
+package simulation.robot.messenger.garbage;
 
+import simulation.robot.messenger.message.Message;
+import simulation.robot.messenger.message.MessageType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,6 +15,7 @@ import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.actuators.Actuator;
+import simulation.robot.messenger.MessageSocialSensor;
 import simulation.robot.messenger.MessageSocialSensor;
 import simulation.util.Arguments;
 

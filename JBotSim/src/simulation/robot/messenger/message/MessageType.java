@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.messenger;
+package simulation.robot.messenger.message;
 
 /**
  * Message types
@@ -11,7 +11,6 @@ package simulation.robot.messenger;
  */
 public enum MessageType {
     
-    ID, 
     REQUEST_FOCUS,
     FOCUS_ACCEPTED
     

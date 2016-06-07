@@ -30,8 +30,21 @@ public class FocusSensor extends Sensor {
     
     @Override
     public double getSensorReading( int sensorNumber ) {
-        return actuator.isRecruited()? 1.0 : 0.0;   //if focused return 1, 
+        return actuator.isRecruited() ? 1.0 : 0.0;  //if focused return 1, 
                                                     //otherwise return 0
+    }
+
+    
+    /**
+     * Gets the robot that this
+     * robot is focusing on
+     * @return the robot
+     * that has recruited this
+     * robot or null if no robot
+     * has recruited this robot
+     */
+    public Robot getRecruiter() {
+        return actuator.getRecruiter();
     }
     
 }

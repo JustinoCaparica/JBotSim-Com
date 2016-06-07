@@ -5,8 +5,8 @@
  */
 package evolutionaryrobotics.neuralnetworks.outputs;
 
-import simulation.robot.messenger.MessageType;
-import simulation.robot.messenger.MessageActuator;
+import simulation.robot.messenger.message.MessageType;
+import simulation.robot.messenger.garbage.MessageActuator;
 import simulation.util.Arguments;
 
 /**

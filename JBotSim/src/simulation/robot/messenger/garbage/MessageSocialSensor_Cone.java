@@ -3,16 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.messenger;
+package simulation.robot.messenger.garbage;
 
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
-import java.util.ArrayList;
 import java.util.HashMap;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.physicalobjects.GeometricInfo;
-import simulation.physicalobjects.PhysicalObject;
 import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.physicalobjects.checkers.AllowAllRobotsChecker;
 import simulation.robot.Robot;
@@ -25,7 +23,7 @@ import simulation.util.Arguments;
  * from MessageActuator
  * @author gus
  */
-public class MessageSocialSensor extends Sensor {
+public class MessageSocialSensor_Cone extends ConeTypeSensor {
 
     
     private HashMap< Robot, Message > msgs;     //last received messages
@@ -40,40 +38,93 @@ public class MessageSocialSensor extends Sensor {
     private Double distance;                    //distance and direction
     private Double direction;                   //to the location
                                                 //of the focusedRobot
-
+                                                
+                                                
+                                                
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     /**
-     * Initializes a new instance
+     * Initializes a new instance with 
+     * a given simulator, id, robot
+     * and arguments
      * @param simulator the simulator
-     * @param id this sensor id
-     * @param robot the robot 
-     * that owns this sensor
+     * @param id the id
+     * @param robot the robot that
+     * holds this sensor
      * @param args the arguments
      */
-    public MessageSocialSensor( Simulator simulator, int id, Robot robot, Arguments args) {
+    public MessageSocialSensor_Cone( Simulator simulator, int id, Robot robot, Arguments args ) {
+        
         super(simulator, id, robot, args);
+        
+        setAllowedObjectsChecker( new AllowAllRobotsChecker( robot.getId() ) );
+        
+        msgs = new HashMap<>();
     }
-                                                
-                                                
-                                                
+
+    
     
     @Override
-    public double getSensorReading( int sensorNumber ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected double calculateContributionToSensor( int sensorNumber, 
+                                                    PhysicalObjectDistance source ) {
+        
+        
+        Robot emitterRobot;                                         //emitting
+        emitterRobot = (Robot)source.getObject();                   //robot
+        
+        
+        if( focusedRobot != null && focusedRobot != emitterRobot )  //being focused on
+            return 0;                                               //another robot
+                                                                    //contributes 0
+        
+        
+        
+        GeometricInfo sensorInfo = getSensorGeometricInfo(sensorNumber, source);
+		
+        if( (sensorInfo.getDistance() < getCutOff()) &&             //source is
+            (sensorInfo.getAngle() < (openingAngle / 2.0)) &&       //within range
+            (sensorInfo.getAngle() > (-openingAngle / 2.0)) ) {     //and distance
+
+                MessageActuator act;
+                Class type = MessageActuator.class;
+                act = (MessageActuator)robot.getActuatorByType( type );
+
+                //TODO the following lines are so messy!
+                if( focusedRobot == null ){                             //defocused
+                    act.addRobotInRange( emitterRobot, sensorNumber );  //register emitting
+                                                                        //robot
+                    return (getRange() - sensorInfo.getDistance()) / getRange();
+                }else{
+                    if( focusedRobot == emitterRobot ){                     //focused
+                        act.addRobotInRange( emitterRobot, sensorNumber );  //register emitting
+                                                                            //robot
+                        return (getRange() - sensorInfo.getDistance()) / getRange();
+                    }
+                }
+                
+
+        }
+        return 0;
     }
 
     
     
     
+    
     @Override
-    public void update( double time, ArrayList<PhysicalObject> teleported ) {
-    
+    protected void calculateSourceContributions(PhysicalObjectDistance source) {
+            for(int j=0; j<numberOfSensors; j++) {
+                    readings[j] = Math.max(calculateContributionToSensor(j, source), readings[j]);
+            }
     }
-    
-    
-    
-    
-    
 
     
     /**
@@ -203,6 +254,12 @@ public class MessageSocialSensor extends Sensor {
     }
 
     
+    
+    @Override
+    public double getSensorReading(int sensorNumber) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     
 
     

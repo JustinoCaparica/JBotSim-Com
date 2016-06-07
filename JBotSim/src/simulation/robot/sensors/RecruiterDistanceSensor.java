@@ -20,6 +20,13 @@ public class RecruiterDistanceSensor extends Sensor {
 
     private final RecruitedActuator actuator;   //actuator that 
                                                 //accepts recruitment requests
+                                                //this actuator knows
+                                                //the recruiter robot
+    
+    private Robot recruitRequester;             //a robot that has requested
+                                                //a recruit but has not been
+                                                //accepted as a recruiter yet
+    
     
     
     /**
@@ -34,6 +41,7 @@ public class RecruiterDistanceSensor extends Sensor {
         super(simulator, id, robot, args);
         
         actuator = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
+        recruitRequester = null;
     }
 
     
@@ -41,26 +49,76 @@ public class RecruiterDistanceSensor extends Sensor {
     @Override
     public double getSensorReading( int sensorNumber ) {
         
+        double distance = 0.0;                      //if there is no recruiter
+                                                    //or recruitment requests
+                                                    //the returned value is 0
         
-        Robot recruiter;                        //recruiter robot
+                                                    
+        Robot recruiter;                            //recruiter robot
         recruiter = actuator.getRecruiter();        
         
-        if ( recruiter == null ) {              //if there is no recruiter,
-            return 0.0;                         //sensor reading is 0
+        
+        if ( recruiter != null ) {                  //there is already a recruiter
+            
+            Robot recruited;                        //recruited robot
+            recruited = super.robot;
+            
+            distance = determineDistanceOutputValue( recruiter, recruited );
+            
+        }
+        else 
+            if ( recruitRequester != null ) {       //there is no recruiter but
+            Robot recruited;                        //a robot is trying to recruit me
+            recruited = super.robot;                //recruited robot
+            
+            distance = determineDistanceOutputValue( recruitRequester, recruited );
+            
         }
         
+        return distance;
         
-        Robot recruited;                        //recruited robot
-        recruited = super.robot;
         
-        double distance;                        //distance from recruiter to recruited
+    }
+
+    /**
+     * Determines the output value
+     * according to distance
+     * from recruiter to recruited
+     * @param recruiter the recruiter
+     * @param recruited the recruited
+     */
+    private double determineDistanceOutputValue( Robot recruiter, Robot recruited ) {
+        
+        double distance;                    //distance between robots
         distance = recruited.getPosition().distanceTo( recruiter.getPosition() );
         
+        distance = distance + 1.0;          //making sure distance >= 1
+
+        return  1 / distance;               //return value is inverse of distance
         
-        distance = distance + 1.0;              //making sure distance >= 1
-                                                    
-        return 1 / distance;                    //return inverse of distance
-        
+    }
+
+    
+    /**
+     * Sets the recruit requester. Set 
+     * this value to null to have no
+     * recruit requester
+     * @param recruitRequester the
+     * recruit requester
+     */
+    public void setRecruitRequester( Robot recruitRequester ) {
+        this.recruitRequester = recruitRequester;
+    }
+
+    
+    /**
+     * Gets the recruit requester
+     * @return the recruit requester
+     * of null if there is no
+     * recruit requester
+     */
+    public Robot getRecruitRequester() {
+        return this.recruitRequester;
     }
     
     

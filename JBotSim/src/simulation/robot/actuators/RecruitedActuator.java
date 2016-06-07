@@ -7,9 +7,9 @@ package simulation.robot.actuators;
 
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.messenger.Message;
-import simulation.robot.messenger.MessageActuator;
-import simulation.robot.messenger.MessageType;
+import simulation.robot.messenger.message.Message;
+import simulation.robot.messenger.garbage.MessageActuator;
+import simulation.robot.messenger.message.MessageType;
 import simulation.util.Arguments;
 
 /**
@@ -125,8 +125,17 @@ public class RecruitedActuator extends Actuator {
         return null;
     }
 
+    
+    
+    /**
+     * Gets the recruiter robot
+     * @return the robot
+     * that has recruited this
+     * robot or null if no robot
+     * has recruited this robot
+     */
     public Robot getRecruiter() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return recruiter;
     }
     
 }
