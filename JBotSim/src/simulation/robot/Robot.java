@@ -19,6 +19,8 @@ import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 import simulation.util.Factory;
 import controllers.Controller;
+import simulation.robot.messenger.Messenger;
+import simulation.robot.messenger.message.parser.SocialMessageParser;
 
 /**
  * Representation of a robot, including its physical characteristics such as size 
@@ -74,6 +76,11 @@ public class Robot extends MovableObject {
 	@ArgumentsAnnotation(name="variablenumber", values={"0","1"})
 	private static int variableNumber;
 	
+        @ArgumentsAnnotation(name="useMessenger", help="if set to 1 robots are able to exchange messages", values={"0","1"}, defaultValue = "1")
+	private boolean useMessenger = true;
+        private Messenger messenger;
+        
+        
 	@ArgumentsAnnotation(name="numberofrobots", defaultValue = "1")	
 	private Color ledColor;
 	private LedState ledState;
@@ -136,8 +143,31 @@ public class Robot extends MovableObject {
 			setBodyColor(color);
 		
 		specialWallCollisions = args.getArgumentAsIntOrSetDefault("specialwallcollisions",0) == 1; 
+                
+                //TODO check if getting the argument is done properly
+                useMessenger = args.getArgumentAsIntOrSetDefault("useMessenger",1) == 0; 
+                if (useMessenger) {
+                    messenger = new Messenger( new SocialMessageParser() );
+                }
+                
 	}
+
+        
+        /**
+         * Gets the messenger
+         * @return the messenger
+         * or null if there is no 
+         * messenger
+         */
+        public Messenger getMessenger() {
+            return messenger;
+        }
 	
+        
+        
+        
+        
+        
 	/**
 	 * Get the controller of a robot.
 	 * @return the reference to the controller for the robot (or null)

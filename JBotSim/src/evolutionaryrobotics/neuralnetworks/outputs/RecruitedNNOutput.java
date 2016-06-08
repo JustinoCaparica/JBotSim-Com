@@ -40,10 +40,11 @@ public class RecruitedNNOutput extends NNOutput{
     public void apply() {
         
         if ( this.nnOutputValue > 0.5 ) {   
-            actuator.setRecruited( true );     //set the robot to recruited
+            actuator.setRecruitedState( true );     //set the robot to recruited
+            
         }
         else{
-            actuator.setRecruited( false );    //set the robot to not recruited
+            actuator.setRecruitedState( false );    //set the robot to not recruited
         }
             
     }

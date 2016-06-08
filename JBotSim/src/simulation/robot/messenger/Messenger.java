@@ -43,15 +43,20 @@ public class Messenger {
     
     
     
-    
-    public Messenger(){
+    /**
+     * Initializes a new instance
+     * with a message parser
+     * @param msgParser the 
+     * message parser
+     */
+    public Messenger( MessageParser msgParser ){
         
         robotsInRange = new HashSet<>();
         
         outbox = new HashMap<>();
         inbox  = new HashMap<>();
         
-        parser = new SocialMessageParser();
+        parser = msgParser;
         
     }
     

@@ -7,13 +7,13 @@ package simulation.robot.messenger.message.parser;
 
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
-import simulation.robot.messenger.message.MessageType;
 import simulation.robot.sensors.FocusSensor;
-import simulation.robot.sensors.RecruiterAngleSensor;
-import simulation.robot.sensors.RecruiterDistanceSensor;
+import simulation.robot.sensors.RecruiterSensor;
 
 /**
- * A social message parser
+ * A message parser. When the robot receiving the message
+ * is already recruited, the message parser ignores all 
+ * messages from robots that are not the recruiter
  * @author gus
  */
 public class SocialMessageParser implements MessageParser {
@@ -23,43 +23,28 @@ public class SocialMessageParser implements MessageParser {
     @Override
     public void parse( Robot receiver, Robot emitter, Message msg ) {
         
+        
+        FocusSensor focusSensor;                    
+        focusSensor = (FocusSensor)receiver.getSensorByType( FocusSensor.class );
+        
+        
+        if ( focusSensor.isFocused() &&                         //the receiver is recruited and
+             !focusSensor.getRecruiter().equals( emitter ) ) {  //the emitter is not the recruiter
+            return;                                             //ignore the received message
+        }
+        
+        
+        
         //TODO check if message type is null before using it
         
         switch ( msg.getMsgType() ) {
             
-            case REQUEST_FOCUS:                             //recruitment request 
-                                                            //received
-                
-                FocusSensor focusSensor;                    
-                focusSensor = (FocusSensor)receiver.getSensorByType( FocusSensor.class );
-                
-                if ( focusSensor.getRecruiter() == null ) { //this robot is not recruited yet
-                    
-                    RecruiterDistanceSensor recruiterDistSensor;
-                    recruiterDistSensor = (RecruiterDistanceSensor) receiver.getSensorByType( RecruiterDistanceSensor.class );
-                    
-                    RecruiterAngleSensor recruiterAngleSensor;
-                    recruiterAngleSensor = (RecruiterAngleSensor) receiver.getSensorByType( RecruiterAngleSensor.class );
-                    
-                    
-                    if ( recruiterDistSensor.getRecruitRequester() == null ) {  //make sure a previous recruit requester
-                        recruiterDistSensor.setRecruitRequester( emitter );     //is not overwritten
-                    }
-                    if ( recruiterAngleSensor.getRecruitRequester() == null ) {  //make sure a previous recruit requester
-                        recruiterAngleSensor.setRecruitRequester( emitter );     //is not overwritten
-                    }
-                    
-                    
-                    
-                }
-                
-                if ( focusSensor.getRecruiter().equals( emitter ) ) { //this robot is recruited 
-                    
-                }
+            case REQUEST_FOCUS:                             
+                processRequestFocusMsg( focusSensor, receiver, emitter );
                 break;
                 
             case FOCUS_ACCEPTED:
-                
+                processFocusAcceptedMsg();
                 break;
                 
             default:
@@ -67,6 +52,48 @@ public class SocialMessageParser implements MessageParser {
                 
         }
         
+    }
+
+    
+    /**
+     * Processes a request focus message
+     * @param focusSensor the focus 
+     * sensor
+     * @param receiver the robot that
+     * received the message
+     * @param emitter the robot that
+     * emitted the message
+     */
+    private void processRequestFocusMsg( FocusSensor focusSensor, 
+                                         Robot receiver, 
+                                         Robot emitter ) {
+        
+        if ( !focusSensor.isFocused() ) {           //this robot is not recruited yet
+                    
+            RecruiterSensor recruiterSensor;
+            recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
+
+            if ( recruiterSensor.getRecruitRequester() == null ) {  //there isn't a previous recruit requester
+                recruiterSensor.setRecruitRequester( emitter );     //set the emitter as the recruit requester
+            }else{
+                 //there is a previous recruit requester
+                 //ignore this recruit requester
+            }
+        }
+        else{                                       //this robot is already recruited by the emitter
+
+
+
+        }
+    }
+
+    
+    /**
+     * Processes a focus accepted
+     * message
+     */
+    private void processFocusAcceptedMsg() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     

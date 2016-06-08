@@ -10,6 +10,7 @@ import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.garbage.MessageActuator;
 import simulation.robot.messenger.message.MessageType;
+import simulation.robot.sensors.RecruiterSensor;
 import simulation.util.Arguments;
 
 /**
@@ -20,10 +21,18 @@ import simulation.util.Arguments;
 public class RecruitedActuator extends Actuator {
 
     
-    private Robot recruiter;               //recruiter robot
+    private RecruiterSensor recruiterSensor;    //sensor that knows
+                                                //the recruiter
     
-    private Message msg;                    //message accept recruitment
-                                            //requests 
+    private Robot recruiter;                    //the recruiter
+    
+    
+    private MessageActuator msgAct;             //message actuator
+    private final Message msg;                  //message to accept 
+                                                //recruitment requests 
+    
+    private boolean recruitedState;             //recruited state of the robot
+                                                //if true the robot is recruitedState
     
     
     
@@ -34,34 +43,20 @@ public class RecruitedActuator extends Actuator {
      * @param args the arguments
      */
     public RecruitedActuator( Simulator simulator, int id, Arguments args ) {
+        
         super(simulator, id, args);
         
-        msg = new Message( MessageType.FOCUS_ACCEPTED );
+        msgAct  = null;
+        msg     = new Message( MessageType.FOCUS_ACCEPTED );
         
-        recruiter = null;
+        
+        recruiterSensor = null;
+        recruiter       = null;
+        recruitedState  = false;
         
     }
 
     
-    /**
-     * Clears the recruited robot.
-     * After this method finishes
-     * there will be no robots 
-     * recruiting this robot
-     */
-    public void clearRecruiter(){
-        recruiter = null;
-    }
-    
-    
-    /**
-     * Set a recruiter
-     * @param recruiter the 
-     * recruiter robot
-     */
-    public void setRecruiter( Robot recruiter ){
-        this.recruiter = recruiter;
-    }
 
     
     /**
@@ -72,7 +67,7 @@ public class RecruitedActuator extends Actuator {
      * false otherwise
      */
     public boolean isRecruited() {
-        return recruiter != null;
+        return recruitedState;
     }
 
     
@@ -85,57 +80,69 @@ public class RecruitedActuator extends Actuator {
     @Override
     public void apply( Robot robot, double timeDelta ) {
         
-        if ( recruiter == null ) {              //the robot is not recruited
+        if ( !recruitedState ) {                //the robot is not recruited
             return;                             //do nothing
         }
-        
+                                                //otherwise,
                                                 //the robot is recruited
-        MessageActuator msgAct;                 //get the message actuator
-        msgAct = ( MessageActuator )robot.getActuatorByType( MessageActuator.class );
+                                          
+                                                
+        boolean found = false;                  //was a recruiter found?
         
-        msgAct.setMessage( msg, recruiter );    //send the recruiter a message
-                                                //we allways send recruitment 
-                                                //msgs to keep the recruitment 
-                                                //relationship alive
-    }
-
-    
-    
-    
-    /**
-     * Gets the robot that owns 
-     * this actuator and stores
-     * @param simulator the 
-     * simulator
-     * @param id the id of this 
-     * actuator
-     * @return the robot
-     * that owns this actuator
-     * or null if no robot
-     * owns this actuator
-     */
-    private Robot getActuatorOwner( Simulator simulator, int id ) {
-        
-        for ( Robot robot : simulator.getRobots() ) {   //
-            if( robot.getActuatorWithId(id) != null ){  //robot owns the actuator
-                return robot;
+        recruiterSensor = (RecruiterSensor)robot.getSensorByType( RecruiterSensor.class );
+        if ( recruiterSensor.getRecruiter() != null ) {             //there is a recruiter
+            recruiter = recruiterSensor.getRecruiter();  
+            found = true;
+        }                                                       
+        else{                                           
+            if ( recruiterSensor.getRecruitRequester() != null ) {  //there is a recruit requester
+                recruiter = recruiterSensor.getRecruitRequester();
+                recruiterSensor.setRecruitRequester( null );        //tell the recruiter sensor
+                recruiterSensor.setRecruiter( recruiter );          //who the recruiter is
+                found = true;
             }
         }
+         
         
-        return null;
+                                                    //at this point, if found == false
+        if ( found ) {                              //there is no recruiter nor recruit requester
+                                                    //and no message is sent
+                                                    
+            msgAct = ( MessageActuator )robot.getActuatorByType( MessageActuator.class );
+            msgAct.setMessage( msg, recruiter );    //send the recruiter a message
+                                                    //we allways send recruitment 
+                                                    //msgs to keep the recruitment 
+                                                    //relationship alive
+        }
+        
     }
 
+    
     
     
     /**
      * Gets the recruiter robot
      * @return the robot
-     * that has recruited this
+     * that has recruitedState this
      * robot or null if no robot
-     * has recruited this robot
+     * has recruitedState this robot
      */
     public Robot getRecruiter() {
         return recruiter;
+    }
+
+    
+    /**
+     * Sets the recruitedState state 
+     * of the robot
+     * @param recruited  if set 
+     * to true the robot becomes
+     * recruited, if set to false
+     * the robot becomes not
+     * recruited
+     */
+    public void setRecruitedState( boolean recruited ) {
+        this.recruitedState = recruited;
     }
     
 }

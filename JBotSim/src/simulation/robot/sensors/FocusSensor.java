@@ -7,8 +7,9 @@ package simulation.robot.sensors;
 
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.actuators.RecruitedActuator;
 import simulation.util.Arguments;
+
+
 
 /**
  * Sensor to perceive the focus state
@@ -17,23 +18,39 @@ import simulation.util.Arguments;
  */
 public class FocusSensor extends Sensor {
 
-    private RecruitedActuator actuator;             //actuator that accepts 
-                                                    //recruitment requests
+    private final RecruiterSensor sensor;           //sensor that knows
+                                                    //the recruiter
     
     
+    /**
+     * Initializes a new instance
+     * @param simulator the simulator
+     * @param id the sensor id
+     * @param robot the robot that
+     * owns the sensor
+     * @param args the arguments
+     */
     public FocusSensor(Simulator simulator, int id, Robot robot, Arguments args) {
         super(simulator, id, robot, args);
         
-        actuator = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
+        sensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
     }
 
     
+    
+    
     @Override
     public double getSensorReading( int sensorNumber ) {
-        return actuator.isRecruited() ? 1.0 : 0.0;  //if focused return 1, 
-                                                    //otherwise return 0
+        
+        if ( sensor.getRecruiter() != null ) {      //there is a recruiter
+            return 1.0;                             //return 1
+        }
+        
+        return 0.0;                                 //otherwise return 0
     }
 
+    
+    
     
     /**
      * Gets the robot that this
@@ -44,7 +61,19 @@ public class FocusSensor extends Sensor {
      * has recruited this robot
      */
     public Robot getRecruiter() {
-        return actuator.getRecruiter();
+        return sensor.getRecruiter();
+    }
+
+    
+    /**
+     * Determines if the robot
+     * is focused
+     * @return true if the 
+     * robot is focused, false
+     * otherwise
+     */
+    public boolean isFocused() {
+        return sensor.getRecruiter() != null;
     }
     
 }

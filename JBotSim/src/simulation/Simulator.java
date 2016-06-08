@@ -284,7 +284,7 @@ public class Simulator implements Serializable {
 	public ArrayList<Updatable> getCallbacks() {
 		return callbacks;
 	}
-	
+
 	class ParallelRobotCallable implements Callable<Object> {
 		
 		private Robot r;
