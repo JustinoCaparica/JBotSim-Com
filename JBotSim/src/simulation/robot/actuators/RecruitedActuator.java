@@ -27,7 +27,7 @@ public class RecruitedActuator extends Actuator {
     private Robot recruiter;                    //the recruiter
     
     
-    private MessageActuator msgAct;             //message actuator
+    
     private final Message msg;                  //message to accept 
                                                 //recruitment requests 
     
@@ -46,9 +46,7 @@ public class RecruitedActuator extends Actuator {
         
         super(simulator, id, args);
         
-        msgAct  = null;
         msg     = new Message( MessageType.FOCUS_ACCEPTED );
-        
         
         recruiterSensor = null;
         recruiter       = null;
@@ -107,12 +105,13 @@ public class RecruitedActuator extends Actuator {
                                                     //at this point, if found == false
         if ( found ) {                              //there is no recruiter nor recruit requester
                                                     //and no message is sent
+                                     
                                                     
-            msgAct = ( MessageActuator )robot.getActuatorByType( MessageActuator.class );
-            msgAct.setMessage( msg, recruiter );    //send the recruiter a message
-                                                    //we allways send recruitment 
-                                                    //msgs to keep the recruitment 
-                                                    //relationship alive
+            robot.getMessenger().setMessage( msg, recruiter );
+                                                            //inform the recruiter
+                                                            //we allways send recruitment 
+                                                            //msgs to keep the recruitment 
+                                                            //relationship alive
         }
         
     }

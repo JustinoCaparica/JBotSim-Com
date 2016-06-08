@@ -118,6 +118,7 @@ public class Messenger {
      */
     public void setMessage( Message msg, Robot recipientRobot ){
         outbox.put( recipientRobot, msg );
+        WTF is this method?!
     }
     
     

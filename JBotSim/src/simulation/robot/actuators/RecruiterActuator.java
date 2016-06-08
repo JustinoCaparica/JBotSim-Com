@@ -20,9 +20,11 @@ import simulation.util.Arguments;
 public class RecruiterActuator extends Actuator {
 
     
-    private List<Robot> recruited;          //recruited robots
+    private Robot recruited;                //recruited robots
     
     private Message msg;                    //message to recruit robots
+    
+    
     
     
     private boolean recruiting;             //is the robot recruiting?
@@ -34,7 +36,7 @@ public class RecruiterActuator extends Actuator {
      * @param id the actuator id
      * @param args the arguments
      */
-    public RecruiterActuator(Simulator simulator, int id, Arguments args) {
+    public RecruiterActuator( Simulator simulator, int id, Arguments args ) {
         super(simulator, id, args);
         
         msg = new Message( MessageType.REQUEST_FOCUS );
@@ -43,24 +45,14 @@ public class RecruiterActuator extends Actuator {
     }
 
     
-    /**
-     * Clears the recruited robots.
-     * After this method finishes
-     * there will be no robots 
-     * under recruitment
-     */
-    public void clearRecruited(){
-        recruited.clear();
-    }
-    
     
     /**
-     * Adds a recruit
+     * Sets a recruit
      * @param recruit the 
      * new recruit
      */
-    public void addRecruit( Robot recruit ){
-        recruited.add( recruit );
+    public void setRecruit( Robot recruit ){
+        recruited = recruit;
     }
 
     
@@ -71,12 +63,7 @@ public class RecruiterActuator extends Actuator {
      * recruitment
      */
     public Robot getRecruit(){
-        
-        if ( recruited.isEmpty() ) {
-            return null;
-        }
-        
-        return recruited.get( 0 );
+        return recruited;
     }
     
     
@@ -119,38 +106,28 @@ public class RecruiterActuator extends Actuator {
             return;                             //do nothing
         }
         
-                                                //the robot is recruiting
-        MessageActuator msgAct;                 //get the message actuator
-        msgAct = ( MessageActuator )robot.getActuatorByType( MessageActuator.class );
+                                                //otherwise, the robot
+                                                // is recruiting or has a recruit
         
+        recruitedSensor.setRecruited() ????         
         
-        if( recruited.isEmpty() ){              //none robot recruited
-            msgAct.setBroadcastMessage( msg );  //broadcast recruitment msg
+        if ( recruited != null ) {                              //there is a recruit
+            robot.getMessenger().setMessage( msg, recruited );  //send the recruit 
+                                                                //a message
         }
-        else{                                   //some robot(s) recruited
-            sendMsgToRecruits( msg );           //send recruited robots a recruitment msg
-        }                                       //we allways send recruitment msgs to already 
-                                                //recruited robots to keep the recruitment 
-                                                //relationship alive
+        else{                                                   //there is no recruit
+            robot.getMessenger().setBroadcastMessage( msg );    //broadcast recruitment
+                                                                //message
+        }
+                   
+        //we allways send recruitment msgs to already 
+        //recruited robots to keep the recruitment 
+        //relationship alive
     }
 
     
     
-    /**
-     * Sends a recruitment message
-     * to all recruited robots
-     * @param msg 
-     */
-    private void sendMsgToRecruits( Message msg ) {
-        
-        MessageActuator msgAct;                             //the message actuator
-        
-        for ( Robot robot : recruited ) {                   //send ALL recruited robots
-            msgAct = ( MessageActuator )robot.getActuatorByType( MessageActuator.class );
-            msgAct.setMessage( msg, robot );                //a message
-        }
-        
-    }
+    
 
     
     
