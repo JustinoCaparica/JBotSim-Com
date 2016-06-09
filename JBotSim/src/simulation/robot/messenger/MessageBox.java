@@ -133,8 +133,10 @@ public class MessageBox {
         MessageEnvelope envelope;
         
         for ( int i = 0; i < inbox.size(); i++ ) {
+            
             envelope = getNextInboxMsg();               //get and remove each message
             parser.parse( receiver, envelope.getEmitter(), envelope.getMsg() );
+            
         }
         
     }

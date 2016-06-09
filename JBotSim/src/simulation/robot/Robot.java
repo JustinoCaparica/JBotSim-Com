@@ -151,7 +151,7 @@ public class Robot extends MovableObject {
 		specialWallCollisions = args.getArgumentAsIntOrSetDefault("specialwallcollisions",0) == 1; 
                 
                 //TODO check if getting the argument is done properly
-                useMessenger = args.getArgumentAsIntOrSetDefault("useMessenger",1) == 0; 
+                useMessenger = args.getArgumentAsIntOrSetDefault("useMessenger",0) == 1; 
                 if (useMessenger) {
                     msgBox = new MessageBox( new SocialMessageParser() );
                 }
