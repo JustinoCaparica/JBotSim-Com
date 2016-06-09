@@ -12,11 +12,11 @@ import simulation.util.Arguments;
 
 
 /**
- * Sensor to perceive the focus state
- * of the robot
+ * Sensor to perceive if the robot
+ * is focusing on another robot
  * @author gus
  */
-public class FocusSensor extends Sensor {
+public class FocusingOnSensor extends Sensor {
 
     private final RecruiterSensor sensor;           //sensor that knows
                                                     //the recruiter
@@ -30,7 +30,7 @@ public class FocusSensor extends Sensor {
      * owns the sensor
      * @param args the arguments
      */
-    public FocusSensor(Simulator simulator, int id, Robot robot, Arguments args) {
+    public FocusingOnSensor(Simulator simulator, int id, Robot robot, Arguments args) {
         super(simulator, id, robot, args);
         
         sensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );

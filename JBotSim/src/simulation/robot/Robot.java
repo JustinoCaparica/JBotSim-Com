@@ -19,7 +19,9 @@ import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 import simulation.util.Factory;
 import controllers.Controller;
-import simulation.robot.messenger.Messenger;
+import java.util.List;
+import simulation.robot.messenger.MessageBox;
+import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.parser.SocialMessageParser;
 
 /**
@@ -78,7 +80,7 @@ public class Robot extends MovableObject {
 	
         @ArgumentsAnnotation(name="useMessenger", help="if set to 1 robots are able to exchange messages", values={"0","1"}, defaultValue = "1")
 	private boolean useMessenger = true;
-        private Messenger messenger;
+        private MessageBox msgBox;
         
         
 	@ArgumentsAnnotation(name="numberofrobots", defaultValue = "1")	
@@ -99,6 +101,9 @@ public class Robot extends MovableObject {
 	
 	protected LinkedList<PhysicalObject> collidingObjects = new LinkedList<PhysicalObject>();
 	
+        private Simulator simulator;            //the simulator
+        
+        
 	/**
 	 * Initialize a new robot.
 	 * 
@@ -112,6 +117,7 @@ public class Robot extends MovableObject {
 	 */
 	public Robot(Simulator simulator, Arguments args) {
 		super(simulator, args);
+                this.simulator = simulator;
 		relativeX = args.getArgumentAsDoubleOrSetDefault("relativex",0);
 		relativeY = args.getArgumentAsDoubleOrSetDefault("relativey",0);
 		radius = args.getArgumentAsDoubleOrSetDefault("radius",0.05);
@@ -147,22 +153,42 @@ public class Robot extends MovableObject {
                 //TODO check if getting the argument is done properly
                 useMessenger = args.getArgumentAsIntOrSetDefault("useMessenger",1) == 0; 
                 if (useMessenger) {
-                    messenger = new Messenger( new SocialMessageParser() );
+                    msgBox = new MessageBox( new SocialMessageParser() );
                 }
                 
 	}
 
         
         /**
-         * Gets the messenger
-         * @return the messenger
+         * Gets the message box
+         * @return the message box
          * or null if there is no 
-         * messenger
+         * message box
          */
-        public Messenger getMessenger() {
-            return messenger;
+        public MessageBox getMsgBox() {
+            return msgBox;
         }
 	
+        
+        /**
+         * Broadcast a message to all
+         * robots within a range
+         * @param msg the message
+         * @param range the range
+         */
+        public void broadcastMessage( Message msg, double range ){
+                    
+            List<Robot> robots;                                 //robots in range
+            robots = simulator.getEnvironment().getClosestRobots(position, range);   
+            
+            
+            for (Robot robot : robots) {                        //send the robots
+                robot.getMsgBox().addMsgToInbox( msg, this );   //the message
+            }
+            
+        }
+        
+        
         
         
         
@@ -292,6 +318,9 @@ public class Robot extends MovableObject {
 	 * 
 	 */
 	public void updateSensors(double simulationStep, ArrayList<PhysicalObject> teleported) {
+            
+                getMsgBox().processMessages( this );    //process inbox messages
+            
 		for(Sensor sensor : sensors){
 			if(!ignoreDisabledSensors || sensor.isEnabled())
 				sensor.update(simulationStep,teleported);

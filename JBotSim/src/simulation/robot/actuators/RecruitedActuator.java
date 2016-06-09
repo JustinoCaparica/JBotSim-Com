@@ -8,7 +8,6 @@ package simulation.robot.actuators;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
-import simulation.robot.messenger.garbage.MessageActuator;
 import simulation.robot.messenger.message.MessageType;
 import simulation.robot.sensors.RecruiterSensor;
 import simulation.util.Arguments;
@@ -106,8 +105,7 @@ public class RecruitedActuator extends Actuator {
         if ( found ) {                              //there is no recruiter nor recruit requester
                                                     //and no message is sent
                                      
-                                                    
-            robot.getMessenger().setMessage( msg, recruiter );
+            recruiter.getMsgBox().addMsgToInbox( msg, robot );
                                                             //inform the recruiter
                                                             //we allways send recruitment 
                                                             //msgs to keep the recruitment 

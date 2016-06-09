@@ -5,7 +5,7 @@
  */
 package evolutionaryrobotics.neuralnetworks.outputs;
 
-import simulation.robot.actuators.FocusActuator;
+import simulation.robot.messenger.garbage.FocusActuator;
 import simulation.util.Arguments;
 
 /**

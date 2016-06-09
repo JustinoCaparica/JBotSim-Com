@@ -8,7 +8,6 @@ package simulation.robot.sensors;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.actuators.RecruitedActuator;
 import simulation.util.Arguments;
 
 /**
@@ -19,12 +18,8 @@ import simulation.util.Arguments;
 public class RecruitedSensor extends Sensor {
 
     
-    private Robot recruited;                    //the recruited robot
+    private Robot recruit;                      //the recruited robot
     
-    
-    private Robot recruitRequester;             //a robot that has requested
-                                                //a recruit but has not been
-                                                //accepted as a recruiter yet
     
     
     
@@ -40,7 +35,7 @@ public class RecruitedSensor extends Sensor {
     public RecruitedSensor(Simulator simulator, int id, Robot robot, Arguments args) {
         super(simulator, id, robot, args);
         
-        recruited = null;
+        recruit = null;
     }
 
     
@@ -48,7 +43,7 @@ public class RecruitedSensor extends Sensor {
     @Override
     public double getSensorReading( int sensorNumber ) {
         
-        if ( recruited == null ) {              //there is no recruited
+        if ( recruit == null ) {                //there is no recruit
             return 0.0;                         //angle and distance are 0
         }
         
@@ -56,10 +51,10 @@ public class RecruitedSensor extends Sensor {
         
                                                             //sensorNumber == 0
         if ( sensorNumber == 0 ) {                          //return distance
-            return getDistanceOutVal( recruited, super.robot );
+            return getDistanceOutVal( recruit, super.robot );
         }
         else {                                              //assume sensorNumber == 1 
-            return getAngleOutVal( recruited, super.robot );//return angle                                
+            return getAngleOutVal( recruit, super.robot );  //return angle                                
         }
         
         
@@ -68,26 +63,25 @@ public class RecruitedSensor extends Sensor {
 
     
     /**
-     * Gets the recruited 
-     * robot
-     * @return the recruited
-     * robot or null if there
+     * Gets the recruit 
+     * @return the recruit
+     * or null if there
      * is none
      */
-    public Robot getRecruited() {
-        return recruited;
+    public Robot getRecruit() {
+        return recruit;
     }
 
     
     /**
-     * Sets the recruited
+     * Sets the recruit
      * robot
-     * @param recruited the
+     * @param recruit the
      * recruited robot; can
      * be set to null
      */
-    public void setRecruited( Robot recruited ) {
-        this.recruited = recruited;
+    public void setRecruit( Robot recruit ) {
+        this.recruit = recruit;
     }
     
     

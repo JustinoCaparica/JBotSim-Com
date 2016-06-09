@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.actuators;
+package simulation.robot.messenger.garbage;
 
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.messenger.MessageSocialSensor;
+import simulation.robot.actuators.Actuator;
+import simulation.robot.messenger.garbage.MessageSocialSensor;
 import simulation.util.Arguments;
 
 /**

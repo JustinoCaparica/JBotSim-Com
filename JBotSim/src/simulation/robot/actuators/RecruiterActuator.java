@@ -5,11 +5,9 @@
  */
 package simulation.robot.actuators;
 
-import java.util.List;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
-import simulation.robot.messenger.garbage.MessageActuator;
 import simulation.robot.messenger.message.MessageType;
 import simulation.util.Arguments;
 
@@ -19,15 +17,19 @@ import simulation.util.Arguments;
  */
 public class RecruiterActuator extends Actuator {
 
+    //TODO get this parameter from the configuration file
+    private static final double range = 2;  //the range of the actuator:
+                                            //how far may a robot be to 
+                                            //be recruited?
     
-    private Robot recruited;                //recruited robots
+    
+    private Robot recruit;                  //recruited robots
     
     private Message msg;                    //message to recruit robots
     
-    
-    
-    
     private boolean recruiting;             //is the robot recruiting?
+    
+    
     
     
     /**
@@ -52,7 +54,7 @@ public class RecruiterActuator extends Actuator {
      * new recruit
      */
     public void setRecruit( Robot recruit ){
-        recruited = recruit;
+        this.recruit = recruit;
     }
 
     
@@ -63,7 +65,7 @@ public class RecruiterActuator extends Actuator {
      * recruitment
      */
     public Robot getRecruit(){
-        return recruited;
+        return recruit;
     }
     
     
@@ -106,20 +108,19 @@ public class RecruiterActuator extends Actuator {
             return;                             //do nothing
         }
         
-                                                //otherwise, the robot
-                                                // is recruiting or has a recruit
+                                                //otherwise, the robot is either
+                                                //recruiting or has a recruit
+                 
         
-        recruitedSensor.setRecruited() ????         
-        
-        if ( recruited != null ) {                              //there is a recruit
-            robot.getMessenger().setMessage( msg, recruited );  //send the recruit 
-                                                                //a message
+        if ( recruit != null ) {                                    //there is a recruit
+            recruit.getMsgBox().addMsgToInbox( msg, robot );        //send the recruit 
+                                                                    //a message
         }
-        else{                                                   //there is no recruit
-            robot.getMessenger().setBroadcastMessage( msg );    //broadcast recruitment
-                                                                //message
+        else{                                                       //there is no recruit
+            robot.broadcastMessage( msg, range );                   //broadcast recruitment
+                                                                    //message
         }
-                   
+            
         //we allways send recruitment msgs to already 
         //recruited robots to keep the recruitment 
         //relationship alive

@@ -14,6 +14,8 @@ import simulation.robot.Robot;
 import simulation.util.Arguments;
 import simulation.util.Factory;
 import comm.FileProvider;
+import java.util.List;
+import mathutils.Vector2d;
 
 public class Simulator implements Serializable {
 
@@ -284,6 +286,10 @@ public class Simulator implements Serializable {
 	public ArrayList<Updatable> getCallbacks() {
 		return callbacks;
 	}
+
+    public List<Robot> getRobotsInRange(Vector2d position, double range) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 	class ParallelRobotCallable implements Callable<Object> {
 		

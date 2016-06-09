@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package simulation.robot.messenger;
+package simulation.robot.messenger.garbage;
 
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;

@@ -15,8 +15,6 @@ import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.actuators.Actuator;
-import simulation.robot.messenger.MessageSocialSensor;
-import simulation.robot.messenger.MessageSocialSensor;
 import simulation.util.Arguments;
 
 /**
