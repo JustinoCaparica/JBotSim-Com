@@ -6,6 +6,7 @@
 package evolutionaryrobotics.neuralnetworks.outputs;
 
 import simulation.robot.actuators.RecruitedActuator;
+import simulation.robot.actuators.RecruiterActuator;
 import simulation.util.Arguments;
 
 /**
@@ -24,6 +25,7 @@ public class RecruitedNNOutput extends NNOutput{
     
     public RecruitedNNOutput( RecruitedActuator actuator, Arguments args ) {
         super(actuator, args);
+        this.actuator = ( RecruitedActuator ) actuator;
     }
 
     @Override

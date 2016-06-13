@@ -6,6 +6,7 @@
 package evolutionaryrobotics.neuralnetworks.inputs;
 
 import simulation.robot.sensors.FocusedBySensor;
+import simulation.robot.sensors.FocusingOnSensor;
 import simulation.robot.sensors.Sensor;
 
 /**
@@ -22,6 +23,7 @@ public class FocusedByNNInput extends NNInput {
      */
     public FocusedByNNInput( Sensor s ) {
         super(s);
+        this.sensor = ( FocusedBySensor ) s;
     }
 
     

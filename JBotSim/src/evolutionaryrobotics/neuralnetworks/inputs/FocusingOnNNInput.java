@@ -22,6 +22,7 @@ public class FocusingOnNNInput extends NNInput {
      */
     public FocusingOnNNInput( Sensor s ) {
         super(s);
+        this.sensor = ( FocusingOnSensor ) s;
     }
 
     

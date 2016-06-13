@@ -24,6 +24,7 @@ public class RecruiterNNOutput extends NNOutput{
     
     public RecruiterNNOutput( RecruiterActuator actuator, Arguments args ) {
         super(actuator, args);
+        this.actuator = ( RecruiterActuator ) actuator;
     }
 
     @Override

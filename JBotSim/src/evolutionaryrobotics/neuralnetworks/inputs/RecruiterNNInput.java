@@ -25,6 +25,7 @@ public class RecruiterNNInput extends NNInput {
      */
     public RecruiterNNInput( Sensor s ) {
         super(s);
+        this.recruiterSensor = ( RecruiterSensor ) s;
     }
     
     @Override
