@@ -319,7 +319,8 @@ public class Robot extends MovableObject {
 	 */
 	public void updateSensors(double simulationStep, ArrayList<PhysicalObject> teleported) {
             
-                getMsgBox().processMessages( this );    //process inbox messages
+                if(useMessenger)
+                    getMsgBox().processMessages( this );    //process inbox messages
             
 		for(Sensor sensor : sensors){
 			if(!ignoreDisabledSensors || sensor.isEnabled())
