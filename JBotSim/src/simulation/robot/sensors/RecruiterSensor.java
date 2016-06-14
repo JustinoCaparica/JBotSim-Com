@@ -112,15 +112,15 @@ public class RecruiterSensor extends Sensor {
      * according to distance
      * from recruiter to recruited
      * @param recruiter the recruiter
-     * @param recruited the recruited
+     * @param recruit the recruit
      * @return the inverse of the
      * distance in the range ]0,1]
      */
-    private double getDistanceOutVal( Robot recruited, Robot recruiter ){
+    private double getDistanceOutVal( Robot recruit, Robot recruiter ){
         
         double distance;                    //distance between robots
-        distance = recruited.getPosition().distanceTo( recruiter.getPosition() );
-        
+        distance = recruit.getPosition().distanceTo( recruiter.getPosition() );
+
         distance = distance + 1.0;          //making sure distance >= 1
 
         return  1 / distance;               //return value is inverse of distance
@@ -133,28 +133,26 @@ public class RecruiterSensor extends Sensor {
      * the recruited orientation
      * and the position of the
      * recruiter
-     * @param recruited the recruited 
+     * @param recruit the recruited 
      * robot
      * @param recruiter the recruiter
      * robot
      * @return the angle in radians
      * in range [0,1]
      */
-    private double getAngleOutVal( Robot recruited, Robot recruiter ) {
+    private double getAngleOutVal( Robot recruit, Robot recruiter ) {
         
-        double recruitedOrientation;
-        recruitedOrientation = recruited.getOrientation();  //orientation in range [-PI,PI]
-        
-        
+        double recruitOrientation;
+        recruitOrientation = recruit.getOrientation();      //orientation in range [-PI,PI]
+       
                                                             //vector representation
-        Vector2d v = new Vector2d( recruitedOrientation );  //of recruited orientation
+        Vector2d v = new Vector2d( recruitOrientation );    //of recruit orientation
         
         
         double angle;                                       //angle between robots
-        angle = v.getSignedAngle( recruiter.getPosition() );//in range [-PI, PI]  
-        angle += Math.PI;                                   
-        angle /= (2 * Math.PI);                             //orientation in range [0,1]
-        
+        angle = v.signedAngle( recruiter.getPosition() );   //in range [0, PI]  
+                                     
+        angle = angle / Math.PI;                            //orientation in range [0,1]
         
         return angle;
         

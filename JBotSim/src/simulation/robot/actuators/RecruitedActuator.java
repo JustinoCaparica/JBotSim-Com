@@ -11,6 +11,7 @@ import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
 import simulation.robot.sensors.RecruiterSensor;
 import simulation.util.Arguments;
+import simulation.util.ArgumentsAnnotation;
 
 /**
  * Actuator that accepts recruitment
@@ -24,6 +25,15 @@ public class RecruitedActuator extends Actuator {
                                                 //the recruiter
     
     private Robot recruiter;                    //the recruiter
+    
+    
+    @ArgumentsAnnotation(name="range", defaultValue="0.8", help="The actuator can not accept recruitment requests from a robot that is further than this range.")
+    private final static double RANGE_DEFAULT = 0.8;
+    private double range;                   //the range of the actuator:
+                                            //how far may a robot be to 
+                                            //be possible for me to accept his
+                                            //recruitment request?
+    
     
     
     
@@ -104,12 +114,14 @@ public class RecruitedActuator extends Actuator {
                                                     //at this point, if found == false
         if ( found ) {                              //there is no recruiter nor recruit requester
                                                     //and no message is sent
-                                     
-            recruiter.getMsgBox().addMsgToInbox( msg, robot );
+            if ( recruiter.getDistanceBetween( robot.getPosition() ) <= range ) {   //recruiter within range
+                recruiter.getMsgBox().addMsgToInbox( msg, robot );
                                                             //inform the recruiter
                                                             //we allways send recruitment 
                                                             //msgs to keep the recruitment 
                                                             //relationship alive
+            }
+            
         }
         
     }

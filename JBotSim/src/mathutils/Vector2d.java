@@ -129,24 +129,20 @@ public class Vector2d extends Point2d implements Serializable {
 	}
 
         
+        
+        
         /**
-         * Determines the angle
-         * between two vectors
-         * @param v the vector that
-         * makes an angle with this
-         * vector
-         * @return an angle in 
-         * radians in the range ]-PI, PI]
+         * Gets the signed angle between
+         * two vectors
+         * @param v the vector parameter 
+         * @return the angle between the
+         * two vectors in radians in the 
+         * range ]-Pi, PI]
          */
-        public double getSignedAngle( Vector2d v ){
-
-            Double signedAngle;
-            signedAngle =   FastMath.atan2(v.y, v.x) - 
-                            FastMath.atan2(this.y, this.x);
+        public double signedAngle( Vector2d v ){
             
-            if ( Math.abs( signedAngle) > Math.PI ) {
-                signedAngle += 2*Math.PI;
-            }
+            double signedAngle;
+            signedAngle = Math.atan2( this.x*v.y - this.y*v.x, this.x*v.x + this.y*v.y );
             
             return signedAngle;
         }

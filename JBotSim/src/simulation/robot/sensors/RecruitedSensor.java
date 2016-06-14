@@ -136,10 +136,9 @@ public class RecruitedSensor extends Sensor {
         
         
         double angle;                                       //angle between robots
-        angle = v.getSignedAngle( recruiter.getPosition() );//in range [-PI, PI]  
-        angle += Math.PI;                                   
-        angle /= Math.PI;                                   //orientation in range [0,1]
-        
+        angle = v.signedAngle( recruiter.getPosition() );   //in range [0, PI]
+                                        
+        angle = angle / Math.PI;                          //orientation in range [0,1]
         
         return angle;
         

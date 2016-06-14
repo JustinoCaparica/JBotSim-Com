@@ -124,7 +124,7 @@ public class MessageActuator extends Actuator {
     public void addRobotInRange( Robot robotInRange, int sensorId ) {
         
         if ( robotsInRange.get( sensorId ) == null ) {          //if theres no
-            robotsInRange.put( sensorId, new LinkedList<>() );  //mapping for the
+            //robotsInRange.put( sensorId, new LinkedList<>() );  //mapping for the
         }                                                       //sensor, create it
         
         robotsInRange.get( sensorId ).add( robotInRange );      //map the robot 

@@ -196,7 +196,7 @@ public class MessageSocialSensor extends Sensor {
         heading.rotate( super.robot.getOrientation() );         //orientation
         
                                                                 //diretion of the
-        direction = heading.getSignedAngle( focusedRobotPos );  //focused robot's 
+        //direction = heading.getSignedAngle( focusedRobotPos );  //focused robot's 
                                                                 //position relative 
                                                                 //to own robot's
                                                                 //heading        

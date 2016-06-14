@@ -150,7 +150,7 @@ public class Robot extends MovableObject {
 		
 		specialWallCollisions = args.getArgumentAsIntOrSetDefault("specialwallcollisions",0) == 1; 
                 
-                //TODO check if getting the argument is done properly
+                
                 useMessenger = args.getArgumentAsIntOrSetDefault("useMessenger",0) == 1; 
                 if (useMessenger) {
                     msgBox = new MessageBox( new SocialMessageParser() );
@@ -178,12 +178,34 @@ public class Robot extends MovableObject {
          */
         public void broadcastMessage( Message msg, double range ){
                     
-            List<Robot> robots;                                 //robots in range
-            robots = simulator.getEnvironment().getClosestRobots(position, range);   
+            List<Robot> robots;                                 
+            robots = simulator.getEnvironment().getRobots();    //all robots
             
             
-            for (Robot robot : robots) {                        //send the robots
-                robot.getMsgBox().addMsgToInbox( msg, this );   //the message
+            for (Robot robot : robots) {
+                                                                    //robot is in range
+                if ( robot.getPosition().distanceTo( this.getPosition()) < range
+                     && !robot.equals(this) ) {                     //don't send msg to himself!
+                    robot.getMsgBox().addMsgToInbox( msg, this );   //send message
+                }                                                   //to other robots
+                    
+            }
+            
+        }
+        
+        
+        /**
+         * Broadcast a message to all
+         * robots 
+         * @param msg the message
+         */
+        public void broadcastMessage( Message msg ){
+                    
+            List<Robot> robots;                                 //get all 
+            robots = simulator.getRobots();                     //robots
+            
+            for (Robot robot : robots) {                        //send message
+                robot.getMsgBox().addMsgToInbox( msg, this );   //to robots
             }
             
         }

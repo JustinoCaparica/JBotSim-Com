@@ -10,6 +10,7 @@ import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
 import simulation.util.Arguments;
+import simulation.util.ArgumentsAnnotation;
 
 /**
  * Actuator that recruits other robots
@@ -18,9 +19,12 @@ import simulation.util.Arguments;
 public class RecruiterActuator extends Actuator {
 
     //TODO get this parameter from the configuration file
-    private static final double range = 2;  //the range of the actuator:
+    
+    @ArgumentsAnnotation(name="range", defaultValue="0.8", help="The actuator can not recruit a robot that is further than this range.")
+    private final static double RANGE_DEFAULT = 0.8;
+    private double range;                   //the range of the actuator:
                                             //how far may a robot be to 
-                                            //be recruited?
+                                            //be possible for me to recruit him?
     
     
     private Robot recruit;                  //recruited robots
@@ -44,6 +48,8 @@ public class RecruiterActuator extends Actuator {
         msg = new Message( MessageType.REQUEST_FOCUS );
         
         recruiting = false;
+        
+        range = args.getArgumentAsDoubleOrSetDefault("range", RANGE_DEFAULT);
     }
 
     

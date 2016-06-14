@@ -237,17 +237,18 @@ public abstract class Environment implements KeyListener, Serializable {
     public List<Robot> getClosestRobots( Vector2d position, Double radius ) {
         
         List<Robot> closestRobots;
-        closestRobots = new LinkedList<>();
+        closestRobots = new LinkedList<>();                 //list of robots
 
-        for ( Robot robot : getRobots() ) {                 //robot is within
+        
+        for ( Robot robot : getRobots() ) {                 
+                                                            //robot is within
                                                             //radius. Thus,
-                                                            
             if ( robot.getPosition().distanceTo( position ) <= radius ) {
-                closestRobots.add( robot );                 //register robot
+                closestRobots.add( robot );                 //enlist robot
             }
         }
         
-        return closestRobots;                               //return registered 
+        return closestRobots;                               //return enlisted 
                                                             //robots
     }
 }
