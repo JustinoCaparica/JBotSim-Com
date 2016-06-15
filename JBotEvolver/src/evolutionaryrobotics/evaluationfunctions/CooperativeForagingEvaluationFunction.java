@@ -3,9 +3,7 @@ package evolutionaryrobotics.evaluationfunctions;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.environment.CooperativeForagingEnvironment;
-import simulation.environment.RoundForageEnvironment;
 import simulation.robot.Robot;
-import simulation.robot.sensors.PreyCarriedSensor;
 import simulation.util.Arguments;
 
 public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
