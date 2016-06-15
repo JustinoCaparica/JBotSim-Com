@@ -13,12 +13,12 @@ import simulation.robot.sensors.RecruitedSensor;
 import simulation.robot.sensors.RecruiterSensor;
 
 /**
- * A message parser. When the robot receiving the message
- * is already recruited, the message parser ignores all 
- * messages from robots that are not the recruiter
+ * A message parser. The receiving robot does not ignore
+ * messages from other robots even when it is already
+ * recruited
  * @author gus
  */
-public class SocialMessageParser implements MessageParser {
+public class NonSocialMessageParser implements MessageParser {
 
     
     
@@ -40,11 +40,7 @@ public class SocialMessageParser implements MessageParser {
         switch ( msg.getMsgType() ) {
             
             case REQUEST_FOCUS:                 
-                if ( focusingOnSensor.isFocused() &&                        //the receiver is recruited and
-                    !focusingOnSensor.getRecruiter().equals( emitter ) ) {  //the emitter is not the recruiter
-                    return;                                                 //ignore the received message
-                }
-                processRequestFocusMsg( focusingOnSensor, receiver, emitter );
+                processRequestFocusMsg( receiver, emitter );
                 break;
                 
             case FOCUS_ACCEPTED:
@@ -105,27 +101,13 @@ public class SocialMessageParser implements MessageParser {
      * @param emitter the robot that
      * emitted the message
      */
-    private void processRequestFocusMsg( FocusingOnSensor focusedOnSensor, 
-                                         Robot receiver, 
+    private void processRequestFocusMsg( Robot receiver, 
                                          Robot emitter ) {
-        
-        if ( !focusedOnSensor.isFocused() ) {               //this robot is not recruited yet
                     
-            RecruiterSensor recruiterSensor;
-            recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
-
-            if ( recruiterSensor.getRecruitRequester() == null ) {  //there is no previous recruit requester
-                recruiterSensor.setRecruitRequester( emitter );     //set the emitter as the recruit requester
-            }else{
-                 //there is a previous recruit requester
-                 //ignore this recruit requester
-            }
-        }
-        else{                                       
-                //this robot is already recruited 
-                //ignore recruitment requests
-
-        }
+        RecruiterSensor recruiterSensor;
+        recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
+        recruiterSensor.setRecruitRequester( emitter );
+        
     }
 
     

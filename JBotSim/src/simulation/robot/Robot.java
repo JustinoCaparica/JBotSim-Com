@@ -341,14 +341,16 @@ public class Robot extends MovableObject {
 	 */
 	public void updateSensors(double simulationStep, ArrayList<PhysicalObject> teleported) {
             
-                if(useMessenger)
-                    getMsgBox().processMessages( this );    //process inbox messages
-            
 		for(Sensor sensor : sensors){
 			if(!ignoreDisabledSensors || sensor.isEnabled())
 				sensor.update(simulationStep,teleported);
 		}
+                
+                if( useMessenger )
+                    getMsgBox().processMessages( this );    //process inbox messages
 	}
+        
+        
 	
 	/**
 	 * Update all actuators including moving the robot (using differential drive kinematics) according to the speeds 

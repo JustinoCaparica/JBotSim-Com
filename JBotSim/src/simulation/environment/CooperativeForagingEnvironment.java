@@ -45,7 +45,7 @@ public class CooperativeForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="forbiddenarea", defaultValue="5.0")
     private double forbiddenArea;
 
-    @ArgumentsAnnotation(name="numberofpreys", defaultValue="20")
+    @ArgumentsAnnotation(name="numberofpreys", defaultValue="10")
     private int numberOfPreys;
 
     @ArgumentsAnnotation(name="densityofpreys", defaultValue="")

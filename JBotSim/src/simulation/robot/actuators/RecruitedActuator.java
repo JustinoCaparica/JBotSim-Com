@@ -87,16 +87,22 @@ public class RecruitedActuator extends Actuator {
     @Override
     public void apply( Robot robot, double timeDelta ) {
         
-        if ( !recruitedState ) {                //the robot is not recruited
-            return;                             //do nothing
-        }
-                                                //otherwise,
-                                                //the robot is recruited
-                                          
-                                                
-        boolean found = false;                  //was a recruiter found?
         
         recruiterSensor = (RecruiterSensor)robot.getSensorByType( RecruiterSensor.class );
+        
+        
+        if ( !recruitedState ) {                        //robot is not recruited
+            recruiterSensor.setRecruiter( null );       //clear recruiter
+            recruiterSensor.setRecruitRequester( null );//and recruitment requester
+            return;                                     
+        }
+                                                        //otherwise,
+                                                        //the robot is recruited
+                                          
+                                                
+        boolean found = false;                          //was a recruiter found?
+        
+        
         if ( recruiterSensor.getRecruiter() != null ) {             //there is a recruiter
             recruiter = recruiterSensor.getRecruiter();  
             found = true;
@@ -104,8 +110,8 @@ public class RecruitedActuator extends Actuator {
         else{                                           
             if ( recruiterSensor.getRecruitRequester() != null ) {  //there is a recruit requester
                 recruiter = recruiterSensor.getRecruitRequester();
-                recruiterSensor.setRecruitRequester( null );        //tell the recruiter sensor
-                recruiterSensor.setRecruiter( recruiter );          //who the recruiter is
+                recruiterSensor.setRecruitRequester( null );        //promote the recruit requester
+                recruiterSensor.setRecruiter( recruiter );          //to recruit
                 found = true;
             }
         }

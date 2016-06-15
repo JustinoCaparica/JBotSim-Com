@@ -134,7 +134,8 @@ public class MessageBox {
         
         for ( int i = 0; i < inbox.size(); i++ ) {
             
-            envelope = getNextInboxMsg();               //get and remove each message
+            envelope = getNextInboxMsg();               //get next message
+                                                        //and remove from inbox
             parser.parse( receiver, envelope.getEmitter(), envelope.getMsg() );
             
         }
