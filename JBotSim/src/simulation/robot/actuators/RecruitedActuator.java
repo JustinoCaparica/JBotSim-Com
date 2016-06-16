@@ -61,6 +61,8 @@ public class RecruitedActuator extends Actuator {
         recruiter       = null;
         recruitedState  = false;
         
+        range = args.getArgumentAsDoubleOrSetDefault("range", RANGE_DEFAULT);
+        
     }
 
     
@@ -120,6 +122,7 @@ public class RecruitedActuator extends Actuator {
                                                     //at this point, if found == false
         if ( found ) {                              //there is no recruiter nor recruit requester
                                                     //and no message is sent
+                                          
             if ( recruiter.getDistanceBetween( robot.getPosition() ) <= range ) {   //recruiter within range
                 recruiter.getMsgBox().addMsgToInbox( msg, robot );
                                                             //inform the recruiter

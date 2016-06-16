@@ -76,17 +76,19 @@ public class SocialMessageParser implements MessageParser {
                                             Robot emitter ) {
         
         if ( !focusedBySensor.isFocused() ) {           //no other robot is focused on this robot
+            
             RecruitedSensor recruitedSensor;
             recruitedSensor = (RecruitedSensor) receiver.getSensorByType( RecruitedSensor.class );
             
-            if ( recruitedSensor.getRecruit() != null ) {   //this robot does not have a recruit yet
+            //if ( recruitedSensor.getRecruit() != null ) {   //this robot does not have a recruit yet
                 recruitedSensor.setRecruit( emitter );      //accept the emitter as a recruit
-            }
+                
+            //}
             
         }
-        else{                                               //there is already a recruit
-            //ignore the message
-            
+        else{                                               
+                //there is already a recruit
+                //ignore the message
             
         }
     }
@@ -110,7 +112,8 @@ public class SocialMessageParser implements MessageParser {
                                          Robot emitter ) {
         
         if ( !focusedOnSensor.isFocused() ) {               //this robot is not recruited yet
-                    
+            //System.out.println(receiver.toString() + " not recruited. Processing message" );
+            
             RecruiterSensor recruiterSensor;
             recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
 
@@ -122,6 +125,7 @@ public class SocialMessageParser implements MessageParser {
             }
         }
         else{                                       
+            //System.out.println(receiver.toString() + " already recruited. Message ignored" );
                 //this robot is already recruited 
                 //ignore recruitment requests
 

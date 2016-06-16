@@ -6,7 +6,6 @@
 package evolutionaryrobotics.neuralnetworks.outputs;
 
 import simulation.robot.actuators.RecruitedActuator;
-import simulation.robot.actuators.RecruiterActuator;
 import simulation.util.Arguments;
 
 /**

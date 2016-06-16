@@ -10,6 +10,8 @@ import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.physicalobjects.Prey;
 import simulation.robot.Robot;
 import simulation.robot.actuators.PreyPickerActuator;
+import simulation.robot.sensors.FocusedBySensor;
+import simulation.robot.sensors.FocusingOnSensor;
 import simulation.robot.sensors.PreyCarriedSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -26,13 +28,13 @@ public class CooperativeForagingEnvironment extends Environment {
     private static final double PREY_RADIUS = 0.025;
     private static final double PREY_MASS = 1;
     
-    
-    @ArgumentsAnnotation(name="closestRadius", help="radius around each prey that cooperating robots must occupy simultaneously to capture the prey", defaultValue="0.2")
+    private static final Double CLOSEST_RADIUS = 0.18;
+    @ArgumentsAnnotation(name="closestRadius", help="radius around each prey that cooperating robots must occupy simultaneously to capture the prey", defaultValue="0.18")
     private Double closestRadius;
     
-    
-    @ArgumentsAnnotation(name="teamElementsCount", help="number of robots required to capture a prey", defaultValue="2")
-    private int teamElementsCount;
+    private static final int TEAM_SIZE = 2;
+    @ArgumentsAnnotation(name="teamSize", help="number of robots required to capture a prey", defaultValue="2")
+    private int teamSize;
     
     
 
@@ -50,9 +52,12 @@ public class CooperativeForagingEnvironment extends Environment {
 
     @ArgumentsAnnotation(name="densityofpreys", defaultValue="")
     private Nest nest;
-    private int numberOfFoodSuccessfullyForaged = 0;
+    private int numberOfFoodSuccessfullyForaged = 0;        
     private Random random;
 
+    
+    
+    
     private Simulator simulator;
     private Arguments args;
 
@@ -68,8 +73,8 @@ public class CooperativeForagingEnvironment extends Environment {
             forageLimit         = arguments.getArgumentIsDefined("foragelimit") ? arguments.getArgumentAsDouble("foragelimit")       : 2.0;
             forbiddenArea       = arguments.getArgumentIsDefined("forbiddenarea") ? arguments.getArgumentAsDouble("forbiddenarea")       : 5.0;
             
-            closestRadius       = 0.2; //TODO get this variable from the arguments
-            teamElementsCount   = 2;   //TODO get this variable from the arguments
+            closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
+            teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
     }
 	
     
@@ -121,8 +126,26 @@ public class CooperativeForagingEnvironment extends Environment {
 
             closeRobots = simulator.getEnvironment().getClosestRobots( currentPrey.getPosition(), closestRadius );
 
-            if( closeRobots.size() >= teamElementsCount ) {     //prey captured
-                                                                   
+            
+            boolean focusedBy = false, focusingOn = false;      //this piece of code is for
+            for (Robot robot : closeRobots) {                   // debug purposes ONLY! remove it when debug is done
+                FocusedBySensor s1;
+                s1 = (FocusedBySensor)robot.getSensorByType( FocusedBySensor.class );
+                if ( s1.isFocused() ) {
+                    focusedBy = true;
+                }
+                FocusingOnSensor s2;
+                s2 = (FocusingOnSensor)robot.getSensorByType( FocusingOnSensor.class );
+                if ( s2.isFocused() ) {
+                    focusingOn = true;
+                }
+            }
+            if ( !focusedBy || !focusingOn ) {
+                return;
+            }                                                   //end of debug code
+            
+            
+            if( closeRobots.size() >= teamSize ) {              //prey captured                                         
                                                                 //move prey to
                 currentPrey.teleportTo( newRandomPosition() );  //new position
 
