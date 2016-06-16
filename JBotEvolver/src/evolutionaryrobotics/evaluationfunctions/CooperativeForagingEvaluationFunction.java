@@ -16,13 +16,13 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
 		super(args);	
 	}
 
-	//@Override
+	@Override
 	public double getFitness() {
             
-		return fitness + numberOfFoodForaged;
+		return numberOfFoodForaged; // +  fitness;
 	}
 
-	//@Override
+	@Override
 	public void update(Simulator simulator) {
             
             if( simulator == null )
@@ -51,7 +51,7 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
             }
             
             //TODO why is fitness incremental instead of instantaneous?
-            fitness += (double) numberOfRobotsBeyondForbidenLimit * -0.1 + numberOfRobotsBeyondForagingLimit * -0.0001;
+            //fitness += (double) numberOfRobotsBeyondForbidenLimit * -0.1 + numberOfRobotsBeyondForagingLimit * -0.0001;
             numberOfFoodForaged = ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getNumberOfFoodSuccessfullyForaged();
             
             //TODO account for distance run by robots; 
