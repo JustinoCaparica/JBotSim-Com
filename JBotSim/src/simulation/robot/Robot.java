@@ -22,6 +22,8 @@ import controllers.Controller;
 import java.util.List;
 import simulation.robot.messenger.MessageBox;
 import simulation.robot.messenger.message.Message;
+import simulation.robot.messenger.message.parser.MessageParser;
+import simulation.robot.messenger.message.parser.NonSocialMessageParser;
 import simulation.robot.messenger.message.parser.SocialMessageParser;
 
 /**
@@ -78,8 +80,8 @@ public class Robot extends MovableObject {
 	@ArgumentsAnnotation(name="variablenumber", values={"0","1"})
 	private static int variableNumber;
 	
-        @ArgumentsAnnotation(name="useMessenger", help="if set to 1 robots are able to exchange messages", values={"0","1"}, defaultValue = "1")
-	private boolean useMessenger = true;
+        @ArgumentsAnnotation(name="messenger", help="if set to 1 robots are able to exchange messages", values={"none","SocialParser","NonSocialParser"}, defaultValue = "none")
+	private String messenger = "none";
         private MessageBox msgBox;
         
         
@@ -151,9 +153,17 @@ public class Robot extends MovableObject {
 		specialWallCollisions = args.getArgumentAsIntOrSetDefault("specialwallcollisions",0) == 1; 
                 
                 
-                useMessenger = args.getArgumentAsIntOrSetDefault("useMessenger",0) == 1; 
-                if (useMessenger) {
-                    msgBox = new MessageBox( new SocialMessageParser() );
+                messenger = args.getArgumentAsStringOrSetDefault( "messenger", "none" ); 
+                if ( !messenger.equals("none") ) {              //define the message parser, if needed
+                    MessageParser msgParser;
+                    if( messenger.equals("SocialParser") )
+                        msgParser = new SocialMessageParser();
+                    else if ( messenger.equals("NonSocialParser") ) {
+                        msgParser = new NonSocialMessageParser();
+                    }else
+                        throw new RuntimeException( "Unknown Message Parser Type" );
+                    
+                    msgBox = new MessageBox( msgParser );
                 }
                 
 	}
@@ -346,7 +356,7 @@ public class Robot extends MovableObject {
 				sensor.update(simulationStep,teleported);
 		}
                 
-                if( useMessenger )
+                if( getMsgBox() != null )
                     getMsgBox().processMessages( this );    //process inbox messages
 	}
         

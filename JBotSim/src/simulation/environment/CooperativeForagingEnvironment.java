@@ -121,28 +121,28 @@ public class CooperativeForagingEnvironment extends Environment {
 //		CloseObjectIterator i = nest.shape.getClosePrey().iterator();
 
         List<Robot> closeRobots;    //robots within radius of prey
-        
-        for ( Prey currentPrey : simulator.getEnvironment().getPrey() ) {
+       
+        for(Prey currentPrey : simulator.getEnvironment().getPrey() ) {
 
             closeRobots = simulator.getEnvironment().getClosestRobots( currentPrey.getPosition(), closestRadius );
-
-            
-            boolean focusedBy = false, focusingOn = false;      //this piece of code is for
-            for (Robot robot : closeRobots) {                   // debug purposes ONLY! remove it when debug is done
-                FocusedBySensor s1;
-                s1 = (FocusedBySensor)robot.getSensorByType( FocusedBySensor.class );
-                if ( s1.isFocused() ) {
-                    focusedBy = true;
-                }
-                FocusingOnSensor s2;
-                s2 = (FocusingOnSensor)robot.getSensorByType( FocusingOnSensor.class );
-                if ( s2.isFocused() ) {
-                    focusingOn = true;
-                }
-            }
-            if ( !focusedBy || !focusingOn ) {
-                return;
-            }                                                   //end of debug code
+              
+//            
+//            boolean focusedBy = false, focusingOn = false;      //this piece of code is for
+//            for (Robot robot : closeRobots) {                   // debug purposes ONLY! remove it when debug is done
+//                FocusedBySensor s1;
+//                s1 = (FocusedBySensor)robot.getSensorByType( FocusedBySensor.class );
+//                if ( s1.isFocused() ) {
+//                    focusedBy = true;
+//                }
+//                FocusingOnSensor s2;
+//                s2 = (FocusingOnSensor)robot.getSensorByType( FocusingOnSensor.class );
+//                if ( s2.isFocused() ) {
+//                    focusingOn = true;
+//                }
+//            }
+//            if ( !focusedBy || !focusingOn ) {
+//                continue;
+//            }                                                   //end of debug code
             
             
             if( closeRobots.size() >= teamSize ) {              //prey captured                                         
