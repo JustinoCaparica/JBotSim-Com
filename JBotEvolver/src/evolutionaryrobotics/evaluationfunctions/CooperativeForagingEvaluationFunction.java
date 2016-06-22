@@ -7,56 +7,53 @@ import simulation.robot.Robot;
 import simulation.util.Arguments;
 
 public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
-	protected Vector2d   nestPosition = new Vector2d(0, 0);
-	protected int numberOfFoodForaged = 0;
+	
+    
+    protected Vector2d   nestPosition = new Vector2d(0, 0);
         
-        private Simulator simulator;
+    
+    private int preys;                      //initial number of preys
+                                            //in the environment
+    
+    private int teamSize;                   //number of robots
+        
+        
+    private int preysCaptured;              //number of preys captured
 
-	public CooperativeForagingEvaluationFunction(Arguments args) {
-		super(args);	
-	}
+    
+    private Simulator simulator;
 
-	@Override
-	public double getFitness() {
+    
+    
+    public CooperativeForagingEvaluationFunction(Arguments args) {
+            super(args);	
             
-		return numberOfFoodForaged; // +  fitness;
-	}
+            preysCaptured = 0;
+            
+    }
 
-	@Override
-	public void update(Simulator simulator) {
-            
-            if( simulator == null )
-                this.simulator = simulator;
-            
-            
-            int numberOfRobotsBeyondForbidenLimit   = 0;
-            int numberOfRobotsBeyondForagingLimit   = 0;
+    
+    
+    @Override
+    public double getFitness() {
 
-            double forbidenArea =  ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getForbiddenArea();
-            double foragingArea =  ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getForageRadius();	
+            return preysCaptured / preys / teamSize;
+    }
 
-            
-            double distanceToNest;
-            for( Robot r : simulator.getEnvironment().getRobots() ){
-                
-                distanceToNest = r.getPosition().distanceTo( nestPosition );
+    
+    
+    @Override
+    public void update(Simulator simulator) {
 
-                if( distanceToNest > forbidenArea ){            //count robots
-                        numberOfRobotsBeyondForbidenLimit++;    //beyond limit
-                } 
-                else if( distanceToNest > foragingArea ){       //count robots
-                        numberOfRobotsBeyondForagingLimit++;    //beyond foraging limit
-                }
+        if( simulator == null )
+            this.simulator = simulator;
 
-            }
-            
-            //TODO why is fitness incremental instead of instantaneous?
-            //fitness += (double) numberOfRobotsBeyondForbidenLimit * -0.1 + numberOfRobotsBeyondForagingLimit * -0.0001;
-            numberOfFoodForaged = ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getNumberOfFoodSuccessfullyForaged();
-            
-            //TODO account for distance run by robots; 
-            //the higher the distance the lower the fitness, for the same level of foragedFood
-            
-            
-	}
+        //TODO next two lines are ugly, fix it when time is a surplus
+        preys = ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getNumberOfPreys(); 
+        teamSize = simulator.getRobots().size();
+        
+        
+        preysCaptured = ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getNumberOfFoodSuccessfullyForaged();
+
+    }
 }
