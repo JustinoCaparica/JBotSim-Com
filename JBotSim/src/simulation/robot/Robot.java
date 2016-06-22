@@ -23,7 +23,6 @@ import java.util.List;
 import simulation.robot.messenger.MessageBox;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.parser.MessageParser;
-import simulation.robot.messenger.message.parser.NonSocialMessageParser;
 import simulation.robot.messenger.message.parser.SocialMessageParser;
 
 /**
@@ -80,7 +79,7 @@ public class Robot extends MovableObject {
 	@ArgumentsAnnotation(name="variablenumber", values={"0","1"})
 	private static int variableNumber;
 	
-        @ArgumentsAnnotation(name="messenger", help="if set to 1 robots are able to exchange messages", values={"none","SocialParser","NonSocialParser"}, defaultValue = "none")
+        @ArgumentsAnnotation(name="messenger", help="if set to 1 robots are able to exchange messages", values={"none","SocialParser"}, defaultValue = "none")
 	private String messenger = "none";
         private MessageBox msgBox;
         
@@ -158,9 +157,7 @@ public class Robot extends MovableObject {
                     MessageParser msgParser;
                     if( messenger.equals("SocialParser") )
                         msgParser = new SocialMessageParser();
-                    else if ( messenger.equals("NonSocialParser") ) {
-                        msgParser = new NonSocialMessageParser();
-                    }else
+                    else
                         throw new RuntimeException( "Unknown Message Parser Type" );
                     
                     msgBox = new MessageBox( msgParser );
@@ -195,7 +192,7 @@ public class Robot extends MovableObject {
             for (Robot robot : robots) {
                                                                     //robot is in range
                 if ( robot.getPosition().distanceTo( this.getPosition()) < range
-                     && !robot.equals(this) ) {                     //don't send msg to himself!
+                     && !robot.equals(this) ) {                     //do not send msg to himself!
                     robot.getMsgBox().addMsgToInbox( msg, this );   //send message
                 }                                                   //to other robots
                     

@@ -4,15 +4,9 @@ import java.util.List;
 import java.util.Random;
 import mathutils.Vector2d;
 import simulation.Simulator;
-import simulation.physicalobjects.ClosePhysicalObjects.CloseObjectIterator;
 import simulation.physicalobjects.Nest;
-import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.physicalobjects.Prey;
 import simulation.robot.Robot;
-import simulation.robot.actuators.PreyPickerActuator;
-import simulation.robot.sensors.FocusedBySensor;
-import simulation.robot.sensors.FocusingOnSensor;
-import simulation.robot.sensors.PreyCarriedSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 
@@ -28,13 +22,16 @@ public class CooperativeForagingEnvironment extends Environment {
     private static final double PREY_RADIUS = 0.025;
     private static final double PREY_MASS = 1;
     
-    private static final Double CLOSEST_RADIUS = 0.18;
-    @ArgumentsAnnotation(name="closestRadius", help="radius around each prey that cooperating robots must occupy simultaneously to capture the prey", defaultValue="0.18")
+    private static final Double CLOSEST_RADIUS = 0.07;
+    @ArgumentsAnnotation(name="closestRadius", help="radius around each prey that robots must occupy simultaneously to capture the prey", defaultValue="0.07")
     private Double closestRadius;
     
     private static final int TEAM_SIZE = 2;
     @ArgumentsAnnotation(name="teamSize", help="number of robots required to capture a prey", defaultValue="2")
     private int teamSize;
+    
+    
+    
     
     
 
@@ -52,6 +49,10 @@ public class CooperativeForagingEnvironment extends Environment {
 
     @ArgumentsAnnotation(name="densityofpreys", defaultValue="")
     private Nest nest;
+    
+    @ArgumentsAnnotation(name="densityofpreysValues", help="list of possible values for the preys density. One value is randomly chosen from the list when the environment is created", defaultValue="")
+    
+    
     private int numberOfFoodSuccessfullyForaged = 0;        
     private Random random;
 
@@ -75,6 +76,8 @@ public class CooperativeForagingEnvironment extends Environment {
             
             closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
             teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
+            
+            
     }
 	
     
@@ -92,13 +95,25 @@ public class CooperativeForagingEnvironment extends Environment {
 
             this.random = simulator.getRandom();
 
+            
+            
             if(args.getArgumentIsDefined("densityofpreys")){
                     double densityoffood = args.getArgumentAsDouble("densityofpreys");
-                    numberOfPreys = (int)(densityoffood*Math.PI*forageLimit*forageLimit+.5);
+                    numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
+            } 
+            else if ( args.getArgumentIsDefined("densityofpreysValues") ) {
+                    String[] rawArray = args.getArgumentAsString("densityofpreysValues").split(",");
+
+                    if(rawArray.length > 1){                        //randomize number of preys
+                            double densityoffood = Double.parseDouble(rawArray[simulator.getRandom().nextInt(rawArray.length)]);
+                            numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
+                    }
             } else {
                     numberOfPreys = args.getArgumentIsDefined("numberofpreys") ? args.getArgumentAsInt("numberofpreys") : 20;
             }
 
+            
+            
             for(int i = 0; i < numberOfPreys; i++ ){
                     addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, PREY_MASS, PREY_RADIUS));
             }
@@ -176,4 +191,17 @@ public class CooperativeForagingEnvironment extends Environment {
     public double getForbiddenArea() {
             return forbiddenArea;
     }
+    
+    /**
+     * Gets the initial number of
+     * preys
+     * @return the initial number 
+     * of preys 
+     */
+    public int getNumberOfPreys(){
+        return numberOfPreys;
+    }
+    
+    
+    
 }

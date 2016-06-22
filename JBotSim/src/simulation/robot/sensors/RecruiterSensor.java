@@ -53,7 +53,7 @@ public class RecruiterSensor extends Sensor {
         
         if ( recruiter == null &&               //there is no recruiter
              recruitRequester == null ) {       //neither recruit requester
-            return 0.0;                         //angle and distance are 0.0
+            return 0.0;                         //angle is 0, distance is 0, there is recruiter/recruit requester is 0
         }
         
         
@@ -67,12 +67,20 @@ public class RecruiterSensor extends Sensor {
         
         
         
-                                                    //sensorNumber == 0
-        if ( sensorNumber == 0 ) {                  //return distance
-            return getDistanceOutVal(super.robot, r);
-        }
-        else {                                      //assume sensorNumber == 1 
-            return getAngleOutVal(super.robot, r);  //return angle                                
+        
+        switch ( sensorNumber ) {
+            
+            case 0:                                         //sensorNumber == 0                                            
+                return getDistanceOutVal(super.robot, r);   //return distance
+            
+            case 1:                                         //sensorNumber == 1
+                return getAngleOutVal(super.robot, r);      //return angle                                
+            
+            case 2:                                         //sensorNumber == 2
+                return 1.0;                                 //return boolean "there is a recruiter/ recruit requester"
+                
+            default:
+                throw new RuntimeException( "Invalid sensor number in RecruiterSensor" );
         }
         
         

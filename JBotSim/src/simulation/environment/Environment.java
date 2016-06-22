@@ -41,6 +41,22 @@ public abstract class Environment implements KeyListener, Serializable {
     protected double height;
     @ArgumentsAnnotation(name="height", defaultValue="4")
     protected double width;
+    
+    
+    @ArgumentsAnnotation(name="widthValues", help="list of possible values for the environment width. One value is randomly chosen from the list when the environment is created", defaultValue="")
+    private String widthValues = null;      //this variable exists ONLY to support the annotation
+    
+    
+    @ArgumentsAnnotation(name="heightValues", help="list of possible values for the environment height. One value is randomly chosen from the list when the environment is created", defaultValue="")
+    private String heightValues = null;     //this variable exists ONLY to support the annotation
+    
+    
+    
+    
+    
+    
+    
+    
     @ArgumentsAnnotation(name="steps", defaultValue="100")
     protected int steps;
 
@@ -55,6 +71,24 @@ public abstract class Environment implements KeyListener, Serializable {
             this.steps = args.getArgumentAsIntOrSetDefault("steps", 100);
             collisionManager = new SimpleCollisionManager(simulator);
             this.geometricCalculator = new GeometricCalculator();//simulator.getGeoCalculator();
+            
+            
+            
+            if( args.getArgumentIsDefined("widthValues") ) {   //valid width values		
+                String[] rawArray = args.getArgumentAsString("widthValues").split(",");
+
+                if(rawArray.length > 1)                        //randomize width
+                        width = Integer.parseInt(rawArray[simulator.getRandom().nextInt(rawArray.length)]);
+            }
+            
+            
+            if( args.getArgumentIsDefined("heightValues") ) {  //valid height values
+                String[] rawArray = args.getArgumentAsString("heightValues").split(",");
+
+                if(rawArray.length > 1)                        //randomize height
+                        height = Integer.parseInt(rawArray[simulator.getRandom().nextInt(rawArray.length)]);
+            }
+            
             
     }
 

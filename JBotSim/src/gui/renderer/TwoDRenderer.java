@@ -415,6 +415,9 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 			graphics.setColor(Color.RED);
 		}
 
+                graphics.setColor( robot.getLedColor() );       //use color to signal the 
+                                                                //robot's recruiting state 
+                
 		double orientation = robot.getOrientation();
 		Vector2d p0 = new Vector2d();
 		Vector2d p1 = new Vector2d();
@@ -443,6 +446,7 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 		graphics.fillPolygon(xp, yp, 3);
 
 		graphics.setColor(Color.BLACK);
+                
 	}
 
 	public int transformX(double x) {

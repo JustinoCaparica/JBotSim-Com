@@ -15,7 +15,7 @@ import simulation.util.Arguments;
  * and the angle to the recruited robot
  * @author gus
  */
-public class RecruitedSensor extends Sensor {
+public class RecruitSensor extends Sensor {
 
     
     private Robot recruit;                      //the recruited robot
@@ -32,7 +32,7 @@ public class RecruitedSensor extends Sensor {
      * owns this sensor
      * @param args the arguments
      */
-    public RecruitedSensor(Simulator simulator, int id, Robot robot, Arguments args) {
+    public RecruitSensor(Simulator simulator, int id, Robot robot, Arguments args) {
         super(simulator, id, robot, args);
         
         recruit = null;
@@ -44,17 +44,26 @@ public class RecruitedSensor extends Sensor {
     public double getSensorReading( int sensorNumber ) {
         
         if ( recruit == null ) {                //there is no recruit
-            return 0.0;                         //angle and distance are 0
+            return 0.0;                         //angle is 0; distance is 0; recruit is 0
         }
         
         
         
-                                                            //sensorNumber == 0
-        if ( sensorNumber == 0 ) {                          //return distance
-            return getDistanceOutVal( recruit, super.robot );
-        }
-        else {                                              //assume sensorNumber == 1 
-            return getAngleOutVal( recruit, super.robot );  //return angle                                
+        
+        switch ( sensorNumber ) {
+            
+            case 0:                                             //sensorNumber is 0
+                                                                //return distance
+                return getDistanceOutVal( recruit, super.robot );
+            
+            case 1:                                             //sensorNumber is 1
+                return getAngleOutVal( recruit, super.robot );  //return angle                                
+            
+            case 2:                                             //sensorNumber is 2
+                return 1.0;                                     //return boolean "there is a recruit"
+            
+            default:
+                throw new RuntimeException("Invalid sensor number in RecruitedSensor");
         }
         
         
@@ -85,6 +94,18 @@ public class RecruitedSensor extends Sensor {
     }
     
     
+    /**
+     * Determines if there is
+     * another robot focusing
+     * on this robot
+     * @return true if there
+     * is another robot focused
+     * on this robot, false
+     * otherwise
+     */
+    public boolean isFocused() {
+        return recruit != null;
+    }
     
     
     

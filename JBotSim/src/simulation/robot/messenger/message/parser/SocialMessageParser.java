@@ -6,10 +6,9 @@
 package simulation.robot.messenger.message.parser;
 
 import simulation.robot.Robot;
+import simulation.robot.actuators.RecruiterActuator;
 import simulation.robot.messenger.message.Message;
-import simulation.robot.sensors.FocusedBySensor;
-import simulation.robot.sensors.FocusingOnSensor;
-import simulation.robot.sensors.RecruitedSensor;
+import simulation.robot.sensors.RecruitSensor;
 import simulation.robot.sensors.RecruiterSensor;
 
 /**
@@ -26,11 +25,7 @@ public class SocialMessageParser implements MessageParser {
     public void parse( Robot receiver, Robot emitter, Message msg ) {
         
         
-        FocusingOnSensor focusingOnSensor;                    
-        focusingOnSensor = (FocusingOnSensor)receiver.getSensorByType(FocusingOnSensor.class );
         
-        FocusedBySensor focusedBySensor;
-        focusedBySensor = (FocusedBySensor) receiver.getSensorByType(FocusedBySensor.class );
         
         
         
@@ -40,15 +35,11 @@ public class SocialMessageParser implements MessageParser {
         switch ( msg.getMsgType() ) {
             
             case REQUEST_FOCUS:                 
-                if ( focusingOnSensor.isFocused() &&                        //the receiver is recruited and
-                    !focusingOnSensor.getRecruiter().equals( emitter ) ) {  //the emitter is not the recruiter
-                    return;                                                 //ignore the received message
-                }
-                processRequestFocusMsg( focusingOnSensor, receiver, emitter );
+                processRequestFocusMsg( receiver, emitter );
                 break;
                 
             case FOCUS_ACCEPTED:
-                processFocusAcceptedMsg( focusedBySensor, receiver, emitter );
+                processFocusAcceptedMsg( receiver, emitter );
                 break;
                 
             default:
@@ -63,34 +54,29 @@ public class SocialMessageParser implements MessageParser {
     /**
      * Processes a focus accepted
      * message
-     * @param focusedBySensor the 
-     * sensor that knows the recruit,
-     * owned by the receiver
      * @param receiver the message
      * receiver
      * @param emitter the message
      * emitter
      */
-    private void processFocusAcceptedMsg(   FocusedBySensor focusedBySensor, 
-                                            Robot receiver, 
+    private void processFocusAcceptedMsg(   Robot receiver, 
                                             Robot emitter ) {
         
-        if ( !focusedBySensor.isFocused() ) {           //no other robot is focused on this robot
+        RecruitSensor recruitSensor;
+        recruitSensor = (RecruitSensor) receiver.getSensorByType(RecruitSensor.class );
+        
+        RecruiterActuator recruiterActuator;
+        recruiterActuator = (RecruiterActuator) receiver.getActuatorByType(RecruiterActuator.class );
+        
+        
+        if ( recruitSensor.getRecruit() == null         //this robot does not have a recruit yet
+             && recruiterActuator.isRecruiting() ) {    //and is recruiting
             
-            RecruitedSensor recruitedSensor;
-            recruitedSensor = (RecruitedSensor) receiver.getSensorByType( RecruitedSensor.class );
-            
-            //if ( recruitedSensor.getRecruit() != null ) {   //this robot does not have a recruit yet
-                recruitedSensor.setRecruit( emitter );      //accept the emitter as a recruit
-                
-            //}
-            
+            recruitSensor.setRecruit( emitter );        //accept the emitter as a recruit
         }
-        else{                                               
-                //there is already a recruit
-                //ignore the message
-            
-        }
+        
+                                                        //otherwise, there is a recruit
+                                                        //ignore the message
     }
     
     
@@ -100,36 +86,34 @@ public class SocialMessageParser implements MessageParser {
     
     /**
      * Processes a request focus message
-     * @param focusedOnSensor the focus 
-     * sensor
      * @param receiver the robot that
      * received the message
      * @param emitter the robot that
      * emitted the message
      */
-    private void processRequestFocusMsg( FocusingOnSensor focusedOnSensor, 
-                                         Robot receiver, 
+    private void processRequestFocusMsg( Robot receiver, 
                                          Robot emitter ) {
         
-        if ( !focusedOnSensor.isFocused() ) {               //this robot is not recruited yet
-            //System.out.println(receiver.toString() + " not recruited. Processing message" );
             
-            RecruiterSensor recruiterSensor;
-            recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
+        RecruiterSensor recruiterSensor;
+        recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
 
-            if ( recruiterSensor.getRecruitRequester() == null ) {  //there is no previous recruit requester
+        
+        if ( recruiterSensor.getRecruiter() == null ){              //there is no recruiter
+             
+            if ( recruiterSensor.getRecruitRequester() == null ) {  //there is no recruit requester
                 recruiterSensor.setRecruitRequester( emitter );     //set the emitter as the recruit requester
-            }else{
-                 //there is a previous recruit requester
-                 //ignore this recruit requester
             }
+            else{                                                   //there is a recruit requester
+                
+            }
+        
         }
-        else{                                       
-            //System.out.println(receiver.toString() + " already recruited. Message ignored" );
-                //this robot is already recruited 
-                //ignore recruitment requests
-
+        else{
+             //there is a recruiter 
+             //ignore this recruit requester
         }
+        
     }
 
     

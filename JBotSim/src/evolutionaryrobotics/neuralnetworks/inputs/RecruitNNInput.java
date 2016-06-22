@@ -5,43 +5,40 @@
  */
 package evolutionaryrobotics.neuralnetworks.inputs;
 
-import simulation.robot.sensors.FocusingOnSensor;
+import simulation.robot.sensors.RecruitSensor;
 import simulation.robot.sensors.Sensor;
 
 /**
- * An NNInput for the FocusingOnSensor
+ * NNInput to get the readings
+ * from the recruited sensor
  * @author gus
  */
-public class FocusingOnNNInput extends NNInput {
-    
-    private FocusingOnSensor sensor;                 //the sensor
+public class RecruitNNInput extends NNInput {
+
+    private final RecruitSensor recruitedSensor;      //sensor that
+                                                        //perceives the recruited
 
     /**
      * Initializes a new instance
      * @param s the sensor
+     * that this NNInput will
+     * use
      */
-    public FocusingOnNNInput( Sensor s ) {
+    public RecruitNNInput( Sensor s ) {
         super(s);
-        this.sensor = ( FocusingOnSensor ) s;
+        this.recruitedSensor = ( RecruitSensor ) s;
     }
-
-    
     
     @Override
     public int getNumberOfInputValues() {
-        return 1;
+        return 3;
     }
 
-    
-    
     @Override
     public double getValue( int index ) {
-        return sensor.getSensorReading( index );
+        
+        return recruitedSensor.getSensorReading( index );
+        
     }
-    
-    
-    
-    
-    
     
 }

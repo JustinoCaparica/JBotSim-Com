@@ -5,6 +5,7 @@
  */
 package simulation.robot.actuators;
 
+import java.awt.Color;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
@@ -44,6 +45,10 @@ public class RecruitedActuator extends Actuator {
                                                 //if true the robot is recruitedState
     
     
+    private static Color recruitedColor;        //robot color when recruited
+    
+    
+    
     
     /**
      * Initializes a new instance
@@ -62,6 +67,8 @@ public class RecruitedActuator extends Actuator {
         recruitedState  = false;
         
         range = args.getArgumentAsDoubleOrSetDefault("range", RANGE_DEFAULT);
+        
+        recruitedColor = Color.GREEN;
         
     }
 
@@ -90,19 +97,30 @@ public class RecruitedActuator extends Actuator {
     public void apply( Robot robot, double timeDelta ) {
         
         
+        //note that we allways send recruitment msgs to keep the recruitment 
+        //relationship alive
+        
+        
         recruiterSensor = (RecruiterSensor)robot.getSensorByType( RecruiterSensor.class );
         
         
         if ( !recruitedState ) {                        //robot is not recruited
+            
             recruiterSensor.setRecruiter( null );       //clear recruiter
             recruiterSensor.setRecruitRequester( null );//and recruitment requester
-            return;                                     
+            
+            robot.setBodyColor( Color.BLACK );
+            
+            return;                                     //.. and all is done
         }
+            
+        
                                                         //otherwise,
-                                                        //the robot is recruited
+                                                        //the NN decided to be recruited
                                           
                                                 
         boolean found = false;                          //was a recruiter found?
+                                                        //no, not so far, but let's see..
         
         
         if ( recruiterSensor.getRecruiter() != null ) {             //there is a recruiter
@@ -118,6 +136,8 @@ public class RecruitedActuator extends Actuator {
             }
         }
          
+        robot.setBodyColor( Color.BLACK );
+        
         
                                                     //at this point, if found == false
         if ( found ) {                              //there is no recruiter nor recruit requester
@@ -126,9 +146,10 @@ public class RecruitedActuator extends Actuator {
             if ( recruiter.getDistanceBetween( robot.getPosition() ) <= range ) {   //recruiter within range
                 recruiter.getMsgBox().addMsgToInbox( msg, robot );
                                                             //inform the recruiter
-                                                            //we allways send recruitment 
-                                                            //msgs to keep the recruitment 
-                                                            //relationship alive
+                                                            
+                robot.setBodyColor( recruitedColor );
+            }else{
+                robot.setBodyColor( Color.BLACK );
             }
             
         }
