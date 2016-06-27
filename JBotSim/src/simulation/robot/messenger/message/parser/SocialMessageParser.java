@@ -99,20 +99,23 @@ public class SocialMessageParser implements MessageParser {
         recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
 
         
+        
+        
+        
         if ( recruiterSensor.getRecruiter() == null ){              //there is no recruiter
              
             if ( recruiterSensor.getRecruitRequester() == null ) {  //there is no recruit requester
                 recruiterSensor.setRecruitRequester( emitter );     //set the emitter as the recruit requester
             }
-            else{                                                   //there is a recruit requester
-                
+            else{                                                   //there is already a recruit requester
+                                                                    //ignore this request
             }
-        
         }
         else{
-             //there is a recruiter 
-             //ignore this recruit requester
+            //if this robot is already recruited, i.e., there is a recruiter
+            //we ignore this request
         }
+        
         
     }
 

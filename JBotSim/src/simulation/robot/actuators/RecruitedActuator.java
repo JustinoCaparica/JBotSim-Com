@@ -28,7 +28,7 @@ public class RecruitedActuator extends Actuator {
     private Robot recruiter;                    //the recruiter
     
     
-    @ArgumentsAnnotation(name="range", defaultValue="0.8", help="The actuator can not accept recruitment requests from a robot that is further than this range.")
+    @ArgumentsAnnotation(name="range", defaultValue="0.8", help="A robot can not accept recruitment requests from another robot that is further than this range.")
     private final static double RANGE_DEFAULT = 0.8;
     private double range;                   //the range of the actuator:
                                             //how far may a robot be to 
@@ -104,10 +104,10 @@ public class RecruitedActuator extends Actuator {
         recruiterSensor = (RecruiterSensor)robot.getSensorByType( RecruiterSensor.class );
         
         
-        if ( !recruitedState ) {                        //robot is not recruited
+        if ( !recruitedState ) {                        //the NN decided not to be recruited
             
             recruiterSensor.setRecruiter( null );       //clear recruiter
-            recruiterSensor.setRecruitRequester( null );//and recruitment requester
+            recruiterSensor.setRecruitRequester( null );//and recruit requester
             
             robot.setBodyColor( Color.BLACK );
             
@@ -123,6 +123,10 @@ public class RecruitedActuator extends Actuator {
                                                         //no, not so far, but let's see..
         
         
+                                                        
+                                                        
+                                                        
+                                                        
         if ( recruiterSensor.getRecruiter() != null ) {             //there is a recruiter
             recruiter = recruiterSensor.getRecruiter();  
             found = true;
@@ -148,8 +152,10 @@ public class RecruitedActuator extends Actuator {
                                                             //inform the recruiter
                                                             
                 robot.setBodyColor( recruitedColor );
-            }else{
+            }else{                                                                  //recruiter outside range
                 robot.setBodyColor( Color.BLACK );
+                recruiterSensor.setRecruiter( null );           //clear recruiter
+                recruiterSensor.setRecruitRequester( null );    //and recruitment requester
             }
             
         }
