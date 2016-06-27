@@ -37,7 +37,7 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
     @Override
     public double getFitness() {
 
-            return preysCaptured / preys / teamSize;
+            return  ( 1.0 * preysCaptured / preys ) / teamSize;
     }
 
     
