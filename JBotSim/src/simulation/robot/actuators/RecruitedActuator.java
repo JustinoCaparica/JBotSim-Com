@@ -101,10 +101,19 @@ public class RecruitedActuator extends Actuator {
         //relationship alive
         
         
+        //if recruiterActuator is going to recruit
+        //then this robot can not be recruited
+        RecruiterActuator recruiterActuator;
+        recruiterActuator = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
+        
+        
+        
+        
         recruiterSensor = (RecruiterSensor)robot.getSensorByType( RecruiterSensor.class );
         
         
-        if ( !recruitedState ) {                        //the NN decided not to be recruited
+        if ( !recruitedState                            //the NN decided not to be recruited
+                || (recruiterActuator != null && recruiterActuator.isRecruiting()) ) { //or the recruiter actuator is trying to recruit
             
             recruiterSensor.setRecruiter( null );       //clear recruiter
             recruiterSensor.setRecruitRequester( null );//and recruit requester

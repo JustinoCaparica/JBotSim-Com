@@ -11,6 +11,8 @@ import java.util.List;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageEnvelope;
+import simulation.robot.messenger.message.MessageType;
+import simulation.robot.sensors.RecruiterSensor;
 
 /**
  * Offers an inbox and an outbox message queues
@@ -130,6 +132,9 @@ public class MessageBox {
      */
     public void processMessages( Robot receiver ) {
         
+        boolean receivedRecruitmentRequest = false;     //was a recruitment request
+                                                        //message received?
+        
         MessageEnvelope envelope;
         
         for ( int i = 0; i < inbox.size(); i++ ) {
@@ -138,6 +143,18 @@ public class MessageBox {
                                                         //and remove from inbox
             parser.parse( receiver, envelope.getEmitter(), envelope.getMsg() );
             
+            
+            if( envelope.getMsg().getMsgType() == MessageType.REQUEST_FOCUS )
+                receivedRecruitmentRequest = true;      //determine if a recruitment 
+                                                        //request message was received
+            
+        }
+        
+        if ( !receivedRecruitmentRequest ) {            //no recruitment request
+            RecruiterSensor recruiterSensor;            //was received
+            recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
+            recruiterSensor.setRecruitRequester( null );//forget previous recruit requester
+            recruiterSensor.setRecruiter( null );       //and previous recruiter
         }
         
     }

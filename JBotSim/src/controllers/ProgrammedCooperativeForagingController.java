@@ -37,14 +37,17 @@ public class ProgrammedCooperativeForagingController extends Controller {
         TwoWheelActuator wheels;
         wheels = (TwoWheelActuator) robot.getActuatorByType( TwoWheelActuator.class );
         
-        int speed;
+        double speed;
         
         if ( robot.getId() == 0 ){
             speed = 1;
         }
-        else{
+        else if ( robot.getId() == 1 ) {
             speed = 0;
+        }else{
+            speed = 0.5;
         }
+        
         
         
         if ( time < 20 ) {    
@@ -67,18 +70,29 @@ public class ProgrammedCooperativeForagingController extends Controller {
      */
     private void testRecruitment() {
         
-         
+        
         
         
         if( robot.getId() == 0 ){
-            RecruiterActuator act;
-            act = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
-            act.setRecruiting( true );
+            RecruiterActuator recruiterAct;
+            recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
+            recruiterAct.setRecruiting( true );
             
+            
+            RecruitedActuator recruitedAct;
+            recruitedAct = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
+            recruitedAct.setRecruitedState(true);
         }
-        else{
+        else if ( robot.getId() == 1 ) {
             RecruitedActuator act;
+            act = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
+            act.setRecruitedState(true);
             
+            RecruiterActuator recruiterAct;
+            recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
+            recruiterAct.setRecruiting( true );
+            
+        }else{
             
         }
         

@@ -132,11 +132,13 @@ public class RecruiterActuator extends Actuator {
         recruitSensor = (RecruitSensor)robot.getSensorByType( RecruitSensor.class );
         
         
-        if ( !recruiting ) {                        //the robot is not recruiting
+        
+        if ( !recruiting ) {                        //the robot is not recruiting                  
+            
             robot.setLedColor( nonRecruitingColor );//change color to signal that 
                                                     //no message is sent
-            
-            recruitSensor.setRecruit( null );       //forget last recruit
+            if( recruitSensor != null )
+                recruitSensor.setRecruit( null );   //forget last recruit
                                                     
             return;                                 //.. and all is done
         }
@@ -152,18 +154,19 @@ public class RecruiterActuator extends Actuator {
                                                     // b) has a recruit
                            
                                                     
-                                                    
-        recruit = recruitSensor.getRecruit();
+        if( recruitSensor != null )                                            
+            recruit = recruitSensor.getRecruit();
+        
         if ( recruit != null                        // a) there is a recruit, in range
              && recruit.getPosition().distanceTo( robot.getPosition() ) <= range ) {
                 
                 recruit.getMsgBox().addMsgToInbox( msg, robot );    //send message 
-                                                                    // to recruit            
+                                                                    // to recruit                                                            
         }
         else{                                       // b) there is no recruit
                                                     // or the recruit is outside range
-                                                    
-            recruitSensor.setRecruit( null );       //forget the recruit
+            if( recruitSensor != null )                                        
+                recruitSensor.setRecruit( null );   //forget the recruit
             
             robot.broadcastMessage( msg, range );   //broadcast recruitment
                                                     //message to all robots in range    

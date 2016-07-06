@@ -6,6 +6,7 @@
 package simulation.robot.messenger.message.parser;
 
 import simulation.robot.Robot;
+import simulation.robot.actuators.RecruitedActuator;
 import simulation.robot.actuators.RecruiterActuator;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.sensors.RecruitSensor;
@@ -62,6 +63,15 @@ public class SocialMessageParser implements MessageParser {
     private void processFocusAcceptedMsg(   Robot receiver, 
                                             Robot emitter ) {
         
+        
+        RecruitedActuator recruitedActuator;
+        recruitedActuator = (RecruitedActuator) receiver.getActuatorByType( RecruitedActuator.class );
+        if ( recruitedActuator.isRecruited() ) {    //robot is a recruit, thus 
+            return;                                 //robot can not accept to be recruiter
+        }
+        
+        
+        
         RecruitSensor recruitSensor;
         recruitSensor = (RecruitSensor) receiver.getSensorByType(RecruitSensor.class );
         
@@ -93,6 +103,15 @@ public class SocialMessageParser implements MessageParser {
      */
     private void processRequestFocusMsg( Robot receiver, 
                                          Robot emitter ) {
+        
+        
+        RecruiterActuator recruiterActuator;
+        recruiterActuator = (RecruiterActuator) receiver.getActuatorByType( RecruiterActuator.class );
+        if ( recruiterActuator.isRecruiting() ) {   //robot is a recruiter, thus 
+            return;                                 //robot can not accept to be recruited
+        }
+        
+        
         
             
         RecruiterSensor recruiterSensor;
