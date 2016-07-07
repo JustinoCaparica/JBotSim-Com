@@ -6,37 +6,34 @@
 package simulation.robot.actuators;
 
 import java.awt.Color;
-import java.util.HashSet;
-import java.util.Set;
 import simulation.Simulator;
+import simulation.robot.LedState;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
+import simulation.robot.sensors.RecruitSensor;
+import simulation.robot.sensors.RecruiterSensor;
 import simulation.robot.sensors.RobotSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
-
-
 
 /**
  * Actuator that recruits other robots
  * @author gus
  */
-public class RecruiterActuator extends Actuator {
+public class RecruiterActuator_BACK extends Actuator {
 
     //TODO get this parameter from the configuration file
     
-    private final static double RANGE_DEFAULT = 0.8;
     @ArgumentsAnnotation(name="range", defaultValue="0.8", help="The actuator can not recruit a robot that is further than this range.")
+    private final static double RANGE_DEFAULT = 0.8;
     private final double range;             //the range of the actuator:
                                             //how far may a robot be to 
                                             //be possible for me to recruit him?
     
     
-    private Robot recruit;                  //the recruit
-    private Set<Robot> recruitAccepters;    //robots that sent recruit 
-                                            //acceptance messages
-    
+    private RecruitSensor recruitSensor;    //sensor that perceives the recruit
+    private Robot recruit;                  //variable to reference the recruit
     
     private RobotSensor robotsSensor;       //perceives neighboring robots
     
@@ -51,15 +48,13 @@ public class RecruiterActuator extends Actuator {
     private static Color nonRecruitingColor;//robot color when not recruiting
     
     
-    
-    
     /**
      * Initializes a new instance
      * @param simulator the simulator
      * @param id the actuator id
      * @param args the arguments
      */
-    public RecruiterActuator( Simulator simulator, int id, Arguments args ) {
+    public RecruiterActuator_BACK( Simulator simulator, int id, Arguments args ) {
         super(simulator, id, args);
         
         msg = new Message( MessageType.REQUEST_FOCUS );
@@ -71,40 +66,31 @@ public class RecruiterActuator extends Actuator {
         recruitingColor = Color.RED;
         nonRecruitingColor = Color.WHITE;
         
-        recruitAccepters = new HashSet<>();
     }
 
     
-    /**
-     * Clears the recruit accepters
-     * collection. The collection
-     * becomes empty
-     */
-    public void clearRecruitAccepters(){
-        recruitAccepters.clear();
-    }
     
     
     
-    /**
-     * Sets a recruit
-     * @param recruit the 
-     * new recruit
-     */
-    public void setRecruit( Robot recruit ){
-        this.recruit = recruit;
-    }
-
-    
-    /**
-     * Gets the recruited robot
-     * @return the recruit or
-     * null if no robot is under 
-     * recruitment
-     */
-    public Robot getRecruit(){
-        return recruit;
-    }
+//    /**
+//     * Sets a recruit
+//     * @param recruit the 
+//     * new recruit
+//     */
+//    public void setRecruit( Robot recruit ){
+//        this.recruit = recruit;
+//    }
+//
+//    
+//    /**
+//     * Gets the recruited robot
+//     * @return the recruit or
+//     * null if no robot is under 
+//     * recruitment
+//     */
+//    public Robot getRecruit(){
+//        return recruit;
+//    }
     
     
     
@@ -147,6 +133,7 @@ public class RecruiterActuator extends Actuator {
         //recruited robots to keep the recruitment relationship alive
         
         
+        recruitSensor = (RecruitSensor)robot.getSensorByType( RecruitSensor.class );
         robotsSensor = (RobotSensor)robot.getSensorByType( RobotSensor.class );
         
         
@@ -154,13 +141,11 @@ public class RecruiterActuator extends Actuator {
             
             robot.setLedColor( nonRecruitingColor );//change color to signal that 
                                                     //no message is sent
-            
-            recruit = null;                         //forget last recruit
-            recruitAccepters.clear();               //and all recruit accepters
-                                        
-            
+            if( recruitSensor != null )
+                recruitSensor.setRecruit( null );   //forget last recruit
+                                                    
             if ( robotsSensor != null ) {           //set the robots sensor
-                robotsSensor.setTarget( null );     //to target all neighbors
+                robotsSensor.setTarget( null );     //to all neighbors
             }
             
             return;                                 //.. and all is done
@@ -177,20 +162,21 @@ public class RecruiterActuator extends Actuator {
                                                     // b) has a recruit
                            
                                                     
-                                                    
+        if( recruitSensor != null )                                            
+            recruit = recruitSensor.getRecruit();
         
         if ( recruit != null                        // a) there is a recruit, in range
              && recruit.getPosition().distanceTo( robot.getPosition() ) <= range ) {
                 
-            robotsSensor.setTarget( recruit );      //set robots sensor 
-                                                    //to target this recruit
+            robotsSensor.setTarget( recruit );      //set robots sensor target
             
             recruit.getMsgBox().addMsgToInbox( msg, robot );    //send message 
                                                                 // to recruit                                                            
         }
         else{                                       // b) there is no recruit
                                                     // or the recruit is outside range
-            recruit = null;                         //forget the recruit
+            if( recruitSensor != null )                                        
+                recruitSensor.setRecruit( null );   //forget the recruit
             
             robot.broadcastMessage( msg, range );   //broadcast recruitment
                                                     //message to all robots in range    
@@ -200,7 +186,8 @@ public class RecruiterActuator extends Actuator {
         
     }
 
-
+    
+    
     
 
     

@@ -9,6 +9,8 @@ import simulation.robot.messenger.message.parser.MessageParser;
 import java.util.LinkedList;
 import java.util.List;
 import simulation.robot.Robot;
+import simulation.robot.actuators.RecruitedActuator;
+import simulation.robot.actuators.RecruiterActuator;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageEnvelope;
 import simulation.robot.messenger.message.MessageType;
@@ -32,6 +34,9 @@ public class MessageBox {
                                                         //in the last cycle
     
     
+    private int messagesCount;                        //number of total
+                                                        //messages received
+    
     
     
     /**
@@ -45,6 +50,8 @@ public class MessageBox {
         inbox  = new LinkedList<>();
         
         parser = msgParser;
+        
+        messagesCount = 0;
         
     }
     
@@ -79,6 +86,8 @@ public class MessageBox {
     public void addMsgToInbox( Message msg, Robot emitter ){
         
         inbox.add( new MessageEnvelope( msg, emitter ) );
+        
+        messagesCount++;
         
     }
     
@@ -132,8 +141,9 @@ public class MessageBox {
      */
     public void processMessages( Robot receiver ) {
         
-        boolean receivedRecruitmentRequest = false;     //was a recruitment request
-                                                        //message received?
+        ((RecruitedActuator)receiver.getActuatorByType( RecruitedActuator.class )).clearRecruitRequesters();
+        ((RecruiterActuator)receiver.getActuatorByType( RecruiterActuator.class )).clearRecruitAccepters();
+        
         
         MessageEnvelope envelope;
         
@@ -143,23 +153,20 @@ public class MessageBox {
                                                         //and remove from inbox
             parser.parse( receiver, envelope.getEmitter(), envelope.getMsg() );
             
-            
-            if( envelope.getMsg().getMsgType() == MessageType.REQUEST_FOCUS )
-                receivedRecruitmentRequest = true;      //determine if a recruitment 
-                                                        //request message was received
-            
         }
         
-        if ( !receivedRecruitmentRequest ) {            //no recruitment request
-            RecruiterSensor recruiterSensor;            //was received
-            recruiterSensor = (RecruiterSensor) receiver.getSensorByType( RecruiterSensor.class );
-            recruiterSensor.setRecruitRequester( null );//forget previous recruit requester
-            recruiterSensor.setRecruiter( null );       //and previous recruiter
-        }
         
     }
+
     
-    
+    /**
+     * Gets the number of total 
+     * messages received
+     */
+    public int receivedMsgsCount() {
+        return messagesCount;
+    }
+
     
     
     

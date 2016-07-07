@@ -21,7 +21,16 @@ import simulation.util.ArgumentsAnnotation;
 public class CooperativeForagingEnvironment extends Environment {
 
     private static final double PREY_RADIUS = 0.025;
+    @ArgumentsAnnotation(name="preyRadius", help="prey radius", defaultValue="0.025")
+    private Double preyRadius;
+    
+    
+    
     private static final double PREY_MASS = 1;
+    @ArgumentsAnnotation(name="preyMass", help="prey mass", defaultValue="1")
+    private Double preyMass;
+    
+    
     
     private static final Double CLOSEST_RADIUS = 0.07;
     @ArgumentsAnnotation(name="closestRadius", help="radius around each prey that robots must occupy simultaneously to capture the prey", defaultValue="0.07")
@@ -84,6 +93,11 @@ public class CooperativeForagingEnvironment extends Environment {
             
             walled              = arguments.getArgumentAsIntOrSetDefault("wall", WALLED) == 1;
             
+            
+            preyMass            = arguments.getArgumentAsDoubleOrSetDefault("preyMass", PREY_MASS);
+            preyRadius          = arguments.getArgumentAsDoubleOrSetDefault("preyRadius", PREY_RADIUS);
+            
+            
     }
 	
     
@@ -122,7 +136,7 @@ public class CooperativeForagingEnvironment extends Environment {
 
 
         for(int i = 0; i < numberOfPreys; i++ ){
-                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, PREY_MASS, PREY_RADIUS));
+                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius));
         }
         
         

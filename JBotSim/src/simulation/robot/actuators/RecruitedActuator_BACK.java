@@ -6,8 +6,6 @@
 package simulation.robot.actuators;
 
 import java.awt.Color;
-import java.util.HashSet;
-import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
@@ -22,12 +20,13 @@ import simulation.util.ArgumentsAnnotation;
  * requests from other robots
  * @author gus
  */
-public class RecruitedActuator extends Actuator {
+public class RecruitedActuator_BACK extends Actuator {
 
     
+    private RecruiterSensor recruiterSensor;    //sensor that knows
+                                                //the recruiter
     
     private Robot recruiter;                    //the recruiter
-    private Set<Robot> recruitRequesters;       //robots requesting a recruit
     
     
     @ArgumentsAnnotation(name="range", defaultValue="0.8", help="A robot can not accept recruitment requests from another robot that is further than this range.")
@@ -58,15 +57,14 @@ public class RecruitedActuator extends Actuator {
      * @param id the actuator id
      * @param args the arguments
      */
-    public RecruitedActuator( Simulator simulator, int id, Arguments args ) {
+    public RecruitedActuator_BACK( Simulator simulator, int id, Arguments args ) {
         
         super(simulator, id, args);
         
         msg     = new Message( MessageType.FOCUS_ACCEPTED );
         
+        recruiterSensor = null;
         recruiter       = null;
-        recruitRequesters= new HashSet<>();
-        
         recruitedState  = false;
         
         range = args.getArgumentAsDoubleOrSetDefault("range", RANGE_DEFAULT);
@@ -75,17 +73,6 @@ public class RecruitedActuator extends Actuator {
         
     }
 
-    
-    /**
-     * Clears the recruit requesters
-     * collection. The collection
-     * becomes empty.
-     */
-    public void clearRecruitRequesters(){
-        recruitRequesters.clear();
-    }
-    
-    
     
 
     
@@ -111,7 +98,6 @@ public class RecruitedActuator extends Actuator {
     public void apply( Robot robot, double timeDelta ) {
         
         
-        
         //note that we allways send recruitment msgs to keep the recruitment 
         //relationship alive
         
@@ -124,6 +110,7 @@ public class RecruitedActuator extends Actuator {
         
         
         
+        recruiterSensor = (RecruiterSensor)robot.getSensorByType( RecruiterSensor.class );
         robotsSensor = (RobotSensor)robot.getSensorByType( RobotSensor.class );
         
         
@@ -131,13 +118,13 @@ public class RecruitedActuator extends Actuator {
         if ( !recruitedState                            //the NN decided not to be recruited
                 || (recruiterActuator != null && recruiterActuator.isRecruiting()) ) { //or the recruiter actuator is trying to recruit
             
-            recruiter = null;                           //clear recruiter
-            recruitRequesters.clear();                  //and recruit requester
+            recruiterSensor.setRecruiter( null );       //clear recruiter
+            recruiterSensor.setRecruitRequester( null );//and recruit requester
             
             robot.setBodyColor( Color.BLACK );
             
             if ( robotsSensor != null ) {               //set the robots sensor
-                robotsSensor.setTarget( null );         //to target all neighbors
+                robotsSensor.setTarget( null );         //to all neighbors
             }
             
             return;                                     //.. and all is done
@@ -146,20 +133,7 @@ public class RecruitedActuator extends Actuator {
         
                                                         //otherwise,
                                                         //the NN decided to be recruited
-                                   
-                                                        
-        
-        if ( recruitRequesters.contains( recruiter ) ) {//there is a current recruiter
-            
-        }
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
+                                          
                                                 
         boolean found = false;                          //was a recruiter found?
                                                         //no, not so far, but let's see..
@@ -169,13 +143,15 @@ public class RecruitedActuator extends Actuator {
                                                         
                                                         
                                                         
-        if ( recruiter != null ) {                      //there is a recruiter
+        if ( recruiterSensor.getRecruiter() != null ) {             //there is a recruiter
+            recruiter = recruiterSensor.getRecruiter();  
             found = true;
         }                                                       
         else{                                           
-            if ( recruitRequesters != null ) {           //there is a recruit requester
-                recruiter = recruitRequesters;
-                recruitRequesters = null;                //promote the recruit requester
+            if ( recruiterSensor.getRecruitRequester() != null ) {  //there is a recruit requester
+                recruiter = recruiterSensor.getRecruitRequester();
+                recruiterSensor.setRecruitRequester( null );        //promote the recruit requester
+                recruiterSensor.setRecruiter( recruiter );          //to recruit
                 found = true;
             }
         }
@@ -198,8 +174,8 @@ public class RecruitedActuator extends Actuator {
                 robot.setBodyColor( recruitedColor );
             }else{                                                                  //recruiter outside range
                 robot.setBodyColor( Color.BLACK );
-                recruiter = null;                       //clear recruiter
-                recruitRequesters = null;                //and recruitment requester
+                recruiterSensor.setRecruiter( null );           //clear recruiter
+                recruiterSensor.setRecruitRequester( null );    //and recruitment requester
                 
                 if ( robotsSensor != null ) {           //set the robots sensor
                     robotsSensor.setTarget( null );     //to all neighbors
@@ -209,8 +185,6 @@ public class RecruitedActuator extends Actuator {
         }
         
     }
-
-
 
     
     
@@ -238,17 +212,6 @@ public class RecruitedActuator extends Actuator {
      */
     public void setRecruitedState( boolean recruited ) {
         this.recruitedState = recruited;
-    }
-
-    
-    
-    /**
-     * Adds a recruit requester
-     * @param requester the 
-     * recruit requester
-     */
-    public void addRecruitRequester( Robot requester ) {
-        recruitRequesters.add( requester );
     }
     
 }

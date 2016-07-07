@@ -81,16 +81,16 @@ public class ProgrammedCooperativeForagingController extends Controller {
             
             RecruitedActuator recruitedAct;
             recruitedAct = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
-            recruitedAct.setRecruitedState(true);
+            recruitedAct.setRecruitedState( false );
         }
         else if ( robot.getId() == 1 ) {
             RecruitedActuator act;
             act = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
-            act.setRecruitedState(true);
+            act.setRecruitedState( true );
             
             RecruiterActuator recruiterAct;
             recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
-            recruiterAct.setRecruiting( true );
+            recruiterAct.setRecruiting( false );
             
         }else{
             
