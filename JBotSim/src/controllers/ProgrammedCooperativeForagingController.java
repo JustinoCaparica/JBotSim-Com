@@ -19,10 +19,12 @@ import simulation.util.Arguments;
 public class ProgrammedCooperativeForagingController extends Controller {
     
     private Robot robot;
-    
+    private Simulator simulator;
     
     public ProgrammedCooperativeForagingController(Simulator simulator, Robot robot, Arguments args) {
         super(simulator, robot, args);
+        
+        this.simulator = simulator;
         
         this.robot = robot;
         
@@ -40,26 +42,28 @@ public class ProgrammedCooperativeForagingController extends Controller {
         double speed;
         
         if ( robot.getId() == 0 ){
-            speed = 1;
+            speed = 0.8;
         }
         else if ( robot.getId() == 1 ) {
-            speed = 0;
+            speed = 0.2;
         }else{
-            speed = 0.5;
+            speed = 0.0;
         }
         
         
         
-        if ( time < 20 ) {    
+        if ( time < 500 ) {    
             wheels.setLeftWheelSpeed( speed );
             wheels.setRightWheelSpeed( speed );
         }
         else{
             wheels.setLeftWheelSpeed( 0.5 );
             wheels.setRightWheelSpeed( 0.5 );
-            testRecruitment();
+            
         }
-
+        
+        
+        testRecruitment();
 
 
 

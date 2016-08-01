@@ -16,6 +16,7 @@ import simulation.util.Factory;
 import comm.FileProvider;
 import java.util.List;
 import mathutils.Vector2d;
+import simulation.robot.actuators.TwoWheelActuator;
 
 public class Simulator implements Serializable {
 
@@ -159,6 +160,14 @@ public class Simulator implements Serializable {
 			r.update(this);
 		}
 		
+            //updates the distance run by robots    
+            TwoWheelActuator wheels;
+            for ( Robot robot : getRobots() ) {
+                wheels = (TwoWheelActuator) robot.getActuatorByType( TwoWheelActuator.class );
+                
+                robot.addDistance( robot.getPosition().distanceTo( robot.getPreviousPosition() ) );
+            }
+                
 	}
 
 	protected void updateAllControllers(Double time) {

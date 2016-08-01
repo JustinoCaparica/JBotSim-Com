@@ -65,6 +65,9 @@ public class CooperativeForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="densityofpreysValues", help="list of possible values for the preys density. One value is randomly chosen from the list when the environment is created", defaultValue="")
     
     
+    private Double lastPreyCaptureTime;             //moment when the last
+                                                    //prey was captured
+    
     private int numberOfFoodSuccessfullyForaged = 0;        
     private Random random;
 
@@ -97,7 +100,7 @@ public class CooperativeForagingEnvironment extends Environment {
             preyMass            = arguments.getArgumentAsDoubleOrSetDefault("preyMass", PREY_MASS);
             preyRadius          = arguments.getArgumentAsDoubleOrSetDefault("preyRadius", PREY_RADIUS);
             
-            
+            lastPreyCaptureTime = 1.0 * getSteps();
     }
 	
     
@@ -169,9 +172,10 @@ public class CooperativeForagingEnvironment extends Environment {
 
     
     private Vector2d newRandomPosition() {
-            double radius = random.nextDouble()*(forageLimit-nestLimit)+nestLimit*1.1;
-            double angle = random.nextDouble()*2*Math.PI;
-            return new Vector2d(radius*Math.cos(angle),radius*Math.sin(angle));
+        double radius = random.nextDouble()*(forageLimit-nestLimit)+nestLimit*1.1;
+        //double radius = forageLimit;
+        double angle = random.nextDouble()*2*Math.PI;
+        return new Vector2d(radius*Math.cos(angle),radius*Math.sin(angle));
     }
 	
     
@@ -210,8 +214,11 @@ public class CooperativeForagingEnvironment extends Environment {
                                                                 //move prey to
                 currentPrey.teleportTo( newRandomPosition() );  //new position
 
+                //currentPrey.teleportTo( new Vector2d(100, 100) );
                 numberOfFoodSuccessfullyForaged++;              //account for
                                                                 //foraged prey
+                lastPreyCaptureTime = time;
+                
             }
         }
 
@@ -219,7 +226,23 @@ public class CooperativeForagingEnvironment extends Environment {
 
         
     }
+
+    /**
+     * Gets the time stamp of the moment
+     * when the last prey was captured
+     * @return the time stamp
+     */
+    public Double getLastPreyCaptureTime() {
+        return lastPreyCaptureTime;
+    }
 	
+    
+    
+    
+    
+    
+    
+    
     
     
     public int getNumberOfFoodSuccessfullyForaged() {

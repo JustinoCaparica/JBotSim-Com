@@ -7,7 +7,6 @@ package simulation.robot.actuators;
 
 import java.awt.Color;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +24,7 @@ import simulation.util.ArgumentsAnnotation;
  * Actuator that recruits other robots
  * @author gus
  */
-public class RecruiterActuator extends Actuator {
+public class RecruiterActuator_BACK2 extends Actuator {
 
     //TODO get this parameter from the configuration file
     
@@ -66,7 +65,7 @@ public class RecruiterActuator extends Actuator {
      * @param id the actuator id
      * @param args the arguments
      */
-    public RecruiterActuator( Simulator simulator, int id, Arguments args ) {
+    public RecruiterActuator_BACK2( Simulator simulator, int id, Arguments args ) {
         super(simulator, id, args);
         
         msg = new Message( MessageType.REQUEST_FOCUS );
@@ -150,105 +149,90 @@ public class RecruiterActuator extends Actuator {
     
     @Override
     public void apply( Robot robot, double timeDelta ) {
-          
+        
+        //note that we allways send recruitment msgs to already 
+        //recruited robots to keep the recruitment relationship alive
         
         
+        receivers.clear();                          //empty the receivers list
+                                                    
+        
+        robotsSensor = (RobotSensor)robot.getSensorByType( RobotSensor.class );
         
         
-        
-        receivers.clear();                  //forget all receivers
-                                            //from previous time step
-        
-        if ( !recruiting ) {                //NN decided not to recruit
-            notRecruiting(robot);
+        if ( !recruiting ) {                        //the robot is not recruiting                  
+            
+            robot.setLedColor( nonRecruitingColor );//change color to signal that 
+                                                    //no message is sent
+            
+            recruit = null;                         //forget last recruit
+            recruitAccepters.clear();               //and all recruit accepters
+                                        
+            
+            if ( robotsSensor != null ) {           //set the robots sensor
+                robotsSensor.setTarget( null );     //to target all neighbors
+            }
+            
+            return;                                 //.. and all is done
         }
-        else{                               //NN decided to recruit
-            recruiting(robot);
+        
+        
+        
+        robot.setLedColor( recruitingColor );       //use LED to signal recruitment 
+                                                    //message being sent                
+                                                                    
+        
+                                                    //otherwise, the robot:
+                                                    // a) is recruiting; or 
+                                                    // b) has a recruit
+                           
+                                             
+        
+        if ( recruit != null                        // a) there is a recruit, in range
+                && recruitAccepters.contains( recruit )
+                && recruit.getPosition().distanceTo( robot.getPosition() ) <= range ) {
+                
+            if ( robotsSensor != null )
+                robotsSensor.setTarget( recruit );      //set robots sensor 
+                                                        //to target this recruit
+            
+            recruit.getMsgBox().addMsgToInbox( msg, robot );    //send message 
+                                                                // to recruit  
+            receivers.add( recruit );
+            
         }
-        
-        recruitAccepters.clear();           //forget recruit accepters
-        
-        
-        
-        
+        else{                                       // b) there is no recruit
+                                                    // or the recruit is outside range
+                                                    // or the recruit is not on the recruit accepters set
+            recruit = null;                         //forget the recruit
+            
+            //if there are recruit accepters within range promote
+            //one of them to recruit
+            if ( !recruitAccepters.isEmpty() ) {
+                recruit = recruitAccepters.iterator().next();
+                recruit.getMsgBox().addMsgToInbox( msg, robot );    //send message 
+                                                                    // to recruit  
+                receivers.add( recruit );
+                
+                if ( robotsSensor != null ) {           //set the robots sensor
+                    robotsSensor.setTarget( recruit );  //to target the new recruit
+                }
+            }
+            else{
+                if ( robotsSensor != null ) {           //set the robots sensor
+                    robotsSensor.setTarget( null );     //to target all neighbors
+                }
+                receivers = robot.broadcastMessage( msg, range );   //broadcast recruitment
+                                                                    //message to all robots in range  
+            }
+            
+            
+            
+              
+        }
+            
     }
 
-    
-    
-    /**
-     * Implements the actuator's behavior
-     * when not recruiting
-     * @param robot the robot that owns
-     * the actuator
-     */
-    private void notRecruiting( Robot robot ){
-        
-        recruit = null;                     //forget recruit
-        
-                                            
-        RobotSensor robotSensor;            
-        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
-        
-        if ( robotSensor != null ) {        //set the robot sensor 
-            robotSensor.setTarget( null );  //to perceive all neighbor robots
-        }
-        
-    }
-    
-    
-    /**
-     * Implements the actuator's behavior
-     * when recruiting
-     * @param robot the robot that owns
-     * the actuator
-     */
-    private void recruiting( Robot robot ) {
-        
-        RobotSensor robotSensor;            
-        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
-        
-        if ( recruit == null ) {            //there is no current recruit
-                                            
-            recruit = chooseRecruit(robot); //choose one recruit from the accepters
-        }
-        else{                               //there is a current recruit but..
-                                            //the current recruit is not an accepter
-                                            //or is beyond range
-            
-            if ( !recruitAccepters.contains( recruit ) 
-                 || recruit.getPosition().distanceTo( robot.getPosition() ) > range  ) {
-                
-                recruit = chooseRecruit(robot);  //choose new recruit
-                
-            }
-        }
-        
-        
-        
-        if ( recruit == null ) {                    //no recruit is available
-                                                    //broadcast recruitment msg
-            receivers = robot.broadcastMessage( msg, range );
-        }
-        else{                                       //a recruit is available
-                                                    //send the recruit a
-            recruit.getMsgBox().addMsgToInbox( msg, robot );  //recruitment msg
-            receivers.add( recruit );
-        }
-        
-        
-        if ( robotSensor != null ) {            //if recruit is null
-            robotSensor.setTarget( recruit );   // perceive all neighbor robots
-                                                // otherwise perceive recruit robot
-        }
-        
-        
-    }
-    
-    
-    
-    
-    
-    
     /**
      * Gets the robots that received 
      * a recruitment request in the
@@ -272,37 +256,6 @@ public class RecruiterActuator extends Actuator {
     public void addRecruitAccepter( Robot recruitAccepter ) {
         recruitAccepters.add( recruitAccepter );
     }
-
-    
-    /**
-     * Chooses a recruit from the recruit
-     * accepters. The recruit is randomly
-     * selected
-     * @param robot the robot that owns 
-     * the actuator
-     * @return a recruit or null
-     * if there are no recruit accepters
-     * or all the recruit accepters moved
-     * out of range
-     */
-    private Robot chooseRecruit(Robot robot) {
-        
-        Robot r;
-        Iterator<Robot> it;
-        it = recruitAccepters.iterator();   
-        
-        while( it.hasNext() ) {                 //iterate all accepters
-            r = it.next();
-            if( r.getPosition().distanceTo( robot.getPosition() ) <= range ){
-                return r;                       //return 1st accepter within range
-            }
-        }
-        
-        return null;                            //no accepters within range
-                                                //or no accepters at all
-        
-    }
-
 
 
     

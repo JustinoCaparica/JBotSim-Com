@@ -66,6 +66,13 @@ public class SocialMessageParser implements MessageParser {
         
         RecruiterActuator recruiterActuator;
         recruiterActuator = (RecruiterActuator) receiver.getActuatorByType(RecruiterActuator.class );
+               
+        //recruiter can only accept a recruit that received
+        //a recruitment request message from the recruiter in the
+        //previous time step
+        if ( recruiterActuator.getReceivers().contains( emitter ) ) {
+            recruiterActuator.addRecruitAccepter( emitter );
+        }
         
         
         
@@ -118,7 +125,10 @@ public class SocialMessageParser implements MessageParser {
         
         RecruitedActuator recruitedActuator;
         recruitedActuator = (RecruitedActuator) receiver.getActuatorByType( RecruitedActuator.class );
-        recruitedActuator.addRecruitRequester( emitter );
+        if ( recruitedActuator != null ) {
+            recruitedActuator.addRecruitRequester( emitter );
+        }
+        
         
         
         

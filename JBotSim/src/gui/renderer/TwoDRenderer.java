@@ -23,6 +23,8 @@ import simulation.physicalobjects.Prey;
 import simulation.physicalobjects.Wall;
 import simulation.physicalobjects.Wall.Edge;
 import simulation.robot.Robot;
+import simulation.robot.actuators.RecruitedActuator;
+import simulation.robot.actuators.RecruiterActuator;
 import simulation.util.Arguments;
 
 public class TwoDRenderer extends Renderer implements ComponentListener {
@@ -403,7 +405,20 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 		// graphics.fillOval(x-2, y-2, circleDiameter + 4, circleDiameter + 4);
 		//
 		// }
-		graphics.setColor(robot.getBodyColor());
+                
+                
+                //Visualization for the recruited 
+                RecruitedActuator recruitedAct;
+                recruitedAct = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
+                if ( recruitedAct != null && recruitedAct.getRecruiter() != null ) {
+                    graphics.setColor( Color.GREEN );
+                }
+                else{
+                    graphics.setColor( Color.BLACK );
+                }
+                
+                
+		//graphics.setColor(robot.getBodyColor());
 		graphics.fillOval(x, y, circleDiameter, circleDiameter);
 
 		int avgColor = (robot.getBodyColor().getRed() + robot.getBodyColor().getGreen()
@@ -417,17 +432,6 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 
                 
                 
-                
-                
-                
-                
-                if ( robot.getLedColor() == Color.BLACK ) {
-                    graphics.setColor( Color.PINK );
-                }else{
-                    graphics.setColor( robot.getLedColor() );   //use color to signal the 
-                                                                //robot's recruiting state
-                }
-                 
                 
 		double orientation = robot.getOrientation();
 		Vector2d p0 = new Vector2d();
@@ -454,8 +458,24 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 		xp[2] = transformX(p2.getX() + robot.getPosition().getX());
 		yp[2] = transformY(p2.getY() + robot.getPosition().getY());
 
-		graphics.fillPolygon(xp, yp, 3);
-
+                
+                
+                
+                
+                //Visualization for the recruiter
+                RecruiterActuator recruiterAct;
+                recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
+                if ( recruiterAct != null && recruiterAct.getRecruit() != null ) {
+                    graphics.setColor( Color.RED );
+                }
+                else{
+                    graphics.setColor( Color.WHITE );
+                }
+                
+                
+                
+                
+                graphics.fillPolygon(xp, yp, 3);
 		graphics.setColor(Color.BLACK);
                 
 	}

@@ -141,8 +141,20 @@ public class MessageBox {
      */
     public void processMessages( Robot receiver ) {
         
-        ((RecruitedActuator)receiver.getActuatorByType( RecruitedActuator.class )).clearRecruitRequesters();
-        ((RecruiterActuator)receiver.getActuatorByType( RecruiterActuator.class )).clearRecruitAccepters();
+        RecruitedActuator recruitedAct;
+        recruitedAct = (RecruitedActuator)receiver.getActuatorByType( RecruitedActuator.class );
+        if ( recruitedAct != null ) {
+            recruitedAct.clearRecruitRequesters();
+        }
+        
+        
+        RecruiterActuator recruiterAct;
+        recruiterAct = (RecruiterActuator)receiver.getActuatorByType( RecruiterActuator.class );
+        if ( recruiterAct != null ) {
+            recruiterAct.clearRecruitAccepters();
+        }
+        
+        
         
         
         MessageEnvelope envelope;

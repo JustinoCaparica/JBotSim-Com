@@ -27,9 +27,18 @@ public class RobotSensor extends LightTypeSensor {
     
     @Override
 	protected double calculateContributionToSensor(int sensorNumber, PhysicalObjectDistance source) {
-
+//
+//            if (target == null ) {
+//                System.out.println("target = null");
+//            }else{
+//                System.out.println( "target=" + target.getDescription() );
+//            }
+//            
+//            System.out.println("source.getObject():" + source.getObject());
+            
             if ( target != null &&                          //there is a target and
                  !target.equals(source.getObject())) {      //the target is not the source
+                //System.out.println("############# target equals source. returning 0.0");
                 return 0.0;                                 //return contribution of 0.0
             }
             

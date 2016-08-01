@@ -19,7 +19,9 @@ import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 import simulation.util.Factory;
 import controllers.Controller;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import simulation.robot.messenger.MessageBox;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.parser.MessageParser;
@@ -104,6 +106,9 @@ public class Robot extends MovableObject {
 	
         private Simulator simulator;            //the simulator
         
+        private Double distance;                //total distance run
+                                                //by the robot
+        
         
 	/**
 	 * Initialize a new robot.
@@ -163,6 +168,7 @@ public class Robot extends MovableObject {
                     msgBox = new MessageBox( msgParser );
                 }
                 
+                distance = 0.0;
 	}
 
         
@@ -177,28 +183,38 @@ public class Robot extends MovableObject {
         }
 	
         
-        /**
-         * Broadcast a message to all
-         * robots within a range
-         * @param msg the message
-         * @param range the range
-         */
-        public void broadcastMessage( Message msg, double range ){
-                    
-            List<Robot> robots;                                 
-            robots = simulator.getEnvironment().getRobots();    //all robots
+    /**
+     * Broadcast a message to all
+     * robots within a range
+     * @param msg the message
+     * @param range the range
+     * @return a set with the
+     * robots that received 
+     * the message
+     */
+    public Set<Robot> broadcastMessage( Message msg, double range ){
+
+        Set<Robot> receivers;
+        receivers = new HashSet<>();
+
+        List<Robot> robots;                                 
+        robots = simulator.getEnvironment().getRobots();    //all robots
+
+
+        for (Robot robot : robots) {
+                                                                //robot is in range
+            if ( robot.getPosition().distanceTo( this.getPosition()) < range
+                 && !robot.equals(this) ) {                     //do not send msg to himself!
+                
+                robot.getMsgBox().addMsgToInbox( msg, this );   //send message
+                receivers.add( robot );                         //to other robots
             
-            
-            for (Robot robot : robots) {
-                                                                    //robot is in range
-                if ( robot.getPosition().distanceTo( this.getPosition()) < range
-                     && !robot.equals(this) ) {                     //do not send msg to himself!
-                    robot.getMsgBox().addMsgToInbox( msg, this );   //send message
-                }                                                   //to other robots
-                    
-            }
-            
+            }                                                   
+
         }
+
+        return receivers;
+    }
         
         
         /**
@@ -609,5 +625,30 @@ public class Robot extends MovableObject {
 	public boolean ignoreWallCollisions() {
 		return false;
 	}
+
+        
+    /**
+     * Adds a distance to the
+     * total run distance
+     * @param distance the 
+     * distance to be added
+     */
+    public void addDistance( Double distance ) {
+        this.distance += distance;
+    }
+
+    /**
+     * Gets the total distance
+     * run by the robot
+     * @return the total distance
+     * run by the robot
+     */
+    public Double getDistance() {
+        return distance;
+    }
+    
+    
+    
+    
 	
 }
