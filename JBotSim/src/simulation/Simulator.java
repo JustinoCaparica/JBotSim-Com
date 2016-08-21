@@ -160,13 +160,7 @@ public class Simulator implements Serializable {
 			r.update(this);
 		}
 		
-            //updates the distance run by robots    
-            TwoWheelActuator wheels;
-            for ( Robot robot : getRobots() ) {
-                wheels = (TwoWheelActuator) robot.getActuatorByType( TwoWheelActuator.class );
-                
-                robot.addDistance( robot.getPosition().distanceTo( robot.getPreviousPosition() ) );
-            }
+            
                 
 	}
 

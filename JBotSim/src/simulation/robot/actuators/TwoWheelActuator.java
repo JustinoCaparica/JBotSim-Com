@@ -10,65 +10,96 @@ import simulation.util.ArgumentsAnnotation;
 
 public class TwoWheelActuator extends Actuator {
 
-	public static final float NOISESTDEV = 0.05f;
+    public static final float NOISESTDEV = 0.05f;
 
-	protected double leftSpeed = 0;
-	protected double rightSpeed = 0;
-	protected Random random;
-	@ArgumentsAnnotation(name="maxspeed", defaultValue = "0.1")
-	protected double maxSpeed;
-	
-	public TwoWheelActuator(Simulator simulator, int id, Arguments arguments) {
-		super(simulator, id, arguments);
-		this.random = simulator.getRandom();
-		this.maxSpeed = arguments.getArgumentAsDoubleOrSetDefault("maxspeed", 0.1);
-	}
+    private double spentEnergy;                     //energy spent by
+    //the actuator to move
 
-	public void setLeftWheelSpeed(double value) {
-		leftSpeed = (value - 0.5) * maxSpeed * 2.0;
-	}
+    private Simulator simulator;                    //the simulator
+    //running the experiment
 
-	public void setRightWheelSpeed(double value) {
-		rightSpeed = (value - 0.5) * maxSpeed * 2.0;
-	}
+    private double lastApplyInstant;                //last instant when
+    //the apply method was
+    //called
 
-	@Override
-	public void apply(Robot robot, double timeDelta) {
-		leftSpeed*= (1 + random.nextGaussian() * NOISESTDEV);
-		rightSpeed*= (1 + random.nextGaussian() * NOISESTDEV);
+    protected double leftSpeed = 0;
+    protected double rightSpeed = 0;
+    protected Random random;
+    @ArgumentsAnnotation(name = "maxspeed", defaultValue = "0.1")
+    protected double maxSpeed;
 
-		if (leftSpeed < -maxSpeed)
-			leftSpeed = -maxSpeed;
-		else if (leftSpeed > maxSpeed)
-			leftSpeed = maxSpeed;
+    public TwoWheelActuator(Simulator simulator, int id, Arguments arguments) {
+        super(simulator, id, arguments);
+        this.random = simulator.getRandom();
+        this.maxSpeed = arguments.getArgumentAsDoubleOrSetDefault("maxspeed", 0.1);
 
-		if (rightSpeed < -maxSpeed)
-			rightSpeed = -maxSpeed;
-		else if (rightSpeed > maxSpeed)
-			rightSpeed = maxSpeed;
-		((DifferentialDriveRobot) robot).setWheelSpeed(leftSpeed, rightSpeed);
-	}
+        spentEnergy = 0.0;
+        this.simulator = simulator;
+        lastApplyInstant = 0.0;
+    }
 
-	@Override
-	public String toString() {
-		return "TwoWheelActuator [leftSpeed=" + leftSpeed + ", rightSpeed="
-				+ rightSpeed + "]";
-	}
-	
-	public double getMaxSpeed() {
-		return maxSpeed;
-	}
-	
-	public double[] getSpeed(){
-		double[] velocities = {leftSpeed, rightSpeed};
-		return velocities;
-	}
-	
-	public double[] getSpeedPrecentage(){
-		double leftPercentage = leftSpeed/maxSpeed;
-		double rightPercentage = rightSpeed/maxSpeed;
-		
-		return new double[]{leftPercentage, rightPercentage};
-	}
-	
+    public void setLeftWheelSpeed(double value) {
+        leftSpeed = (value - 0.5) * maxSpeed * 2.0;
+    }
+
+    public void setRightWheelSpeed(double value) {
+        rightSpeed = (value - 0.5) * maxSpeed * 2.0;
+    }
+
+    @Override
+    public void apply(Robot robot, double timeDelta) {
+        
+        //account for energy spent since last call to this method
+        spentEnergy += (simulator.getTime() - lastApplyInstant) * Math.abs(leftSpeed)
+                        + (simulator.getTime() - lastApplyInstant) * Math.abs(rightSpeed);
+        
+        
+        leftSpeed *= (1 + random.nextGaussian() * NOISESTDEV);
+        rightSpeed *= (1 + random.nextGaussian() * NOISESTDEV);
+
+        if (leftSpeed < -maxSpeed) {
+            leftSpeed = -maxSpeed;
+        } else if (leftSpeed > maxSpeed) {
+            leftSpeed = maxSpeed;
+        }
+
+        if (rightSpeed < -maxSpeed) {
+            rightSpeed = -maxSpeed;
+        } else if (rightSpeed > maxSpeed) {
+            rightSpeed = maxSpeed;
+        }
+        ((DifferentialDriveRobot) robot).setWheelSpeed(leftSpeed, rightSpeed);
+
+        
+
+        lastApplyInstant = simulator.getTime();     //register this
+        //instant
+    }
+
+    public double getSpentEnergy() {
+        return spentEnergy;
+    }
+
+    @Override
+    public String toString() {
+        return "TwoWheelActuator [leftSpeed=" + leftSpeed + ", rightSpeed="
+                + rightSpeed + "]";
+    }
+
+    public double getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public double[] getSpeed() {
+        double[] velocities = {leftSpeed, rightSpeed};
+        return velocities;
+    }
+
+    public double[] getSpeedPrecentage() {
+        double leftPercentage = leftSpeed / maxSpeed;
+        double rightPercentage = rightSpeed / maxSpeed;
+
+        return new double[]{leftPercentage, rightPercentage};
+    }
+
 }

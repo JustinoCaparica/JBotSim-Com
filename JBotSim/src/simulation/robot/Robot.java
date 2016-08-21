@@ -106,9 +106,6 @@ public class Robot extends MovableObject {
 	
         private Simulator simulator;            //the simulator
         
-        private Double distance;                //total distance run
-                                                //by the robot
-        
         
 	/**
 	 * Initialize a new robot.
@@ -168,7 +165,6 @@ public class Robot extends MovableObject {
                     msgBox = new MessageBox( msgParser );
                 }
                 
-                distance = 0.0;
 	}
 
         
@@ -626,26 +622,7 @@ public class Robot extends MovableObject {
 		return false;
 	}
 
-        
-    /**
-     * Adds a distance to the
-     * total run distance
-     * @param distance the 
-     * distance to be added
-     */
-    public void addDistance( Double distance ) {
-        this.distance += distance;
-    }
-
-    /**
-     * Gets the total distance
-     * run by the robot
-     * @return the total distance
-     * run by the robot
-     */
-    public Double getDistance() {
-        return distance;
-    }
+   
     
     
     
