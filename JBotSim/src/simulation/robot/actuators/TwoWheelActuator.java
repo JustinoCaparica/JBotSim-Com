@@ -12,15 +12,15 @@ public class TwoWheelActuator extends Actuator {
 
     public static final float NOISESTDEV = 0.05f;
 
-    private double spentEnergy;                     //energy spent by
-    //the actuator to move
+    private double totalWheelSpeed;                 //total wheel speed spent
+                                                    //by the actuator to move
 
     private Simulator simulator;                    //the simulator
-    //running the experiment
+                                                    //running the experiment
 
     private double lastApplyInstant;                //last instant when
-    //the apply method was
-    //called
+                                                    //the apply method was
+                                                    //called
 
     protected double leftSpeed = 0;
     protected double rightSpeed = 0;
@@ -28,12 +28,12 @@ public class TwoWheelActuator extends Actuator {
     @ArgumentsAnnotation(name = "maxspeed", defaultValue = "0.1")
     protected double maxSpeed;
 
-    public TwoWheelActuator(Simulator simulator, int id, Arguments arguments) {
+    public TwoWheelActuator( Simulator simulator, int id, Arguments arguments ) {
         super(simulator, id, arguments);
         this.random = simulator.getRandom();
         this.maxSpeed = arguments.getArgumentAsDoubleOrSetDefault("maxspeed", 0.1);
 
-        spentEnergy = 0.0;
+        totalWheelSpeed = 0.0;
         this.simulator = simulator;
         lastApplyInstant = 0.0;
     }
@@ -49,35 +49,41 @@ public class TwoWheelActuator extends Actuator {
     @Override
     public void apply(Robot robot, double timeDelta) {
         
-        //account for energy spent since last call to this method
-        spentEnergy += (simulator.getTime() - lastApplyInstant) * Math.abs(leftSpeed)
+        //sum the wheel speed spent since last call to this method
+        //to the total wheel speed
+        totalWheelSpeed += (simulator.getTime() - lastApplyInstant) * Math.abs(leftSpeed)
                         + (simulator.getTime() - lastApplyInstant) * Math.abs(rightSpeed);
         
         
         leftSpeed *= (1 + random.nextGaussian() * NOISESTDEV);
         rightSpeed *= (1 + random.nextGaussian() * NOISESTDEV);
 
-        if (leftSpeed < -maxSpeed) {
+        if ( leftSpeed < -maxSpeed ) {
             leftSpeed = -maxSpeed;
-        } else if (leftSpeed > maxSpeed) {
+        } else if ( leftSpeed > maxSpeed ) {
             leftSpeed = maxSpeed;
         }
 
-        if (rightSpeed < -maxSpeed) {
+        if ( rightSpeed < -maxSpeed ) {
             rightSpeed = -maxSpeed;
-        } else if (rightSpeed > maxSpeed) {
+        } else if ( rightSpeed > maxSpeed ) {
             rightSpeed = maxSpeed;
         }
-        ((DifferentialDriveRobot) robot).setWheelSpeed(leftSpeed, rightSpeed);
+        ((DifferentialDriveRobot) robot).setWheelSpeed( leftSpeed, rightSpeed );
 
         
 
-        lastApplyInstant = simulator.getTime();     //register this
-        //instant
+        lastApplyInstant = simulator.getTime();     //register this instant
+
     }
 
+    /**
+     * Gets the total amount of
+     * wheel speed spent so far
+     * @return 
+     */
     public double getSpentEnergy() {
-        return spentEnergy;
+        return totalWheelSpeed;
     }
 
     @Override
@@ -86,10 +92,26 @@ public class TwoWheelActuator extends Actuator {
                 + rightSpeed + "]";
     }
 
+    /**
+     * Gets the maximum speed.
+     * @return 
+     */
     public double getMaxSpeed() {
         return maxSpeed;
     }
 
+    /**
+     * Sets the maximum speed. 
+     */
+    public void setMaxSpeed( double maxSpeed ) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    
+    
+    
+    
+    
     public double[] getSpeed() {
         double[] velocities = {leftSpeed, rightSpeed};
         return velocities;
