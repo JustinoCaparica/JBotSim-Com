@@ -23,13 +23,13 @@ import simulation.util.ArgumentsAnnotation;
 public class TwoWheelActuatorEnergySensor extends Sensor {
     
     
-    @ArgumentsAnnotation(name = "wheelSpeedUnits", defaultValue = "100", help="units of wheel speed that can be provided by a full charge of energy")
+    @ArgumentsAnnotation(name = "wheelSpeedUnits", defaultValue = "125", help="units of wheel speed that can be provided by a full charge of energy")
     private double wheelSpeedUnits;             //number of units of wheel speed
                                                 //that can be provided by a 
                                                 //full charge of energy
     
     
-    @ArgumentsAnnotation(name = "wheelsMaxSpeedLowEnergyFactor", defaultValue = "0.01", help="when energy is low the wheels maximum speed is temporarily multiplied by this value")
+    @ArgumentsAnnotation(name = "wheelsMaxSpeedLowEnergyFactor", defaultValue = "0.1", help="when energy is low the wheels maximum speed is temporarily multiplied by this value")
     private double wheelsMaxSpeedLowEnergyFactor;   //multiply the wheels maximum speed
                                                     //by this factor when energy is low
     
@@ -42,7 +42,7 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
     private Robot robot;                        //robot that owns this sensor
     
     private TwoWheelActuator wheelActuator;     //two wheel actuator whose
-                                                //energy level is boing sensed
+                                                //energy level is being sensed
     
     private double wheelsMaxSpeed;              //wheels maximum speed
     
@@ -67,8 +67,8 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
             this.robot = robot;
             
             
-            wheelSpeedUnits = args.getArgumentAsDoubleOrSetDefault("wheelSpeedUnits", 100);
-            wheelsMaxSpeedLowEnergyFactor = args.getArgumentAsDoubleOrSetDefault("wheelsMaxSpeedLowEnergyFactor", 0.01);
+            wheelSpeedUnits = args.getArgumentAsDoubleOrSetDefault("wheelSpeedUnits", 125);
+            wheelsMaxSpeedLowEnergyFactor = args.getArgumentAsDoubleOrSetDefault("wheelsMaxSpeedLowEnergyFactor", 0.1);
             
             energyMax = 1.0;
             currentEnergy = energyMax;
@@ -78,6 +78,12 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
     
     @Override
     public void update( double time, ArrayList<PhysicalObject> teleported ) {
+        
+        if(closeObjects != null)                        //these lines seam
+            closeObjects.update(time, teleported);      //mandatory; I dont know why
+        
+        
+        
         
         //initialize the wheel actuator
         if ( wheelActuator == null ) {
@@ -93,12 +99,14 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
             currentEnergy = energyMax;          //recharge energy
             lastSpentEnergyValue = wheelActuator.getSpentEnergy();
             wheelActuator.setMaxSpeed( wheelsMaxSpeed );
+            //System.out.println( "Robot " + robot.getId() + " IN NEST. currentEnergy = " + currentEnergy + ". wheelActuator.getSpentEnergy()=" + wheelActuator.getSpentEnergy() + " lastSpentEnergyValue=" + lastSpentEnergyValue );
         }
         else{
             currentEnergy = energyMax - ( ( wheelActuator.getSpentEnergy() - lastSpentEnergyValue ) / wheelSpeedUnits);
             if ( currentEnergy < 0 ) {
                 wheelActuator.setMaxSpeed( wheelsMaxSpeed * wheelsMaxSpeedLowEnergyFactor );
             }
+            //System.out.println( "Robot " + robot.getId() + " NOT in nest. currentEnergy = " + currentEnergy + ". wheelActuator.getSpentEnergy()=" + wheelActuator.getSpentEnergy() + " lastSpentEnergyValue=" + lastSpentEnergyValue );
         }
         
     }
