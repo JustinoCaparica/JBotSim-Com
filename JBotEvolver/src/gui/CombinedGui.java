@@ -28,7 +28,7 @@ public class CombinedGui extends JFrame {
 		}
 		
 		tabbedPane = new JTabbedPane();
-		
+                
 		JBotEvolver jbot = null;
 		try {
 			jbot = new JBotEvolver(args);
