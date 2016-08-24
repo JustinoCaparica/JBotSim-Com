@@ -22,6 +22,7 @@ import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 import taskexecutor.TaskExecutor;
+import tests.Cronometer;
 
 public class NEATEvolution extends Evolution {
 
@@ -58,7 +59,7 @@ public class NEATEvolution extends Evolution {
 
 	@Override
 	public void executeEvolution() {
-
+		
 		NEATGeneticAlgorithmWrapper algorithm;
 
 		int i = population.getNumberOfCurrentGeneration();
@@ -81,7 +82,7 @@ public class NEATEvolution extends Evolution {
 			population.createRandomPopulation();
 			population.setNEATPopulation4J((NEATPopulation4J) algorithm.population());
 			population.getNEATPopulation4J().setSpecies(algorithm.getSpecies());
-		}
+		} 
 
 		if (!population.evolutionDone())
 			taskExecutor.setTotalNumberOfTasks(
@@ -121,8 +122,7 @@ public class NEATEvolution extends Evolution {
 		}
 
 		InnovationDatabase db = algorithm.innovationDatabase();
-		System.err.println("Innovation Database Stats - Hits:" + db.hits + " - misses:" + db.misses);
-
+		System.out.println("Innovation Database Stats - Hits: " + db.hits + " - misses: " + db.misses);
 	}
 
 	protected void configureDescriptor(Arguments args) {

@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -31,8 +32,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -41,21 +44,27 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.SpringLayout;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import controllers.Controller;
 import evolutionaryrobotics.JBotEvolver;
 import evolutionaryrobotics.evaluationfunctions.EvaluationFunction;
+import evolutionaryrobotics.neuralnetworks.CTRNNMultilayer;
+import evolutionaryrobotics.neuralnetworks.NeuralNetwork;
 import evolutionaryrobotics.neuralnetworks.NeuralNetworkController;
 import gui.renderer.Renderer;
 import gui.util.Editor;
 import gui.util.GraphPlotter;
 import gui.util.GraphViz;
 import gui.util.PostEvaluationData;
+import gui.util.SpringUtilities;
 import simulation.JBotSim;
 import simulation.Simulator;
 import simulation.Updatable;
@@ -64,17 +73,27 @@ import updatables.BlenderExport;
 
 public class ResultViewerGui extends Gui implements Updatable {
 
+	private final int LEFTWRAPPERPANEL_INIT_WIDTH_WINDOWS = 400;
+	private final int LEFTWRAPPERPANEL_INIT_WIDTH_UNIX = 300;
+
 	protected JTextField controlStepTextField;
 	protected JTextField fitnessTextField;
 
 	protected JTextField controlStepTimeTextField;
 	protected JTextField rendererTimeTextField;
 
+	protected JTextField inputNeuronsTextField;
+	protected JTextField outputNeuronsTextField;
+	protected JTextField synapsesTextField;
+	protected JTextField totalNeuronsTextField;
+
 	protected int sleepBetweenControlSteps = 10;
 
 	protected JPanel leftWrapperPanel;
 	protected JPanel rightAndCenterWrapperPanel;
 	protected JPanel treeWrapper;
+	protected JPanel debugOptions;
+	protected JPanel extraOptionsPanel;
 
 	protected JButton pauseButton;
 	protected JButton plotButton;
@@ -118,12 +137,16 @@ public class ResultViewerGui extends Gui implements Updatable {
 	protected JCheckBox neuralNetworkViewerCheckbox;
 	protected JCheckBox exportToBlender;
 
-	private boolean enableDebugOptions = false;
-	private boolean showSleepError = false;
+	protected boolean enableDebugOptions = false;
+	protected boolean showSleepError = false;
+	protected boolean showCurrentFileLabel = false;
 
 	protected EnvironmentKeyDispatcher dispatcher;
 
 	protected long lastCycleTime = 0;
+
+	protected JButton openButton = new JButton("Open");
+	protected String lastOpenedPath = ".";
 
 	public ResultViewerGui(JBotSim jBotEvolver, Arguments args) {
 		super(jBotEvolver, args);
@@ -134,6 +157,7 @@ public class ResultViewerGui extends Gui implements Updatable {
 		}
 
 		enableDebugOptions = args.getArgumentAsIntOrSetDefault("enabledebugoptions", 0) == 1;
+		showCurrentFileLabel = args.getArgumentAsIntOrSetDefault("showCurrentFileLabel", 0) == 1;
 
 		setLayout(new BorderLayout());
 
@@ -144,10 +168,21 @@ public class ResultViewerGui extends Gui implements Updatable {
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftWrapperPanel,
 				rightAndCenterWrapperPanel);
 		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(300);
 
-		// Provide minimum sizes for the two components in the split pane
-		Dimension minimumSize = new Dimension(300, 250);
+		if (System.getProperty("os.name").contains("Windows")) {
+			splitPane.setDividerLocation(LEFTWRAPPERPANEL_INIT_WIDTH_WINDOWS);
+		} else {
+			splitPane.setDividerLocation(LEFTWRAPPERPANEL_INIT_WIDTH_UNIX);
+		}
+
+		// Provide minimum sizes for the two components in the split panel
+		Dimension minimumSize = null;
+		if (System.getProperty("os.name").contains("Windows")) {
+			minimumSize = new Dimension(300, 250);
+		} else {
+			minimumSize = new Dimension(300, 250);
+		}
+
 		leftWrapperPanel.setMinimumSize(minimumSize);
 		rightAndCenterWrapperPanel.setMinimumSize(minimumSize);
 
@@ -187,6 +222,7 @@ public class ResultViewerGui extends Gui implements Updatable {
 		topPanel.add(editButton);
 
 		JPanel editLoad = new JPanel();
+		editLoad.add(openButton);
 		editLoad.add(editButton);
 		editLoad.add(loadButton);
 
@@ -209,7 +245,7 @@ public class ResultViewerGui extends Gui implements Updatable {
 
 	protected JPanel initRightWrapperPanel() {
 
-		int panelWidth = 150;
+		int panelWidth = 300;
 
 		JPanel sideTopPanel = new JPanel();
 		sideTopPanel.setLayout(new BoxLayout(sideTopPanel, BoxLayout.Y_AXIS));
@@ -248,24 +284,6 @@ public class ResultViewerGui extends Gui implements Updatable {
 
 		sideTopPanel.add(new JLabel(" "));
 
-		if (enableDebugOptions) {
-
-			neuralNetworkCheckbox = new JCheckBox("Show Neural Network");
-			neuralNetworkCheckbox.setAlignmentX(Component.CENTER_ALIGNMENT);
-			sideTopPanel.add(neuralNetworkCheckbox);
-			/*
-			 * neuralNetworkViewerCheckbox = new JCheckBox(
-			 * "Show Neural Network #2");
-			 * neuralNetworkViewerCheckbox.setAlignmentX(Component.
-			 * CENTER_ALIGNMENT); sideTopPanel.add(neuralNetworkViewerCheckbox);
-			 */
-			exportToBlender = new JCheckBox("Export to Blender");
-			exportToBlender.setAlignmentX(Component.CENTER_ALIGNMENT);
-			sideTopPanel.add(exportToBlender);
-
-			sideTopPanel.add(new JLabel(" "));
-		}
-
 		// Status panel
 		JPanel statusPanel = new JPanel(new GridLayout(3, 2));
 		statusPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -273,11 +291,13 @@ public class ResultViewerGui extends Gui implements Updatable {
 		statusPanel.add(new JLabel("Control step: "));
 		controlStepTextField = new JTextField("N/A");
 		controlStepTextField.setHorizontalAlignment(JTextField.CENTER);
+		controlStepTextField.setEditable(false);
 		statusPanel.add(controlStepTextField);
 
 		statusPanel.add(new JLabel("Fitness: "));
 		fitnessTextField = new JTextField("N/A");
 		fitnessTextField.setHorizontalAlignment(JTextField.CENTER);
+		fitnessTextField.setEditable(false);
 		statusPanel.add(fitnessTextField);
 
 		sideTopPanel.add(statusPanel);
@@ -286,6 +306,60 @@ public class ResultViewerGui extends Gui implements Updatable {
 		JPanel sideWrapperPanel = new JPanel(new BorderLayout());
 		sideWrapperPanel.add(sideTopPanel, BorderLayout.NORTH);
 		sideWrapperPanel.setBorder(BorderFactory.createTitledBorder("Controls"));
+
+		if (enableDebugOptions) {
+			debugOptions = new JPanel();
+			SpringLayout layout = new SpringLayout();
+			debugOptions.setLayout(layout);
+
+			extraOptionsPanel = new JPanel(new GridLayout(2, 1));
+			extraOptionsPanel.setLayout(new GridLayout(2, 1));
+			extraOptionsPanel.setBorder(BorderFactory.createTitledBorder("Extra Options"));
+
+			neuralNetworkCheckbox = new JCheckBox("Show Neural Network");
+			neuralNetworkCheckbox.setAlignmentX(Component.CENTER_ALIGNMENT);
+			extraOptionsPanel.add(neuralNetworkCheckbox);
+
+			exportToBlender = new JCheckBox("Export to Blender");
+			exportToBlender.setAlignmentX(Component.CENTER_ALIGNMENT);
+			extraOptionsPanel.add(exportToBlender);
+			debugOptions.add(extraOptionsPanel);
+
+			// ANN Informations panel
+			JPanel annPanel = new JPanel(new GridLayout(4, 2));
+			annPanel.setBorder(BorderFactory.createTitledBorder("ANN Informations"));
+
+			annPanel.add(new JLabel("Inputs:"));
+			inputNeuronsTextField = new JTextField("N/A");
+			inputNeuronsTextField.setHorizontalAlignment(JTextField.CENTER);
+			inputNeuronsTextField.setEditable(false);
+			annPanel.add(inputNeuronsTextField);
+
+			annPanel.add(new JLabel("Outputs:"));
+			outputNeuronsTextField = new JTextField("N/A");
+			outputNeuronsTextField.setHorizontalAlignment(JTextField.CENTER);
+			outputNeuronsTextField.setEditable(false);
+			annPanel.add(outputNeuronsTextField);
+
+			annPanel.add(new JLabel("Synapses:"));
+			synapsesTextField = new JTextField("N/A");
+			synapsesTextField.setHorizontalAlignment(JTextField.CENTER);
+			synapsesTextField.setEditable(false);
+			annPanel.add(synapsesTextField);
+
+			annPanel.add(new JLabel("Total Neurons:"));
+			totalNeuronsTextField = new JTextField("N/A");
+			totalNeuronsTextField.setHorizontalAlignment(JTextField.CENTER);
+			totalNeuronsTextField.setEditable(false);
+			annPanel.add(totalNeuronsTextField);
+			debugOptions.add(annPanel);
+
+			SpringUtilities.makeGrid(debugOptions, 2, 1, // rows, cols
+					0, 0, // initialX, initialY
+					10, 10);
+			sideTopPanel.add(debugOptions, BorderLayout.SOUTH);
+
+		}
 
 		pauseButton.setPreferredSize(new Dimension(panelWidth, 50));
 		plotButton.setPreferredSize(new Dimension(panelWidth, 50));
@@ -385,6 +459,26 @@ public class ResultViewerGui extends Gui implements Updatable {
 			public void actionPerformed(ActionEvent evt) {
 				renderer.resetZoom();
 				renderer.drawFrame();
+			}
+		});
+
+		this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control S"), "control S");
+		this.getActionMap().put("control S", new AbstractAction() {
+			protected static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				newRandomSeed();
+			}
+		});
+
+		this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control F"), "control F");
+		this.getActionMap().put("control F", new AbstractAction() {
+			protected static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				plotFitness();
 			}
 		});
 	}
@@ -509,30 +603,15 @@ public class ResultViewerGui extends Gui implements Updatable {
 		newRandomSeedButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int newRandomSeed = new Random().nextInt(Integer.MAX_VALUE);
+				newRandomSeed();
+			}
+		});
 
-				if (extraArguments.getText().isEmpty()) {
-					extraArguments.setText("--random-seed " + newRandomSeed);
-				} else {
-					String finalText = "";
-					boolean findSeedText = false;
-					Scanner scanner = new Scanner(extraArguments.getText());
-					while (scanner.hasNextLine()) {
-						String line = scanner.nextLine();
-						if (line.startsWith("--random-seed")) {
-							finalText += "--random-seed " + newRandomSeed + "\n";
-							findSeedText = true;
-						} else {
-							finalText += line + "\n";
-						}
-					}
-					scanner.close();
-					if (!findSeedText) {
-						finalText += "--random-seed " + newRandomSeed + "\n";
-					}
-					extraArguments.setText(finalText);
-				}
-				loadButton.doClick();
+		openButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				selectFileToOpen();
 			}
 		});
 
@@ -553,18 +632,92 @@ public class ResultViewerGui extends Gui implements Updatable {
 		}
 	}
 
+	protected void newRandomSeed() {
+		int newRandomSeed = new Random().nextInt(Integer.MAX_VALUE);
+
+		if (extraArguments.getText().isEmpty()) {
+			extraArguments.setText("--random-seed " + newRandomSeed);
+		} else {
+			String finalText = "";
+			boolean findSeedText = false;
+			Scanner scanner = new Scanner(extraArguments.getText());
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if (line.startsWith("--random-seed")) {
+					finalText += "--random-seed " + newRandomSeed + "\n";
+					findSeedText = true;
+				} else {
+					finalText += line + "\n";
+				}
+			}
+			scanner.close();
+			if (!findSeedText) {
+				finalText += "--random-seed " + newRandomSeed + "\n";
+			}
+			extraArguments.setText(finalText);
+		}
+		loadButton.doClick();
+	}
+
 	protected void launchGraphPlotter(JBotEvolver jbot, Simulator sim) {
 		new GraphPlotter(jbot, sim);
 	}
 
 	protected void plotFitness() {
-		File f = new File(currentFileTextField.getText().trim());
-		final String mainFolder = f.isDirectory() ? f.getAbsolutePath() : f.getParent();
+		TreePath[] selectedFiles = fileTree.getSelectedFilesPaths();
+		ArrayList<String> paths = new ArrayList<String>();
+
+		if (selectedFiles == null) {
+			JOptionPane.showMessageDialog(this, "No folders or files selected!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		} else {
+			String parentpath = "";
+			for (TreePath treePath : selectedFiles) {
+				if (treePath.getParentPath() == null) {
+					paths.add(treePath.getLastPathComponent().toString());
+				} else {
+					if (parentpath.equals("")) {
+						parentpath = treePath.getParentPath().toString().replace("[", "");
+						parentpath = parentpath.replace("]", "");
+					}
+
+					if (System.getProperty("os.name").contains("Windows")) {
+						paths.add(parentpath + "\\" + treePath.getLastPathComponent());
+					} else {
+						paths.add(parentpath + "/" + treePath.getLastPathComponent());
+					}
+				}
+
+			}
+		}
+
+		final String[] mainFolders = new String[paths.size()];
+		for (int i = 0; i < paths.size(); i++) {
+			File file = new File(paths.get(i));
+			mainFolders[i] = file.isDirectory() ? file.getAbsolutePath() : file.getParent();
+		}
 
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				new GraphPlotter(getFitnessFiles(mainFolder).split("###"));
+				ArrayList<String> files = new ArrayList<String>();
+				for (String folder : mainFolders) {
+					String[] fs = getFitnessFiles(folder).split("###");
+
+					for (String str : fs) {
+						if (!str.isEmpty()) {
+							files.add(str);
+						}
+					}
+				}
+
+				if (files != null) {
+					if (files.isEmpty()) {
+						JOptionPane.showMessageDialog(null, "No files to compare!", "Error", JOptionPane.ERROR_MESSAGE);
+					} else {
+						new GraphPlotter(files.toArray(new String[files.size()]));
+					}
+				}
 			}
 		});
 		t.start();
@@ -578,21 +731,26 @@ public class ResultViewerGui extends Gui implements Updatable {
 			if (f.exists()) {
 				return f.getAbsolutePath();
 			} else {
-				String[] directories = (new File(folder)).list(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return (new File(dir, name)).isDirectory();
+				if (folder == null) {
+					JOptionPane.showMessageDialog(this, "No folders selected!", "Error", JOptionPane.ERROR_MESSAGE);
+					return null;
+				} else {
+					String[] directories = (new File(folder)).list(new FilenameFilter() {
+						@Override
+						public boolean accept(File dir, String name) {
+							return (new File(dir, name)).isDirectory();
+						}
+					});
+					String result = "";
+					if (directories != null) {
+						for (String dir : directories) {
+							String dirResult = getFitnessFiles(folder + "/" + dir);
+							if (!dirResult.isEmpty())
+								result += dirResult + "###";
+						}
 					}
-				});
-				String result = "";
-				if (directories != null) {
-					for (String dir : directories) {
-						String dirResult = getFitnessFiles(folder + "/" + dir);
-						if (!dirResult.isEmpty())
-							result += dirResult + "###";
-					}
+					return result;
 				}
-				return result;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -605,70 +763,117 @@ public class ResultViewerGui extends Gui implements Updatable {
 		String parentpath = "";
 		ArrayList<PostEvaluationData> postsInformations = new ArrayList<PostEvaluationData>();
 
-		for (TreePath treePath : selectedFiles) {
-			String path = "";
+		if (selectedFiles == null) {
+			JOptionPane.showMessageDialog(this, "No folders selected!", "Error", JOptionPane.ERROR_MESSAGE);
+		} else {
 
-			if (treePath.getParentPath() == null) {
-				path = treePath.getLastPathComponent().toString();
-			} else {
-				if (parentpath.equals("")) {
-					parentpath = treePath.getParentPath().toString().replace("[", "");
-					parentpath = parentpath.replace("]", "");
+			for (TreePath treePath : selectedFiles) {
+				String path = "";
+
+				if (treePath.getParentPath() == null) {
+					path = treePath.getLastPathComponent().toString();
+				} else {
+					if (parentpath.equals("")) {
+						parentpath = treePath.getParentPath().toString().replace("[", "");
+						parentpath = parentpath.replace("]", "");
+					}
+
+					if (System.getProperty("os.name").contains("Windows")) {
+						path = parentpath + "\\" + treePath.getLastPathComponent();
+					} else {
+						path = parentpath + "/" + treePath.getLastPathComponent();
+					}
 				}
-
-				path = parentpath + "/" + treePath.getLastPathComponent();
+				postsInformations.addAll(getInformationFromPostEvaluation(path));
 			}
-			postsInformations.addAll(getInformationFromPostEvaluation(path));
+
+			JFrame comparisonFrame = new JFrame("Setups Comparison");
+			PostEvaluationTableModel postsModel = new PostEvaluationTableModel(postsInformations);
+			JTable comparisonTable = new JTable(postsModel);
+			JScrollPane comparisonScrollPane = new JScrollPane(comparisonTable);
+			comparisonFrame.add(comparisonScrollPane);
+			comparisonFrame.pack();
+			comparisonFrame.setLocationRelativeTo(this);
+			comparisonFrame.setVisible(true);
+
+			comparisonTable.getColumn("Folder").setPreferredWidth(250);
+			comparisonTable.getColumn("Best").setPreferredWidth(1);
+			comparisonTable.getColumn("Fitness").setPreferredWidth(1);
+			comparisonTable.getColumn("Average").setPreferredWidth(1);
+
+			postsModel.fireTableDataChanged();
 		}
-
-		JFrame comparisonFrame = new JFrame("Setups Comparison");
-		PostEvaluationTableModel postsModel = new PostEvaluationTableModel(postsInformations);
-		JTable comparisonTable = new JTable(postsModel);
-		JScrollPane comparisonScrollPane = new JScrollPane(comparisonTable);
-		comparisonFrame.add(comparisonScrollPane);
-		comparisonFrame.pack();
-		comparisonFrame.setLocationRelativeTo(this);
-		comparisonFrame.setVisible(true);
-
-		comparisonTable.getColumn("Folder").setPreferredWidth(250);
-		comparisonTable.getColumn("Best").setPreferredWidth(1);
-		comparisonTable.getColumn("Fitness").setPreferredWidth(1);
-		comparisonTable.getColumn("Average").setPreferredWidth(1);
-
-		postsModel.fireTableDataChanged();
 	}
 
 	protected ArrayList<PostEvaluationData> getInformationFromPostEvaluation(String folder) {
-		File f = new File(folder + "/post.txt");
-		ArrayList<PostEvaluationData> postDataList = new ArrayList<PostEvaluationData>();
+		File fol = new File(folder);
+		FileFilter filter = new FileFilter() {
 
-		if (f.exists()) {
-			try {
-				postDataList.add(getDataFromPost(f));
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getAbsolutePath().endsWith("post.txt");
+			}
+		};
+
+		// In case there is post evaluation information
+		if (fol.isDirectory() && fol.listFiles(filter).length != 0) {
+			File f = new File(folder + "/post.txt");
+			ArrayList<PostEvaluationData> postDataList = new ArrayList<PostEvaluationData>();
+
+			if (f.exists()) {
+				try {
+					postDataList.add(getDataFromPost(f));
+					return postDataList;
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				String[] directories = (new File(folder)).list(new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return (new File(dir, name)).isDirectory();
+					}
+				});
+
+				if (directories != null) {
+					for (String dir : directories) {
+						postDataList.addAll(getInformationFromPostEvaluation(folder + "/" + dir));
+					}
+				}
 				return postDataList;
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		} else {
-			String[] directories = (new File(folder)).list(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return (new File(dir, name)).isDirectory();
-				}
-			});
+			File f = new File(folder + "/_fitness.log");
+			ArrayList<PostEvaluationData> postDataList = new ArrayList<PostEvaluationData>();
 
-			if (directories != null) {
-				for (String dir : directories) {
-					postDataList.addAll(getInformationFromPostEvaluation(folder + "/" + dir));
+			if (f.exists()) {
+				try {
+					postDataList.add(getDataFromFitnessLog(f));
+					return postDataList;
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
+			} else {
+				String[] directories = (new File(folder)).list(new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return (new File(dir, name)).isDirectory();
+					}
+				});
+
+				if (directories != null) {
+					for (String dir : directories) {
+						postDataList.addAll(getInformationFromPostEvaluation(folder + "/" + dir));
+					}
+				}
+				return postDataList;
 			}
-			return postDataList;
 		}
 
 		return null;
 	}
 
-	private PostEvaluationData getDataFromPost(File f) throws IOException {
+	protected PostEvaluationData getDataFromPost(File f) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		String line = reader.readLine();
 		String[] splitSetupName;
@@ -702,6 +907,37 @@ public class ResultViewerGui extends Gui implements Updatable {
 		reader.close();
 
 		return new PostEvaluationData(setupName, Integer.valueOf(number), chromosomeFitness, overall);
+	}
+
+	protected PostEvaluationData getDataFromFitnessLog(File f) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(f));
+		String line = reader.readLine();
+		String[] splitSetupName;
+
+		if (System.getProperty("os.name").contains("Windows")) {
+			splitSetupName = f.getAbsolutePath().replace("\\", "/").split("/");
+		} else {
+			splitSetupName = f.getAbsolutePath().split("/");
+		}
+
+		String setupName = splitSetupName[splitSetupName.length - 2];
+		String number = "", bestFitness = "", averageFitness = "";
+		while (line != null) {
+			if (!line.contains("#")) {
+				String[] strs = line.trim().split("\t");
+
+				number = strs[0].trim();
+				bestFitness = strs[2].trim();
+				averageFitness = strs[3].trim();
+			}
+
+			line = reader.readLine();
+		}
+
+		reader.close();
+
+		return new PostEvaluationData(setupName, Integer.valueOf(number), Double.valueOf(bestFitness),
+				Double.valueOf(averageFitness));
 	}
 
 	@Override
@@ -865,12 +1101,38 @@ public class ResultViewerGui extends Gui implements Updatable {
 				if (simulateUntil == 0)
 					playPosition.setValue(0);
 
+				if (showCurrentFileLabel) {
+					renderer.setText("File: " + filename);
+				}
+
 				launchSimulation();
 
 				lastCycleTime = System.currentTimeMillis();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	protected void selectFileToOpen() {
+		JFileChooser chooser = new JFileChooser(lastOpenedPath);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Configuration file (*.conf)", "conf");
+		chooser.setFileFilter(filter);
+		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		chooser.setMultiSelectionEnabled(false);
+
+		int returnVal = chooser.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			if (chooser.getSelectedFile().isFile()) {
+				fileTree.changeDirectory(chooser.getSelectedFile().getParent());
+				lastOpenedPath = chooser.getSelectedFile().getAbsolutePath();
+				currentFileTextField.setText(chooser.getSelectedFile().getAbsolutePath());
+				loadCurrentFile();
+			} else {
+				fileTree.changeDirectory(chooser.getSelectedFile().getAbsolutePath());
+				lastOpenedPath = chooser.getSelectedFile().getAbsolutePath();
+				currentFileTextField.setText(chooser.getSelectedFile().getAbsolutePath());
+			}
 		}
 	}
 
@@ -912,15 +1174,28 @@ public class ResultViewerGui extends Gui implements Updatable {
 					for (int i = 0; i < tp.getPathCount(); i++) {
 						filename += tp.getPathComponent(i);
 						if (i != tp.getPathCount() - 1)
-							filename += "/";
+							if (System.getProperty("os.name").contains("Windows")) {
+								if (!filename.endsWith("\\")) {
+									filename += "\\";
+								}
+							} else {
+								filename += "/";
+							}
 					}
 
 					File f = new File(filename);
-
 					if (f.exists()) {
-						currentFilename = filename;
-						if (!currentFileTextField.getText().equals(filename))
-							currentFileTextField.setText(filename);
+						String path = "";
+
+						try {
+							path = f.getCanonicalPath();
+						} catch (IOException ee) {
+							path = filename;
+						}
+
+						currentFilename = path;
+						if (!currentFileTextField.getText().equals(path))
+							currentFileTextField.setText(path);
 					}
 				}
 			});
@@ -1124,6 +1399,23 @@ public class ResultViewerGui extends Gui implements Updatable {
 
 		KeyboardFocusManager.getCurrentKeyboardFocusManager()
 				.addKeyEventDispatcher(new EnvironmentKeyDispatcher(simulator));
+
+		Controller controller = simulator.getEnvironment().getRobots().get(0).getController();
+		if (controller instanceof NeuralNetworkController) {
+			NeuralNetwork network = ((NeuralNetworkController) controller).getNeuralNetwork();
+			inputNeuronsTextField.setText(Integer.toString(network.getNumberOfInputNeurons()));
+			outputNeuronsTextField.setText(Integer.toString(network.getNumberOfOutputNeurons()));
+
+			if (network instanceof CTRNNMultilayer) {
+				CTRNNMultilayer net = (CTRNNMultilayer) network;
+				totalNeuronsTextField.setText(Integer.toString(net.getNumberOfHiddenNodes()));
+			} else {
+				totalNeuronsTextField.setText(
+						Integer.toString(network.getNumberOfInputNeurons() + network.getNumberOfOutputNeurons()));
+			}
+			if(network.getWeights() != null)
+				synapsesTextField.setText(Integer.toString(network.getWeights().length));
+		}
 
 		return simulator;
 	}
