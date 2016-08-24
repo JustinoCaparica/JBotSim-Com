@@ -7,12 +7,16 @@ import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 
 import mathutils.Vector2d;
 import net.jafama.FastMath;
 import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.Wall;
+import simulation.physicalobjects.Wall.Edge;
 import simulation.physicalobjects.collisionhandling.knotsandbolts.PolygonShape;
 import simulation.robot.LedState;
 import simulation.robot.Robot;
@@ -24,20 +28,22 @@ import simulation.util.Arguments;
 public class TwoDRendererDebug extends TwoDRenderer {
 
 	protected int selectedRobot=-1;
-	private boolean wallRay;
-	private int coneSensorId;
-	private String coneClass = "";
-	private int robotId;
-	private boolean boardSensors;
-	private boolean paperSensors;
+	protected boolean wallRay;
+	protected int coneSensorId;
+	protected String coneClass = "";
+	protected int robotId;
+	protected boolean boardSensors;
+	protected boolean paperSensors;
 
-	private boolean blink = true;
+	protected boolean blink = true;
 	
-	private Vector2d selectedLocation;
+	protected Vector2d selectedLocation;
 	
 	public TwoDRendererDebug(Arguments args) {
 		super(args);
-		this.addMouseListener(new MouseListenerSentinel());
+		MouseListenerSentinel listener = new MouseListenerSentinel(this);
+		this.addMouseListener(listener);
+		this.addMouseMotionListener(listener);
 		wallRay = args.getArgumentAsIntOrSetDefault("wallray", 0)==1;
 		coneSensorId = args.getArgumentAsIntOrSetDefault("conesensorid",-1);
 		coneClass = args.getArgumentAsStringOrSetDefault("coneclass","");
@@ -70,7 +76,7 @@ public class TwoDRendererDebug extends TwoDRenderer {
 	
 	@Override
 	public void drawWall(Wall w) {
-		super.drawWall(w);
+//		super.drawWall(w);
 		
 		graphics.setColor(Color.RED);
 		PolygonShape s = (PolygonShape)w.shape;
@@ -101,6 +107,7 @@ public class TwoDRendererDebug extends TwoDRenderer {
 	protected void drawRobot(Graphics graphics, Robot robot) {
 		if (image.getWidth() != getWidth() || image.getHeight() != getHeight())
 			createImage();
+		
 		int circleDiameter = bigRobots ? (int)Math.max(10,Math.round(robot.getDiameter() * scale)) : (int) Math.round(robot.getDiameter() * scale);
 		int x = transformX(robot.getPosition().getX()) - circleDiameter / 2;
 		int y = transformY(robot.getPosition().getY()) - circleDiameter / 2;
@@ -306,7 +313,13 @@ public class TwoDRendererDebug extends TwoDRenderer {
 		return -1*((y - centerY)/scale - verticalMovement);
 	}
 
-	public class MouseListenerSentinel implements MouseListener {
+	public class MouseListenerSentinel implements MouseListener,MouseMotionListener,MouseWheelListener {
+		
+		private TwoDRenderer renderer;
+		
+		public MouseListenerSentinel(TwoDRenderer renderer) {
+			this.renderer = renderer;
+		}
 
 		//		@Override
 		@Override
@@ -329,24 +342,39 @@ public class TwoDRendererDebug extends TwoDRenderer {
 			selectedRobot = -1;
 		}
 
-		//		@Override
 		@Override
 		public void mouseEntered(MouseEvent e) {
+			renderer.mouseEntered(e);
 		}
 
-		//		@Override
 		@Override
 		public void mouseExited(MouseEvent e) {
+			renderer.mouseExited(e);
 		}
 
-		//		@Override
 		@Override
 		public void mousePressed(MouseEvent e) {
+			renderer.mousePressed(e);
 		}
 
-		//		@Override
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			renderer.mouseReleased(e);
+		}
+		
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			renderer.mouseDragged(e);
+		}
+		
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			renderer.mouseMoved(e);
+		}
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			renderer.mouseWheelMoved(e);
 		}
 	}
 	

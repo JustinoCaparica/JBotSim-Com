@@ -7,6 +7,11 @@ import java.awt.Graphics2D;
 import java.awt.RadialGradientPaint;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
@@ -27,7 +32,8 @@ import simulation.robot.actuators.RecruitedActuator;
 import simulation.robot.actuators.RecruiterActuator;
 import simulation.util.Arguments;
 
-public class TwoDRenderer extends Renderer implements ComponentListener {
+public class TwoDRenderer extends Renderer
+		implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	protected static final long serialVersionUID = -1376516458026928095L;
 	protected BufferedImage image;
@@ -46,6 +52,10 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 
 	protected double drawFrames = 1;
 	protected boolean darIds;
+
+	private int px;
+	private int py;
+	private boolean clicked = false;
 
 	public TwoDRenderer(Arguments args) {
 		super(args);
@@ -76,7 +86,7 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 			graphics.fillRect(0, 0, getWidth(), getHeight());
 			return;
 		}
-
+		
 		if (simulator.getTime() % drawFrames != 0) {
 			// repaint();
 			return;
@@ -96,6 +106,8 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 					break;
 				case MARKER:
 					drawMarker(graphics, (Marker) m);
+					break;
+				default:
 					break;
 				}
 
@@ -123,35 +135,44 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 				case LINE:
 					drawLine((Line) m);
 					break;
+				default:
+					break;
 				}
 			}
 
 			for (PhysicalObject m : simulator.getEnvironment().getAllObjects()) {
 				switch (m.getType()) {
 				case ROBOT:
+					drawEntities(graphics, (Robot) m);
 					drawRobot(graphics, (Robot) m);
 					if (numberOfRobots > 1 && darIds)
 						drawRobotId(graphics, (Robot) m);
-					drawEntities(graphics, (Robot) m);
+				default:
+					break;
 				}
 			}
 		}
 
 		drawArea(graphics, simulator.getEnvironment());
+		drawTitle(graphics);
 
 		repaint();
 	}
 
 	protected void drawMarker(Graphics g, Marker m) {
 
-		int markerSize = 2;
+		int markerSize = (int) (scale * m.getRadius());
 		double markerLength = m.getLength();
 
 		int x = transformX(m.getPosition().x);
 		int y = transformY(m.getPosition().y);
 
 		g.setColor(m.getColor());
-		g.drawOval(x - markerSize / 2, y - markerSize / 2, markerSize, markerSize);
+
+		if (m.isSquare()) {
+			g.drawRect(x - markerSize / 2, y - markerSize / 2, markerSize, markerSize);
+		} else
+			g.drawOval(x - markerSize / 2, y - markerSize / 2, markerSize, markerSize);
 
 		double orientation = m.getOrientation();
 		Vector2d endPoint = new Vector2d(m.getPosition());
@@ -220,7 +241,7 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 		centerX = width / 2.0;
 		centerY = height / 2.0;
 
-		graphics.setColor(Color.GRAY);
+		graphics.setColor(Color.WHITE);
 		graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
 		graphics.setColor(Color.WHITE);
 
@@ -302,6 +323,7 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 		// int y = (int) transformY(m.getTopLeftY());
 		//
 		// graphics.fillRect(x, y, wallWidth, wallHeight);
+		
 		graphics.setColor(Color.BLACK);
 
 	}
@@ -505,7 +527,8 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 	// @Override
 	@Override
 	public void componentMoved(ComponentEvent arg0) {
-		// TODO Auto-generated method stub
+		createImage();
+		drawFrame();
 	}
 
 	// @Override
@@ -549,6 +572,72 @@ public class TwoDRenderer extends Renderer implements ComponentListener {
 	@Override
 	public void moveDown() {
 		verticalMovement -= 0.1 / scale * 100;
+		componentResized(null);
+	}
+
+	/*
+	 * Interfaces implementation
+	 */
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON3) {
+			clicked = true;
+			px = e.getX();
+			py = e.getY();
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON3) {
+			// int dx = e.getX() - px;
+			// int dy = e.getY() - py;
+			// verticalMovement += dy / scale;
+			// horizontalMovement -= dx / scale;
+			// componentResized(null);
+			clicked = false;
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (clicked) {
+			int dx = e.getX() - px;
+			int dy = e.getY() - py;
+			px = e.getX();
+			py = e.getY();
+			verticalMovement += dy / scale * 1.5;
+			horizontalMovement -= dx / scale * 1.5;
+			componentResized(null);
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		for (int i = 0; i < Math.abs(e.getWheelRotation()); i++) {
+			if (e.getWheelRotation() < 0) {
+				zoomIn();
+			} else {
+				zoomOut();
+			}
+		}
 		componentResized(null);
 	}
 }
