@@ -14,6 +14,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 
 import mathutils.Point2d;
 import mathutils.Vector2d;
@@ -30,6 +31,7 @@ import simulation.physicalobjects.Wall.Edge;
 import simulation.robot.Robot;
 import simulation.robot.actuators.RecruitedActuator;
 import simulation.robot.actuators.RecruiterActuator;
+import simulation.robot.sensors.TwoWheelActuatorEnergySensor;
 import simulation.util.Arguments;
 
 public class TwoDRenderer extends Renderer
@@ -427,6 +429,13 @@ public class TwoDRenderer extends Renderer
 		// graphics.fillOval(x-2, y-2, circleDiameter + 4, circleDiameter + 4);
 		//
 		// }
+                TwoWheelActuatorEnergySensor energySensor;
+                energySensor = (TwoWheelActuatorEnergySensor) robot.getSensorByType( TwoWheelActuatorEnergySensor.class );
+                String energyString;
+                if ( energySensor != null ) {
+                    energyString = new DecimalFormat("#.#").format(energySensor.getCurrentEnergy());
+                    graphics.drawString( energyString, x, y);
+                }
                 
                 
                 //Visualization for the recruited 

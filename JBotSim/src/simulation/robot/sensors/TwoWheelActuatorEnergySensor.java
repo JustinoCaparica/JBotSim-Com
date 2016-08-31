@@ -23,7 +23,7 @@ import simulation.util.ArgumentsAnnotation;
 public class TwoWheelActuatorEnergySensor extends Sensor {
     
     
-    @ArgumentsAnnotation(name = "wheelSpeedUnits", defaultValue = "125", help="units of wheel speed that can be provided by a full charge of energy")
+    @ArgumentsAnnotation(name = "wheelSpeedUnits", defaultValue = "150", help="units of wheel speed that can be provided by a full charge of energy, for all robot's wheels, usually in (m/s).s")
     private double wheelSpeedUnits;             //number of units of wheel speed
                                                 //that can be provided by a 
                                                 //full charge of energy
@@ -67,7 +67,7 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
             this.robot = robot;
             
             
-            wheelSpeedUnits = args.getArgumentAsDoubleOrSetDefault("wheelSpeedUnits", 125);
+            wheelSpeedUnits = args.getArgumentAsDoubleOrSetDefault("wheelSpeedUnits", 150);
             wheelsMaxSpeedLowEnergyFactor = args.getArgumentAsDoubleOrSetDefault("wheelsMaxSpeedLowEnergyFactor", 0.1);
             
             energyMax = 1.0;
@@ -103,13 +103,27 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
         }
         else{
             currentEnergy = energyMax - ( ( wheelActuator.getSpentEnergy() - lastSpentEnergyValue ) / wheelSpeedUnits);
-            if ( currentEnergy < 0 ) {
+            if ( currentEnergy <= 0 ) {
+                currentEnergy = 0;
                 wheelActuator.setMaxSpeed( wheelsMaxSpeed * wheelsMaxSpeedLowEnergyFactor );
+                robot.setEnabled( false );
             }
+           
             //System.out.println( "Robot " + robot.getId() + " NOT in nest. currentEnergy = " + currentEnergy + ". wheelActuator.getSpentEnergy()=" + wheelActuator.getSpentEnergy() + " lastSpentEnergyValue=" + lastSpentEnergyValue );
         }
         
     }
+
+    /**
+     * Gets the current energy level
+     * @return the current
+     * energy level
+     */
+    public double getCurrentEnergy() {
+        return currentEnergy;
+    }
+    
+    
     
     
     

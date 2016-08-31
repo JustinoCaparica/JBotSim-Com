@@ -18,10 +18,9 @@ public class TwoWheelActuator extends Actuator {
     private Simulator simulator;                    //the simulator
                                                     //running the experiment
 
-    private double lastApplyInstant;                //last instant when
-                                                    //the apply method was
-                                                    //called
-
+    private double tickDuration;                    //duration of a simulation
+                                                    //tick, in seconds
+    
     protected double leftSpeed = 0;
     protected double rightSpeed = 0;
     protected Random random;
@@ -35,7 +34,8 @@ public class TwoWheelActuator extends Actuator {
 
         totalWheelSpeed = 0.0;
         this.simulator = simulator;
-        lastApplyInstant = 0.0;
+        
+        this.tickDuration = simulator.getTimeDelta();
     }
 
     public void setLeftWheelSpeed(double value) {
@@ -51,8 +51,7 @@ public class TwoWheelActuator extends Actuator {
         
         //sum the wheel speed spent since last call to this method
         //to the total wheel speed
-        totalWheelSpeed += (simulator.getTime() - lastApplyInstant) * Math.abs(leftSpeed)
-                        + (simulator.getTime() - lastApplyInstant) * Math.abs(rightSpeed);
+        totalWheelSpeed += tickDuration * ( Math.abs(leftSpeed) + Math.abs(rightSpeed) );
         
         
         leftSpeed *= (1 + random.nextGaussian() * NOISESTDEV);
@@ -70,10 +69,7 @@ public class TwoWheelActuator extends Actuator {
             rightSpeed = maxSpeed;
         }
         ((DifferentialDriveRobot) robot).setWheelSpeed( leftSpeed, rightSpeed );
-
         
-
-        lastApplyInstant = simulator.getTime();     //register this instant
 
     }
 
@@ -102,6 +98,8 @@ public class TwoWheelActuator extends Actuator {
 
     /**
      * Sets the maximum speed. 
+     * @param maxSpeed the maximum
+     * speed for the wheels
      */
     public void setMaxSpeed( double maxSpeed ) {
         this.maxSpeed = maxSpeed;

@@ -1,5 +1,6 @@
 package simulation.environment;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import mathutils.Vector2d;
@@ -186,11 +187,17 @@ public class CooperativeForagingEnvironment extends Environment {
 //		CloseObjectIterator i = nest.shape.getClosePrey().iterator();
 
         List<Robot> closeRobots;    //robots within radius of prey
+        List<Robot> enabledRobots;  //enabled robots within radius of prey
+        enabledRobots = new LinkedList<>();
        
         for(Prey currentPrey : simulator.getEnvironment().getPrey() ) {
 
             closeRobots = simulator.getEnvironment().getClosestRobots( currentPrey.getPosition(), closestRadius );
-              
+            for ( Robot closeRobot : closeRobots ) {        //add enabled robots
+                if ( !closeRobot.isEnabled() ) {            //to the enabled
+                    enabledRobots.add( closeRobot );        //robots list
+                }
+            }
 //            
 //            boolean focusedBy = false, focusingOn = false;      //this piece of code is for
 //            for (Robot robot : closeRobots) {                   // debug purposes ONLY! remove it when debug is done
@@ -210,11 +217,11 @@ public class CooperativeForagingEnvironment extends Environment {
 //            }                                                   //end of debug code
             
             
-            if( closeRobots.size() >= teamSize ) {              //prey captured                                         
+            if( enabledRobots.size() >= teamSize ) {            //prey captured                                         
                                                                 //move prey to
-                currentPrey.teleportTo( newRandomPosition() );  //new position
+                //currentPrey.teleportTo( newRandomPosition() );//new position
 
-                //currentPrey.teleportTo( new Vector2d(100, 100) );
+                currentPrey.teleportTo( new Vector2d(100, 100) );
                 numberOfFoodSuccessfullyForaged++;              //account for
                                                                 //foraged prey
                 lastPreyCaptureTime = time;
