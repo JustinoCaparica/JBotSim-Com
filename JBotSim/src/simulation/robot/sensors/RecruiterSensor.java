@@ -8,7 +8,6 @@ package simulation.robot.sensors;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.robot.Robot;
-import simulation.robot.actuators.RecruitedActuator;
 import simulation.util.Arguments;
 
 /**
@@ -53,7 +52,7 @@ public class RecruiterSensor extends Sensor {
         
         if ( recruiter == null &&               //there is no recruiter
              recruitRequester == null ) {       //neither recruit requester
-            return 0.0;                         //angle is 0, distance is 0, there is recruiter/recruit requester is 0
+            return 0.0;                         //angle is 0, distance is 0
         }
         
         
@@ -76,8 +75,8 @@ public class RecruiterSensor extends Sensor {
             case 1:                                         //sensorNumber == 1
                 return getAngleOutVal(super.robot, r);      //return angle                                
             
-            case 2:                                         //sensorNumber == 2
-                return 1.0;                                 //return boolean "there is a recruiter/ recruit requester"
+            //case 2:                                         //sensorNumber == 2
+            //    return 1.0;                                 //return boolean "there is a recruiter/ recruit requester"
                 
             default:
                 throw new RuntimeException( "Invalid sensor number in RecruiterSensor" );

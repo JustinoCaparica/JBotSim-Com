@@ -8,11 +8,15 @@ package simulation.robot.actuators;
 import java.awt.Color;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
+import simulation.robot.sensors.RecruitSensor;
+import simulation.robot.sensors.RecruiterSensor;
 import simulation.robot.sensors.RobotSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -26,8 +30,9 @@ public class RecruitedActuator extends Actuator {
 
     
     
+    
     private Robot recruiter;                    //the recruiter
-    private Set<Robot> recruitRequesters;       //robots requesting a recruit
+    private List<Robot> recruitRequesters;     //robots requesting a recruit
     
     
     @ArgumentsAnnotation(name="range", defaultValue="0.8", help="A robot can not accept recruitment requests from another robot that is further than this range.")
@@ -37,7 +42,15 @@ public class RecruitedActuator extends Actuator {
                                             //be possible for me to accept his
                                             //recruitment request?
     
-    private RobotSensor robotsSensor;       //perceives neighboring robots
+    
+    private RobotSensor robotSensor;        //perceives other robots
+    private RecruiterSensor recruiterSensor;//perceives the recruiter
+                                            //these variables are created here
+                                            //to avoid creating them everytime
+                                            //apply() is called
+    
+    
+    
     
     
     private final Message msg;                  //message to accept 
@@ -47,7 +60,6 @@ public class RecruitedActuator extends Actuator {
                                                 //if true the robot is recruitedState
     
     
-    private static Color recruitedColor;        //robot color when recruited
     
     
     
@@ -65,13 +77,12 @@ public class RecruitedActuator extends Actuator {
         msg     = new Message( MessageType.FOCUS_ACCEPTED );
         
         recruiter       = null;
-        recruitRequesters= new HashSet<>();
+        recruitRequesters= new LinkedList<>();
         
         recruitedState  = false;
         
         range = args.getArgumentAsDoubleOrSetDefault("range", RANGE_DEFAULT);
         
-        recruitedColor = Color.GREEN;
         
     }
 
@@ -110,7 +121,9 @@ public class RecruitedActuator extends Actuator {
     @Override
     public void apply( Robot robot, double timeDelta ) {
                
-        
+        if ( !robot.isEnabled() ) {                 //disabled robot
+            return;                                 //does not act
+        }
         
         RecruiterActuator recruiterAct;
         recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
@@ -124,6 +137,18 @@ public class RecruitedActuator extends Actuator {
         }
         
         recruitRequesters.clear();
+        
+        
+        
+//        if ( robot.getId() == 0 ) {
+//            System.out.print("Robot's 0 recruiter is robot");
+//            if ( recruiter == null ) {
+//                System.out.println(" null");
+//            }else{
+//                System.out.println( recruiter.getId() );
+//            }
+//        }
+        
         
     }
 
@@ -140,14 +165,20 @@ public class RecruitedActuator extends Actuator {
         recruiter = null;
          
         
-        RobotSensor robotSensor;            
+        
+        
         robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
         
         if ( robotSensor != null ) {        //set the robot sensor 
             robotSensor.setTarget( null );  //to perceive all neighbor robots
         }
          
-         
+        
+        
+        recruiterSensor = ( RecruiterSensor ) robot.getSensorByType( RecruiterSensor.class );
+        recruiterSensor.setRecruiter( null );   //tell the recruiter sensor
+                                                //that there is no recruiter
+        
     }
     
     
@@ -181,16 +212,25 @@ public class RecruitedActuator extends Actuator {
         
         if ( recruiter != null ) {                  //a recruiter is available
                                                     //send the recruiter an
-            recruiter.getMsgBox().addMsgToInbox( msg, robot );  //acceptance msg
+            recruiter.getMsgBox().addMsg( msg, robot );  //acceptance msg
         }
         
         
-        RobotSensor robotSensor;            
+           
         robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
         if ( robotSensor != null ) {            //if recruiter is null
             robotSensor.setTarget( recruiter ); // perceive all neighbor robots
                                                 // otherwise perceive recruiter robot
         }
+
+
+        recruiterSensor = ( RecruiterSensor ) robot.getSensorByType( RecruiterSensor.class );
+        if ( recruiterSensor != null ) {
+            recruiterSensor.setRecruiter( recruiter );  //tell the recruiter sensor
+                                                        //who the recruiter is
+        }
+        
+        
         
     }
 

@@ -192,10 +192,12 @@ public class CooperativeForagingEnvironment extends Environment {
        
         for(Prey currentPrey : simulator.getEnvironment().getPrey() ) {
 
+            enabledRobots.clear();
+            
             closeRobots = simulator.getEnvironment().getClosestRobots( currentPrey.getPosition(), closestRadius );
-            for ( Robot closeRobot : closeRobots ) {        //add enabled robots
-                if ( !closeRobot.isEnabled() ) {            //to the enabled
-                    enabledRobots.add( closeRobot );        //robots list
+            for ( Robot closeRobot : closeRobots ) {       //add enabled robots
+                if ( closeRobot.isEnabled() ) {            //to the enabled
+                    enabledRobots.add( closeRobot );       //robots list
                 }
             }
 //            

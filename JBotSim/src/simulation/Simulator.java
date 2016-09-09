@@ -76,7 +76,8 @@ public class Simulator implements Serializable {
 						(Updatable) Factory.getInstance(updatableArgs.getArgumentAsString("classname"), updatableArgs));
 			}
 		}
-		
+                
+
 	}
 
 	public Network getNetwork() {
@@ -224,6 +225,8 @@ public class Simulator implements Serializable {
 	public void simulate(long sleepTime) {
 		
 		setup();
+                
+                
 		for (time = Double.valueOf(0); time < environment.getSteps() && !stopSimulation; time++) {
 			performOneSimulationStep(time);
 

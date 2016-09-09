@@ -52,19 +52,19 @@ public class ProgrammedCooperativeForagingController extends Controller {
         
         
         
-        if ( time < 500 ) {    
+        if ( time < 50 ) {    
             wheels.setLeftWheelSpeed( speed );
             wheels.setRightWheelSpeed( speed );
         }
         else{
             wheels.setLeftWheelSpeed( 0.5 );
-            wheels.setRightWheelSpeed( 0.5 );
+            wheels.setRightWheelSpeed( -0.5 );
             
         }
         
         
-        testRecruitment();
-
+        //testRecruitment();
+        
 
 
     }

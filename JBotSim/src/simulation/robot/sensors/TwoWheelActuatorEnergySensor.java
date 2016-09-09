@@ -93,13 +93,10 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
         }
         
         
-        
-        
         if ( isInNest() ) {                     //robot in nest
             currentEnergy = energyMax;          //recharge energy
             lastSpentEnergyValue = wheelActuator.getSpentEnergy();
             wheelActuator.setMaxSpeed( wheelsMaxSpeed );
-            //System.out.println( "Robot " + robot.getId() + " IN NEST. currentEnergy = " + currentEnergy + ". wheelActuator.getSpentEnergy()=" + wheelActuator.getSpentEnergy() + " lastSpentEnergyValue=" + lastSpentEnergyValue );
         }
         else{
             currentEnergy = energyMax - ( ( wheelActuator.getSpentEnergy() - lastSpentEnergyValue ) / wheelSpeedUnits);
@@ -108,9 +105,11 @@ public class TwoWheelActuatorEnergySensor extends Sensor {
                 wheelActuator.setMaxSpeed( wheelsMaxSpeed * wheelsMaxSpeedLowEnergyFactor );
                 robot.setEnabled( false );
             }
-           
-            //System.out.println( "Robot " + robot.getId() + " NOT in nest. currentEnergy = " + currentEnergy + ". wheelActuator.getSpentEnergy()=" + wheelActuator.getSpentEnergy() + " lastSpentEnergyValue=" + lastSpentEnergyValue );
+
         }
+        
+        
+        
         
     }
 

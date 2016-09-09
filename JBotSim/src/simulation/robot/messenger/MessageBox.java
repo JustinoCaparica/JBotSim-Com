@@ -83,7 +83,7 @@ public class MessageBox {
      * @param emitter the 
      * emitter robot
      */
-    public void addMsgToInbox( Message msg, Robot emitter ){
+    public void addMsg( Message msg, Robot emitter ){
         
         inbox.add( new MessageEnvelope( msg, emitter ) );
         
@@ -151,7 +151,7 @@ public class MessageBox {
         RecruiterActuator recruiterAct;
         recruiterAct = (RecruiterActuator)receiver.getActuatorByType( RecruiterActuator.class );
         if ( recruiterAct != null ) {
-            recruiterAct.clearRecruitAccepters();
+            recruiterAct.clearRecruitAccepters(); 
         }
         
         

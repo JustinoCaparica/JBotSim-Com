@@ -22,8 +22,6 @@ public class RecruitSensor extends Sensor {
     
     
     
-    
-    
     /**
      * Initializes a new instance
      * @param simulator the simulator
@@ -44,7 +42,7 @@ public class RecruitSensor extends Sensor {
     public double getSensorReading( int sensorNumber ) {
         
         if ( recruit == null ) {                //there is no recruit
-            return 0.0;                         //angle is 0; distance is 0; recruit is 0
+            return 0.0;                         //angle is 0; distance is 0
         }
         
         
@@ -59,8 +57,8 @@ public class RecruitSensor extends Sensor {
             case 1:                                             //sensorNumber is 1
                 return getAngleOutVal( recruit, super.robot );  //return angle                                
             
-            case 2:                                             //sensorNumber is 2
-                return 1.0;                                     //return boolean "there is a recruit"
+            //case 2:                                             //sensorNumber is 2
+            //    return 1.0;                                     //return boolean "there is a recruit"
             
             default:
                 throw new RuntimeException("Invalid sensor number in RecruitedSensor");

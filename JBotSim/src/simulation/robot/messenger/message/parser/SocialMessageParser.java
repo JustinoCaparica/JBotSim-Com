@@ -28,10 +28,11 @@ public class SocialMessageParser implements MessageParser {
         
         
         
+        if ( msg.getMsgType() == null ) {
+            throw new RuntimeException( SocialMessageParser.class.getSimpleName() + ": msg.getMsgType() == null" );
+        }
         
         
-        
-        //TODO check if message type is null before using it
         
         switch ( msg.getMsgType() ) {
             
@@ -44,7 +45,7 @@ public class SocialMessageParser implements MessageParser {
                 break;
                 
             default:
-                throw new RuntimeException( "Parsing a message of an unknown type" );
+                throw new RuntimeException( SocialMessageParser.class.getSimpleName() + ": msg.getMsgType() returns unknown type" );
                 
         }
         
@@ -69,8 +70,8 @@ public class SocialMessageParser implements MessageParser {
                
         //recruiter can only accept a recruit that received
         //a recruitment request message from the recruiter in the
-        //previous time step
-        if ( recruiterActuator.getReceivers().contains( emitter ) ) {
+        //the time step before the previous time step
+        if ( recruiterActuator.getPreviousReceivers().contains( emitter ) ) {
             recruiterActuator.addRecruitAccepter( emitter );
         }
         

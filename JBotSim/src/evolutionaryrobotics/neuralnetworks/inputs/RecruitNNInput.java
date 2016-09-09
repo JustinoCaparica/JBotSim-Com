@@ -15,8 +15,8 @@ import simulation.robot.sensors.Sensor;
  */
 public class RecruitNNInput extends NNInput {
 
-    private final RecruitSensor recruitedSensor;      //sensor that
-                                                        //perceives the recruited
+    private final RecruitSensor recruitSensor;      //sensor that
+                                                    //perceives the recruited
 
     /**
      * Initializes a new instance
@@ -26,18 +26,18 @@ public class RecruitNNInput extends NNInput {
      */
     public RecruitNNInput( Sensor s ) {
         super(s);
-        this.recruitedSensor = ( RecruitSensor ) s;
+        this.recruitSensor = ( RecruitSensor ) s;
     }
     
     @Override
     public int getNumberOfInputValues() {
-        return 3;
+        return 2;
     }
 
     @Override
     public double getValue( int index ) {
         
-        return recruitedSensor.getSensorReading( index );
+        return recruitSensor.getSensorReading( index );
         
     }
     

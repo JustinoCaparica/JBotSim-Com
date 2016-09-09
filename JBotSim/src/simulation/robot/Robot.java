@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import controllers.Controller;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.physicalobjects.MovableObject;
@@ -196,10 +195,10 @@ public class Robot extends MovableObject {
      * robots that received 
      * the message
      */
-    public Set<Robot> broadcastMessage( Message msg, double range ){
+    public List<Robot> broadcastMessage( Message msg, double range ){
 
-        Set<Robot> receivers;
-        receivers = new HashSet<>();
+        List<Robot> receivers;
+        receivers = new LinkedList<>();
 
         List<Robot> robots;                                 
         robots = simulator.getEnvironment().getRobots();    //all robots
@@ -210,7 +209,7 @@ public class Robot extends MovableObject {
             if ( robot.getPosition().distanceTo( this.getPosition()) < range
                  && !robot.equals(this) ) {                     //do not send msg to himself!
                 
-                robot.getMsgBox().addMsgToInbox( msg, this );   //send message
+                robot.getMsgBox().addMsg( msg, this );   //send message
                 receivers.add( robot );                         //to other robots
             
             }                                                   
@@ -232,7 +231,7 @@ public class Robot extends MovableObject {
             robots = simulator.getRobots();                     //robots
             
             for (Robot robot : robots) {                        //send message
-                robot.getMsgBox().addMsgToInbox( msg, this );   //to robots
+                robot.getMsgBox().addMsg( msg, this );   //to robots
             }
             
         }

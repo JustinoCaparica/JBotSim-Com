@@ -25,7 +25,7 @@ import simulation.robot.sensors.Sensor;
 import simulation.robot.sensors.WallRaySensor;
 import simulation.util.Arguments;
 
-public class TwoDRendererDebug extends TwoDRenderer {
+public class TwoDRendererDebug extends TwoDRenderer_BACK {
 
 	protected int selectedRobot=-1;
 	protected boolean wallRay;
@@ -315,9 +315,9 @@ public class TwoDRendererDebug extends TwoDRenderer {
 
 	public class MouseListenerSentinel implements MouseListener,MouseMotionListener,MouseWheelListener {
 		
-		private TwoDRenderer renderer;
+		private TwoDRenderer_BACK renderer;
 		
-		public MouseListenerSentinel(TwoDRenderer renderer) {
+		public MouseListenerSentinel(TwoDRenderer_BACK renderer) {
 			this.renderer = renderer;
 		}
 
