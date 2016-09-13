@@ -49,7 +49,7 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
 //        System.out.println("fitness:" + (1.0 - (timeStep / totalSteps)) );
 //        
 //        System.out.println("");
-        return  1.0 - (timeStep / totalSteps);
+        return  (1.0 / (timeStep+1)) * 100;
     }
 
     
