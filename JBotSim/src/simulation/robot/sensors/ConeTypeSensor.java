@@ -68,6 +68,11 @@ public abstract class ConeTypeSensor extends Sensor {
 	@ArgumentsAnnotation(name = "binary", help="", defaultValue = "0")
 	protected boolean binary = false;
 	
+        private PhysicalObject[] detectedObjects;       //holds the maximum contributive
+                                                        //detected object for each sensor 
+        
+        
+        
 	public ConeTypeSensor(Simulator simulator, int id, Robot robot, Arguments args) {
 		super(simulator,id, robot, args);
 		this.geoCalc = new GeometricCalculator();//simulator.getGeoCalculator();
@@ -124,6 +129,9 @@ public abstract class ConeTypeSensor extends Sensor {
 		
 		initialRange = range;
 		initialOpeningAngle = openingAngle;
+                
+                detectedObjects = new PhysicalObject[numberOfSensors];
+                
 	}
 	
 	public void setAllowedObstaclesChecker(AllowedObjectsChecker aoc) {
@@ -206,6 +214,7 @@ public abstract class ConeTypeSensor extends Sensor {
 		try { 
 			for(int j = 0; j < readings.length; j++){
 				readings[j] = 0.0;
+                                detectedObjects[j] = null;
 			}
 			CloseObjectIterator iterator = getCloseObjects().iterator();
 			while(iterator.hasNext()){
@@ -231,7 +240,35 @@ public abstract class ConeTypeSensor extends Sensor {
 			e.printStackTrace(); 
 		}
 	}
+
+        
+        /**
+         * Gets the objects that are
+         * detected in each sensor
+         * @return one object in each
+         * sensor position or null if there is
+         * no object for the sensor position
+         */
+    public PhysicalObject[] getDetectedObjects() {
+        return detectedObjects;
+    }
 	
+        
+    /**
+     * Sets the object associated
+     * with a given index
+     * @param index the index
+     * @param object the object
+     */
+    public void setDetectedObject( int index, PhysicalObject object ){
+        detectedObjects[index] = object;
+    }
+        
+        
+        
+        
+        
+        
 	protected void checkObstacles(double time, ArrayList<PhysicalObject> teleported) {
 		for(int j = 0; j < obstacleReadings.length; j++){
 			obstacleReadings[j] = 0.0;

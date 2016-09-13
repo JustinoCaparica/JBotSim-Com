@@ -13,9 +13,13 @@ import simulation.util.Arguments;
 
 public class LightTypeSensor extends ConeTypeSensor {
 	
+    
+    
+    
 	public LightTypeSensor(Simulator simulator,int id, Robot robot, Arguments args) {
 		super(simulator,id,robot,args);
 		setAllowedObjectsChecker(new AllowLightChecker());
+                
 	}
 
 	@Override
@@ -34,7 +38,12 @@ public class LightTypeSensor extends ConeTypeSensor {
 	@Override
 	protected void calculateSourceContributions(PhysicalObjectDistance source) {
 		for(int j=0; j<numberOfSensors; j++) {
-			readings[j] = Math.max(calculateContributionToSensor(j, source), readings[j]);
+                    readings[j] = Math.max( calculateContributionToSensor(j, source), readings[j] );
+
+                    if ( calculateContributionToSensor( j, source ) > 0 ) {
+                        setDetectedObject( j, source.getObject() );
+                    }
+                        
 		}
 	}
 	
@@ -45,4 +54,14 @@ public class LightTypeSensor extends ConeTypeSensor {
 		return "SimPointLightSensor [readings=" + Arrays.toString(readings) + "]";
 	}
 
+        
+       
+
+        
+        
+        
+        
+        
+        
+        
 }

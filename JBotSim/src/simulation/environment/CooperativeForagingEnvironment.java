@@ -9,6 +9,7 @@ import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.Prey;
 import simulation.physicalobjects.Wall;
 import simulation.robot.Robot;
+import simulation.robot.sensors.PreySensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 
@@ -101,7 +102,7 @@ public class CooperativeForagingEnvironment extends Environment {
             preyMass            = arguments.getArgumentAsDoubleOrSetDefault("preyMass", PREY_MASS);
             preyRadius          = arguments.getArgumentAsDoubleOrSetDefault("preyRadius", PREY_RADIUS);
             
-            lastPreyCaptureTime = 1.0 * getSteps();
+            lastPreyCaptureTime = Double.MAX_VALUE;
     }
 	
     
@@ -118,6 +119,26 @@ public class CooperativeForagingEnvironment extends Environment {
                 r.setOrientation(0);
         }
 
+        
+        //DEBUG CODE
+        simulator.getRobots().get(0).setPosition(0, 0);
+        simulator.getRobots().get(0).setOrientation(Math.PI/2);
+        
+        simulator.getRobots().get(1).setPosition(-0.35, 0);
+        simulator.getRobots().get(1).setOrientation(Math.PI);
+        
+        simulator.getRobots().get(2).setPosition(0.35, 0);
+        simulator.getRobots().get(2).setOrientation(0);
+        
+        simulator.getRobots().get(3).setPosition(0, 0.35);
+        simulator.getRobots().get(3).setOrientation(0);
+        
+        simulator.getRobots().get(4).setPosition(0, -0.35);
+        simulator.getRobots().get(4).setOrientation(0);
+        //END OF DEBUG CODE
+        
+        
+        
         this.random = simulator.getRandom();
 
 
@@ -137,11 +158,24 @@ public class CooperativeForagingEnvironment extends Environment {
                 numberOfPreys = args.getArgumentIsDefined("numberofpreys") ? args.getArgumentAsInt("numberofpreys") : 20;
         }
 
-
-
-        for(int i = 0; i < numberOfPreys; i++ ){
-                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius));
+        
+        
+        //DEBUG CODE
+        
+        int i = 0;
+        Vector2d preyPosition;
+        if ( random.nextInt(2) == 0 ) {
+            preyPosition = new Vector2d(-0.41, 0);
+        }else{
+            preyPosition = new Vector2d(0.41, 0);
         }
+        addPrey(new Prey(simulator, "Prey "+i, preyPosition, 0, preyMass, preyRadius));
+        //END OF DEBUG CODE
+
+
+//        for(int i = 0; i < numberOfPreys; i++ ){
+//                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius));
+//        }
         
         
         nest = new Nest(simulator, "Nest", 0, 0, nestLimit);
@@ -194,30 +228,32 @@ public class CooperativeForagingEnvironment extends Environment {
 
             enabledRobots.clear();
             
+            
+            //Make sure the robot sees the prey to capture it            
+            PreySensor preySensor;
             closeRobots = simulator.getEnvironment().getClosestRobots( currentPrey.getPosition(), closestRadius );
             for ( Robot closeRobot : closeRobots ) {       //add enabled robots
-                if ( closeRobot.isEnabled() ) {            //to the enabled
-                    enabledRobots.add( closeRobot );       //robots list
+                
+                
+                if ( closeRobot.isEnabled() ){
+                    preySensor = (PreySensor)closeRobot.getSensorByType( PreySensor.class );
+                    if ( preySensor != null ) {
+                        if ( preySensor.detects(currentPrey) ) {
+                            enabledRobots.add(closeRobot);
+                        }
+                    }else{
+                        enabledRobots.add(closeRobot);
+                    }
+                    
                 }
+                
+                
+//                if ( closeRobot.isEnabled() ) {            //to the enabled
+//                    enabledRobots.add( closeRobot );       //robots list
+//                }
+                
             }
-//            
-//            boolean focusedBy = false, focusingOn = false;      //this piece of code is for
-//            for (Robot robot : closeRobots) {                   // debug purposes ONLY! remove it when debug is done
-//                FocusedBySensor s1;
-//                s1 = (FocusedBySensor)robot.getSensorByType( FocusedBySensor.class );
-//                if ( s1.isFocused() ) {
-//                    focusedBy = true;
-//                }
-//                FocusingOnSensor s2;
-//                s2 = (FocusingOnSensor)robot.getSensorByType( FocusingOnSensor.class );
-//                if ( s2.isFocused() ) {
-//                    focusingOn = true;
-//                }
-//            }
-//            if ( !focusedBy || !focusingOn ) {
-//                continue;
-//            }                                                   //end of debug code
-            
+
             
             if( enabledRobots.size() >= teamSize ) {            //prey captured                                         
                                                                 //move prey to

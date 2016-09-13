@@ -33,6 +33,7 @@ import simulation.physicalobjects.Wall.Edge;
 import simulation.robot.Robot;
 import simulation.robot.actuators.RecruitedActuator;
 import simulation.robot.actuators.RecruiterActuator;
+import simulation.robot.actuators.RecruitmentActuator;
 import simulation.robot.sensors.ConeTypeSensor;
 import simulation.robot.sensors.PreySensor;
 import simulation.robot.sensors.RecruitSensor;
@@ -533,6 +534,8 @@ public class TwoDRenderer extends Renderer
 		// graphics.fillOval(x-2, y-2, circleDiameter + 4, circleDiameter + 4);
 		//
 		// }
+                
+                //visualization for the energy level
                 TwoWheelActuatorEnergySensor energySensor;
                 energySensor = (TwoWheelActuatorEnergySensor) robot.getSensorByType( TwoWheelActuatorEnergySensor.class );
                 String energyString;
@@ -543,14 +546,31 @@ public class TwoDRenderer extends Renderer
                 
                 
                 //Visualization for the recruit 
-                RecruitedActuator recruitedAct;
-                recruitedAct = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
-                if ( recruitedAct != null && recruitedAct.getRecruiter() != null ) {
+//                RecruitedActuator recruitedAct;
+//                recruitedAct = (RecruitedActuator) robot.getActuatorByType( RecruitedActuator.class );
+//                if ( recruitedAct != null && recruitedAct.getRecruiter() != null ) {
+//                    graphics.setColor( Color.GREEN );
+//                }
+//                else{
+//                    graphics.setColor( Color.BLACK );
+//                }
+                
+                
+                //visualization for the recruitment actuator
+                RecruitmentActuator recruitmentAct;
+                recruitmentAct = (RecruitmentActuator) robot.getActuatorByType( RecruitmentActuator.class );
+                if ( recruitmentAct != null && recruitmentAct.isRecruiting() ) {
+                    graphics.setColor( Color.RED );
+                }
+                else if(recruitmentAct != null && recruitmentAct.isBeingRecruited()){
                     graphics.setColor( Color.GREEN );
                 }
                 else{
                     graphics.setColor( Color.BLACK );
                 }
+                
+                
+                
                 
                 
 		//graphics.setColor(robot.getBodyColor());
@@ -596,38 +616,66 @@ public class TwoDRenderer extends Renderer
                 
                 
                 //Visualization for the recruiter
-                RecruiterActuator recruiterAct;
-                recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
-                if ( recruiterAct != null && recruiterAct.getRecruit() != null ) {
-                    graphics.setColor( Color.RED );
-                }
-                else{
-                    graphics.setColor( Color.WHITE );
-                }
+//                RecruiterActuator recruiterAct;
+//                recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
+//                //if ( recruiterAct != null && recruiterAct.getRecruit() != null ) {
+//                if ( recruiterAct != null && recruiterAct.isRecruiting() ) {
+//                    graphics.setColor( Color.RED );
+//                }
+//                else{
+//                    graphics.setColor( Color.WHITE );
+//                }
+                
+                
+                
+                
+                
                 
                 
                 //Visualization for the recruitment relationship
+//                Vector2d recruitPos, recruiterPos;
+//                RecruiterSensor recruiterSensor;
+//                recruiterSensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
+//                if ( recruiterSensor != null &&                 //this robot
+//                     recruiterSensor.getRecruiter() != null ) { //has a recruiter
+//                    
+//                    RecruitSensor recruitSensor;
+//                    recruitSensor = (RecruitSensor) recruiterSensor.getRecruiter().getSensorByType( RecruitSensor.class );
+//                    
+//                    if ( recruitSensor != null && 
+//                         recruitSensor.getRecruit() != null &&          //the recruit of the recruiter
+//                         recruitSensor.getRecruit().equals(robot) ) {   //is this robot
+//                                                                        //thus, we have a Recruitment Relationship
+//                        
+//                        recruitPos = robot.getPosition();
+//                        recruiterPos = recruiterSensor.getRecruiter().getPosition();
+//                        drawLine( new Line( simulator, "recruitment",   //draw the line to represent
+//                                            recruitPos.x, recruitPos.y, //the recruitment
+//                                            recruiterPos.x, recruiterPos.y, 
+//                                            Color.red) ); 
+//                    }
+//                }
+                
+                
+                //Visualization for when a robot accepts a recruiter
+                String recruiterIDstring;
                 Vector2d recruitPos, recruiterPos;
                 RecruiterSensor recruiterSensor;
                 recruiterSensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
                 if ( recruiterSensor != null &&                 //this robot
                      recruiterSensor.getRecruiter() != null ) { //has a recruiter
                     
-                    RecruitSensor recruitSensor;
-                    recruitSensor = (RecruitSensor) recruiterSensor.getRecruiter().getSensorByType( RecruitSensor.class );
-                    
-                    if ( recruitSensor != null && 
-                         recruitSensor.getRecruit() != null &&          //the recruit of the recruiter
-                         recruitSensor.getRecruit().equals(robot) ) {   //is this robot
-                                                                        //thus, we have a Recruitment Relationship
                         
-                        recruitPos = robot.getPosition();
-                        recruiterPos = recruiterSensor.getRecruiter().getPosition();
-                        drawLine( new Line( simulator, "recruitment",   //draw the line to represent
-                                            recruitPos.x, recruitPos.y, //the recruitment
-                                            recruiterPos.x, recruiterPos.y, 
-                                            Color.red) ); 
-                    }
+                    recruitPos = robot.getPosition();
+                    recruiterPos = recruiterSensor.getRecruiter().getPosition();
+                    drawLine( new Line( simulator, "recruitment",   //draw the line to represent
+                                        recruitPos.x, recruitPos.y, //the recruitment
+                                        recruiterPos.x, recruiterPos.y, 
+                                        Color.red) ); 
+                    
+                    recruiterIDstring = new String( Integer.toString( recruiterSensor.getRecruiter().getId() ) );
+                    graphics.drawString( recruiterIDstring, x, y);
+                    
                 }
                 
                 
@@ -637,10 +685,7 @@ public class TwoDRenderer extends Renderer
                 
                 
                 
-                
-                
-                
-                
+                graphics.setColor(Color.WHITE);
                 graphics.fillPolygon(xp, yp, 3);
 		graphics.setColor(Color.BLACK);
                 

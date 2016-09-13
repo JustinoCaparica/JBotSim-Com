@@ -17,6 +17,7 @@ import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
 import simulation.robot.sensors.RecruitSensor;
+import simulation.robot.sensors.RecruiterSensor;
 import simulation.robot.sensors.RobotSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -66,7 +67,6 @@ public class RecruiterActuator extends Actuator {
     
     
     
-    
     /**
      * Initializes a new instance
      * @param simulator the simulator
@@ -90,7 +90,6 @@ public class RecruiterActuator extends Actuator {
         receiversQueue.add( new LinkedList<Robot>() ); //no receivers in     
         receiversQueue.add( new LinkedList<Robot>() ); //the begining
      
-                                                        
     }
 
     
@@ -173,7 +172,6 @@ public class RecruiterActuator extends Actuator {
         
                                             
                                             
-                                            
         if ( !recruiting ) {                //NN decided not to recruit
             notRecruiting(robot);
         }
@@ -184,7 +182,7 @@ public class RecruiterActuator extends Actuator {
         recruitAccepters.clear();           //forget recruit accepters
         
         
-        receiversQueue.remove(0);           //remove the head of 
+//        receiversQueue.remove(0);           //remove the head of 
                                             //the receivers queue
         
         
@@ -213,18 +211,21 @@ public class RecruiterActuator extends Actuator {
         recruit = null;                     //forget recruit
         
                                                        
-        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
+//        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
+//        
+//        if ( robotSensor != null ) {        //set the robot sensor 
+//            robotSensor.setTarget( null );  //to perceive all neighbor robots
+//        }
+//        
         
-        if ( robotSensor != null ) {        //set the robot sensor 
-            robotSensor.setTarget( null );  //to perceive all neighbor robots
+        recruitSensor = ( RecruitSensor ) robot.getSensorByType( RecruitSensor.class );
+        if (recruitSensor != null) {
+            recruitSensor.setRecruit( null );       //tell the recruit sensor
+                                                    //that there is no recruit
         }
         
         
-        recruitSensor = ( RecruitSensor ) robot.getSensorByType( RecruitSensor.class );
-        recruitSensor.setRecruit( null );       //tell the recruit sensor
-                                                //that there is no recruit
-        
-        receiversQueue.add( new LinkedList<Robot>() );     //no receivers
+        receiversQueue.add( new LinkedList<Robot>() );  //no receivers
                                                         //because no message
                                                         //was sent
     }
@@ -240,50 +241,52 @@ public class RecruiterActuator extends Actuator {
         
         
         
-        if ( recruit == null ) {            //there is no current recruit
-                                            
-            recruit = chooseRecruit(robot); //choose one recruit from the accepters
-        }
-        else{                               //there is a current recruit but..
-                                            //the current recruit is not an accepter
-                                            //or is beyond range
-            
-                                            
-            //TODO is this if ok?                                
-            if ( !recruitAccepters.contains( recruit ) 
-                 || recruit.getPosition().distanceTo( robot.getPosition() ) > range  ) {
-                
-                recruit = chooseRecruit(robot);  //choose new recruit
-                
-            }
-        }
+        robot.broadcastMessage( msg, range );
+        
+//        if ( recruit == null ) {            //there is no current recruit
+//                                            
+//            recruit = chooseRecruit(robot); //choose one recruit from the accepters
+//        }
+//        else{                               //there is a current recruit but..
+//                                            //the current recruit is not an accepter
+//                                            //or is beyond range
+//            
+//                                            
+//            //TODO is this if ok?                                
+//            if ( !recruitAccepters.contains( recruit ) 
+//                 || recruit.getPosition().distanceTo( robot.getPosition() ) > range  ) {
+//                
+//                recruit = chooseRecruit(robot);  //choose new recruit
+//                
+//            }
+//        }
+//        
+//        
+//        
+//        if ( recruit == null ) {                    //no recruit is available
+//                                                    //broadcast recruitment msg
+//            //receivers = robot.broadcastMessage( msg, range );
+//            receiversQueue.add( robot.broadcastMessage( msg, range ) );
+//        }
+//        else{                                       //a recruit is available
+//                                                    //send the recruit a
+//            recruit.getMsgBox().addMsg( msg, robot );  //recruitment msg
+//            //receivers.add( recruit );
+//            List<Robot> receivers = new LinkedList<>();
+//            receivers.add( recruit );
+//            receiversQueue.add( receivers );
+//        }
         
         
         
-        if ( recruit == null ) {                    //no recruit is available
-                                                    //broadcast recruitment msg
-            //receivers = robot.broadcastMessage( msg, range );
-            receiversQueue.add( robot.broadcastMessage( msg, range ) );
-        }
-        else{                                       //a recruit is available
-                                                    //send the recruit a
-            recruit.getMsgBox().addMsg( msg, robot );  //recruitment msg
-            //receivers.add( recruit );
-            List<Robot> receivers = new LinkedList<>();
-            receivers.add( recruit );
-            receiversQueue.add( receivers );
-        }
         
         
         
-        
-        
-        
-        robotSensor = ( RobotSensor ) robot.getSensorByType( RobotSensor.class );
-        if ( robotSensor != null ) {            // if recruit is null
-            robotSensor.setTarget( recruit );   // perceive all neighbor robots
-                                                // otherwise perceive recruit robot
-        }
+//        robotSensor = ( RobotSensor ) robot.getSensorByType( RobotSensor.class );
+//        if ( robotSensor != null ) {            // if recruit is null
+//            robotSensor.setTarget( recruit );   // perceive all neighbor robots
+//                                                // otherwise perceive recruit robot
+//        }
         
         
         

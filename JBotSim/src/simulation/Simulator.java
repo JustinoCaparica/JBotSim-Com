@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 import comm.FileProvider;
+import simulation.environment.CooperativeForagingEnvironment;
 import simulation.environment.Environment;
 import simulation.physicalobjects.PhysicalObject;
 import simulation.physicalobjects.PhysicalObjectType;
@@ -113,6 +114,15 @@ public class Simulator implements Serializable {
 	}
 
 	public void performOneSimulationStep(Double time) {
+
+            //DEBUG CODE
+            if ( environment.getClass().equals(CooperativeForagingEnvironment.class) && 
+                ((CooperativeForagingEnvironment)environment).getNumberOfFoodSuccessfullyForaged() == ((CooperativeForagingEnvironment)environment).getNumberOfPreys() ){
+                stopSimulation = true;
+            }
+            //DEBUG CODE
+            
+            
 		this.time = time;
 
 		if (parallel) {
@@ -168,6 +178,8 @@ public class Simulator implements Serializable {
 //				continue;
 			r.update(this);
 		}
+                
+                
 	}
 
 	protected void updateAllControllers(Double time) {

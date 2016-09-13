@@ -5,12 +5,9 @@
  */
 package simulation.robot.actuators;
 
-import java.awt.Color;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
@@ -31,7 +28,7 @@ public class RecruitedActuator extends Actuator {
     
     
     
-    private Robot recruiter;                    //the recruiter
+    private Robot recruiter;                   //the recruiter
     private List<Robot> recruitRequesters;     //robots requesting a recruit
     
     
@@ -125,11 +122,14 @@ public class RecruitedActuator extends Actuator {
             return;                                 //does not act
         }
         
-        RecruiterActuator recruiterAct;
-        recruiterAct = (RecruiterActuator) robot.getActuatorByType( RecruiterActuator.class );
         
-        if ( !recruitedState ||                     //NN decided not to be recruited
-            recruiterAct.getRecruit() != null ) {   //or there is a recruit
+        
+        
+        RecruitSensor recruitSensor;
+        recruitSensor = (RecruitSensor) robot.getSensorByType( RecruitSensor.class );
+        
+        if ( !recruitedState ){                     //NN decided not to be recruited
+            // || (recruitSensor != null && recruitSensor.getRecruit() != null) ) {  //or there is a recruit
             notRecruited( robot );
         }
         else{
@@ -165,19 +165,19 @@ public class RecruitedActuator extends Actuator {
         recruiter = null;
          
         
-        
-        
-        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
-        
-        if ( robotSensor != null ) {        //set the robot sensor 
-            robotSensor.setTarget( null );  //to perceive all neighbor robots
-        }
+//        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
+//        if ( robotSensor != null ) {        //set the robot sensor 
+//            robotSensor.setTarget( null );  //to perceive all neighbor robots
+//        }
          
         
         
         recruiterSensor = ( RecruiterSensor ) robot.getSensorByType( RecruiterSensor.class );
-        recruiterSensor.setRecruiter( null );   //tell the recruiter sensor
-                                                //that there is no recruiter
+        if ( recruiterSensor != null ) {
+            recruiterSensor.setRecruiter( null );   //tell the recruiter sensor
+                                                    //that there is no recruiter
+        }
+        
         
     }
     
@@ -212,16 +212,18 @@ public class RecruitedActuator extends Actuator {
         
         if ( recruiter != null ) {                  //a recruiter is available
                                                     //send the recruiter an
-            recruiter.getMsgBox().addMsg( msg, robot );  //acceptance msg
+            
+            //LINE COMMENTED FOR DEBUG PURPOSES                                      
+            //recruiter.getMsgBox().addMsg( msg, robot );  //acceptance msg
         }
         
         
            
-        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
-        if ( robotSensor != null ) {            //if recruiter is null
-            robotSensor.setTarget( recruiter ); // perceive all neighbor robots
-                                                // otherwise perceive recruiter robot
-        }
+//        robotSensor = (RobotSensor) robot.getSensorByType( RobotSensor.class );
+//        if ( robotSensor != null ) {            //if recruiter is null
+//            robotSensor.setTarget( recruiter ); // perceive all neighbor robots
+//                                                // otherwise perceive recruiter robot
+//        }
 
 
         recruiterSensor = ( RecruiterSensor ) robot.getSensorByType( RecruiterSensor.class );
@@ -252,15 +254,15 @@ public class RecruitedActuator extends Actuator {
         Iterator<Robot> it;
         it = recruitRequesters.iterator();   
         
-        while( it.hasNext() ) {                 //iterate all accepters
+        while( it.hasNext() ) {                 //iterate all requesters
             r = it.next();
             if( r.getPosition().distanceTo( robot.getPosition() ) <= range ){
                 return r;                       //return 1st accepter within range
             }
         }
         
-        return null;                            //no accepters within range
-                                                //or no accepters at all
+        return null;                            //no requesters within range
+                                                //or no requesters at all
         
     }
     

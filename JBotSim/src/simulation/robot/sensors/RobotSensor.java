@@ -66,7 +66,7 @@ public class RobotSensor extends LightTypeSensor {
 //        }
         
 
-        if ( !seeRobotsWhenInRecruitment ) {
+//        if ( !seeRobotsWhenInRecruitment ) {
             
 //            if ( robot.getId() == 0) {
 //                System.out.println("");
@@ -76,33 +76,33 @@ public class RobotSensor extends LightTypeSensor {
 //            }
                 
             
-            if ( target != null ) {                         //there is a target
-//                if ( robot.getId() == 0 ) {
-//                    System.out.println("Robot 0 says there is a target. Return 0.0 for the robotSensor");
-//                    System.out.println("The target is robot " + target.getId() );
-//                    RobotSensor robotSensor = (RobotSensor) target.getSensorByType( RobotSensor.class );
-//                    if ( robotSensor.getTarget() != null ) {
-//                        System.out.println("Robot " + target.getId() + " robotSensor is targeting robot id: " + robotSensor.getTarget().getId() );
-//                    }
-//                    else{
-//                        System.out.println("Robot " + target.getId() + " robotSensor is NULL");
-//                    }
-//                    
-//                }
-                return 0.0;                                 //return contribution of 0.0
-            }
-            else{
-//                if ( robot.getId() == 0 ) {
-//                    System.out.println("Robot 0 says there is NO target. Return some VALUE for the robotSensor");
-//                }
-            }
-            
-        
-        }
-        else{
-//            System.out.println("see robots in recruitment");
-//            System.out.println("");
-        }
+//            if ( target != null ) {                         //there is a target
+////                if ( robot.getId() == 0 ) {
+////                    System.out.println("Robot 0 says there is a target. Return 0.0 for the robotSensor");
+////                    System.out.println("The target is robot " + target.getId() );
+////                    RobotSensor robotSensor = (RobotSensor) target.getSensorByType( RobotSensor.class );
+////                    if ( robotSensor.getTarget() != null ) {
+////                        System.out.println("Robot " + target.getId() + " robotSensor is targeting robot id: " + robotSensor.getTarget().getId() );
+////                    }
+////                    else{
+////                        System.out.println("Robot " + target.getId() + " robotSensor is NULL");
+////                    }
+////                    
+////                }
+//                return 0.0;                                 //return contribution of 0.0
+//            }
+//            else{
+////                if ( robot.getId() == 0 ) {
+////                    System.out.println("Robot 0 says there is NO target. Return some VALUE for the robotSensor");
+////                }
+//            }
+//            
+//        
+//        }
+//        else{
+////            System.out.println("see robots in recruitment");
+////            System.out.println("");
+//        }
         
 
 

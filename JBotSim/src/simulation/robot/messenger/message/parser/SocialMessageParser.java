@@ -7,10 +7,9 @@ package simulation.robot.messenger.message.parser;
 
 import simulation.robot.Robot;
 import simulation.robot.actuators.RecruitedActuator;
+import simulation.robot.actuators.RecruitmentActuator;
 import simulation.robot.actuators.RecruiterActuator;
 import simulation.robot.messenger.message.Message;
-import simulation.robot.sensors.RecruitSensor;
-import simulation.robot.sensors.RecruiterSensor;
 
 /**
  * A message parser. When the robot receiving the message
@@ -124,41 +123,26 @@ public class SocialMessageParser implements MessageParser {
                                          Robot emitter ) {
         
         
-        RecruitedActuator recruitedActuator;
-        recruitedActuator = (RecruitedActuator) receiver.getActuatorByType( RecruitedActuator.class );
-        if ( recruitedActuator != null ) {
-            recruitedActuator.addRecruitRequester( emitter );
+        
+        RecruitmentActuator recruitmentActuator;
+        recruitmentActuator = (RecruitmentActuator) receiver.getActuatorByType( RecruitmentActuator.class );
+        if ( recruitmentActuator != null ) {
+            recruitmentActuator.addRecruitRequester( emitter );
         }
         
         
         
         
-//        RecruiterActuator recruiterActuator;
-//        recruiterActuator = (RecruiterActuator) receiver.getActuatorByType( RecruiterActuator.class );
-////        if ( recruiterActuator.isRecruiting() ) {   //robot is a recruiter or trying to recruit, thus 
-////            return;                                 //robot can not accept to be recruited
-////        }
-//        
-//        
 //        RecruitedActuator recruitedActuator;
 //        recruitedActuator = (RecruitedActuator) receiver.getActuatorByType( RecruitedActuator.class );
-//        
-//        
-//        
-//        
-//        if ( recruitedActuator.getRecruiter() == null ){              //there is no recruiter
-//             
-//            if ( recruitedActuator.getRecruitRequester() == null ) {  //there is no recruit requester
-//                recruitedActuator.setRecruitRequester( emitter );     //set the emitter as the recruit requester
-//            }
-//            else{                                                   //there is already a recruit requester
-//                                                                    //ignore this request
-//            }
+//        if ( recruitedActuator != null ) {
+//            recruitedActuator.addRecruitRequester( emitter );
 //        }
-//        else{
-//            //if this robot is already recruited, i.e., there is a recruiter
-//            //we ignore this request
-//        }
+        
+        
+        
+        
+
         
         
     }
