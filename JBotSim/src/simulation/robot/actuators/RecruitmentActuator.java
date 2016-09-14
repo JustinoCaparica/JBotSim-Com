@@ -145,18 +145,7 @@ public class RecruitmentActuator extends Actuator {
             return;                                 //does not act
         }
         
-        
-        
-        
-        
-        
-        
-        
-        
-        //receivers.clear();                //forget all receivers
-                                            //from previous time step
-        
-                                            
+                      
                                             
         if ( !recruiting ) {                //NN decided not to recruit
             
@@ -175,7 +164,11 @@ public class RecruitmentActuator extends Actuator {
         }
         
         
-        
+        requesters.clear();                 //forget recruit requesters
+                                            //this list is filled by the 
+                                            //message parser when the robot 
+                                            //is updating sensors and
+                                            //processing messages
         
         
     }
@@ -238,10 +231,15 @@ public class RecruitmentActuator extends Actuator {
         
         
         recruiterSensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
-        
-        
+        if ( recruiterSensor != null ) {            
+            recruiterSensor.setRecruiter( null );       //reset recruiter sensor
+        }                                               //and let the code
+                                                        //ahead find a recruiter
+                                                        //(which can be the current recruiter)
+                                                        
+                                                        
         if ( recruiter != null && 
-             requesters.contains( recruiter) ) {        //current recruiter is a
+             requesters.contains( recruiter ) ) {           //current recruiter is a
             if ( recruiterSensor != null ) {
                 recruiterSensor.setRecruiter( recruiter );  //recruit requester
             }
@@ -259,7 +257,7 @@ public class RecruitmentActuator extends Actuator {
                 
                 requester = it.next();
                 
-                if ( requester.getPosition().distanceTo( robot.getPosition()) < range ) {
+                if ( requester.getPosition().distanceTo( robot.getPosition() ) < range ) {
                     recruiter = requester;                      //requester in range
                     if ( recruiterSensor != null ) {            //found
                         recruiterSensor.setRecruiter( recruiter );  
@@ -269,7 +267,6 @@ public class RecruitmentActuator extends Actuator {
             }
             
         }
-        
         
     }
 

@@ -131,10 +131,10 @@ public class CooperativeForagingEnvironment extends Environment {
         simulator.getRobots().get(2).setOrientation(0);
         
         simulator.getRobots().get(3).setPosition(0, 0.35);
-        simulator.getRobots().get(3).setOrientation(0);
+        simulator.getRobots().get(3).setOrientation(Math.PI/2);
         
         simulator.getRobots().get(4).setPosition(0, -0.35);
-        simulator.getRobots().get(4).setOrientation(0);
+        simulator.getRobots().get(4).setOrientation(-Math.PI/2);
         //END OF DEBUG CODE
         
         
@@ -162,12 +162,17 @@ public class CooperativeForagingEnvironment extends Environment {
         
         //DEBUG CODE
         
-        int i = 0;
+        int i = 0, randomNumber = random.nextInt(4);
         Vector2d preyPosition;
-        if ( random.nextInt(2) == 0 ) {
-            preyPosition = new Vector2d(-0.41, 0);
-        }else{
-            preyPosition = new Vector2d(0.41, 0);
+        
+        if ( randomNumber == 0 ) {
+            preyPosition = new Vector2d(-0.415, 0);
+        }else if ( randomNumber == 1 ){
+            preyPosition = new Vector2d(0.415, 0);
+        }else if ( randomNumber == 2 ){
+            preyPosition = new Vector2d(0, 0.415);
+        }else {
+            preyPosition = new Vector2d(0, -0.415);
         }
         addPrey(new Prey(simulator, "Prey "+i, preyPosition, 0, preyMass, preyRadius));
         //END OF DEBUG CODE

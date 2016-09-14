@@ -5,19 +5,14 @@
  */
 package simulation.robot.actuators;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
 import simulation.robot.sensors.RecruitSensor;
-import simulation.robot.sensors.RecruiterSensor;
 import simulation.robot.sensors.RobotSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;

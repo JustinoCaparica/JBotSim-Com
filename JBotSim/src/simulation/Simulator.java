@@ -115,12 +115,7 @@ public class Simulator implements Serializable {
 
 	public void performOneSimulationStep(Double time) {
 
-            //DEBUG CODE
-            if ( environment.getClass().equals(CooperativeForagingEnvironment.class) && 
-                ((CooperativeForagingEnvironment)environment).getNumberOfFoodSuccessfullyForaged() == ((CooperativeForagingEnvironment)environment).getNumberOfPreys() ){
-                stopSimulation = true;
-            }
-            //DEBUG CODE
+            
             
             
 		this.time = time;
@@ -178,6 +173,16 @@ public class Simulator implements Serializable {
 //				continue;
 			r.update(this);
 		}
+                
+                
+                
+            //DEBUG CODE
+            if ( environment.getClass().equals(CooperativeForagingEnvironment.class) && 
+                ((CooperativeForagingEnvironment)environment).getNumberOfFoodSuccessfullyForaged() == ((CooperativeForagingEnvironment)environment).getNumberOfPreys() ){
+                stopSimulation = true;
+            }
+            //DEBUG CODE
+                
                 
                 
 	}

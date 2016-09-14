@@ -23,11 +23,6 @@ public class RecruiterSensor extends Sensor {
     private Robot recruiter;                    //the recruiter robot
     
     
-    private Robot recruitRequester;             //a robot that has requested
-                                                //a recruit but has not been
-                                                //accepted as a recruiter yet
-    
-    
     
     
     /**
@@ -42,7 +37,6 @@ public class RecruiterSensor extends Sensor {
         super(simulator, id, robot, args);
         
         recruiter        = null;
-        recruitRequester = null;
     }
 
     
@@ -50,33 +44,19 @@ public class RecruiterSensor extends Sensor {
     @Override
     public double getSensorReading( int sensorNumber ) {
         
-        if ( recruiter == null &&               //there is no recruiter
-             recruitRequester == null ) {       //neither recruit requester
+        if ( recruiter == null ) {              //there is no recruiter                                                
             return 0.0;                         //angle is 0, distance is 0
         }
         
         
-        Robot r;
-        if ( recruiter != null ) {              //there is already a recruiter    
-            r = recruiter;                      //select the recruiter
-        }
-        else{                                   //there is only a recruit requester
-            r = recruitRequester;               //select the recruit requester
-        }
-        
-        
-        
-        
         switch ( sensorNumber ) {
             
-            case 0:                                         //sensorNumber == 0                                            
-                return getDistanceOutVal(super.robot, r);   //return distance
+            case 0:                                                 //sensorNumber == 0                                            
+                return getDistanceOutVal(super.robot, recruiter);   //return distance
             
-            case 1:                                         //sensorNumber == 1
-                return getAngleOutVal(super.robot, r);      //return angle                                
+            case 1:                                                 //sensorNumber == 1
+                return getAngleOutVal(super.robot, recruiter);      //return angle                                
             
-            //case 2:                                         //sensorNumber == 2
-            //    return 1.0;                                 //return boolean "there is a recruiter/ recruit requester"
                 
             default:
                 throw new RuntimeException( "Invalid sensor number in RecruiterSensor" );
@@ -84,30 +64,6 @@ public class RecruiterSensor extends Sensor {
         
         
         
-    }
-    
-    
-    
-    /**
-     * Sets the recruit requester. Set 
-     * this value to null to have none
-     * recruit requester
-     * @param recruitRequester the
-     * recruit requester
-     */
-    public void setRecruitRequester( Robot recruitRequester ) {
-        this.recruitRequester = recruitRequester;
-    }
-
-    
-    /**
-     * Gets the recruit requester
-     * @return the recruit requester
-     * of null if there is no
-     * recruit requester
-     */
-    public Robot getRecruitRequester() {
-        return this.recruitRequester;
     }
     
     
@@ -129,8 +85,9 @@ public class RecruiterSensor extends Sensor {
         distance = recruit.getPosition().distanceTo( recruiter.getPosition() );
 
         distance = distance + 1.0;          //making sure distance >= 1
+                                            //to avoid distance = 0
 
-        return  1 / distance;               //return value is inverse of distance
+        return  1 / distance;               //returned value is inverse of distance
     }
 
     
@@ -181,7 +138,9 @@ public class RecruiterSensor extends Sensor {
     /**
      * Sets the recruiter
      * @param recruiter 
-     * the recruiter robot
+     * the recruiter robot; set 
+     * this value to null to
+     * represent no recruiter
      */
     public void setRecruiter (Robot recruiter ) {
         this.recruiter = recruiter;
