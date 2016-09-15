@@ -28,8 +28,11 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
     private int preysCaptured;              //number of preys captured
 
     
-    private Simulator simulator;
 
+    private Double currentTime;             //current simulation time
+    
+    
+    
     
     
     public CooperativeForagingTimeEvaluationFunction(Arguments args) {
@@ -43,13 +46,9 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
     
     @Override
     public double getFitness() {
-//
-//        System.out.println("timeStep:" + timeStep);
-//        System.out.println("totalSteps:" + totalSteps);
-//        System.out.println("fitness:" + (1.0 - (timeStep / totalSteps)) );
-//        
-//        System.out.println("");
-        return  (1.0 / (timeStep+1)) * 100;
+        
+        return 1.0 - (1.0 * timeStep / totalSteps);
+    
     }
 
     
@@ -64,7 +63,7 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
         
         preys = env.getNumberOfPreys(); 
         teamSize = simulator.getRobots().size();
-        
+        currentTime = simulator.getTime();
         
         preysCaptured = env.getNumberOfFoodSuccessfullyForaged();
         
