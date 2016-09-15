@@ -6,7 +6,6 @@
 package simulation.robot.messenger.message.parser;
 
 import simulation.robot.Robot;
-import simulation.robot.actuators.RecruitedActuator;
 import simulation.robot.actuators.RecruitmentActuator;
 import simulation.robot.actuators.RecruiterActuator;
 import simulation.robot.messenger.message.Message;
