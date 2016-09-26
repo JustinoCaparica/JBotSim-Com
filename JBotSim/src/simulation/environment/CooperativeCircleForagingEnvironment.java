@@ -1,14 +1,17 @@
 package simulation.environment;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.Prey;
 import simulation.physicalobjects.Wall;
 import simulation.robot.Robot;
+import simulation.robot.actuators.TwoWheelActuator;
 import simulation.robot.sensors.PreySensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -16,16 +19,15 @@ import simulation.util.ArgumentsAnnotation;
 
 /**
  * An Environment where preys must be captured by 
- * more than one robot. Thus, robots must cooperate
- * to capture preys.
+ * more than one robot. Robots are placed in a circle 
+ * around the nest with a given radius
  * @author gus
  */
-public class CooperativeForagingEnvironment extends Environment {
+public class CooperativeCircleForagingEnvironment extends Environment {
 
     private static final double PREY_RADIUS = 0.025;
     @ArgumentsAnnotation(name="preyRadius", help="prey radius", defaultValue="0.025")
     private Double preyRadius;
-    
     
     
     private static final double PREY_MASS = 1;
@@ -58,9 +60,24 @@ public class CooperativeForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="forbiddenarea", defaultValue="5.0")
     private double forbiddenArea;
 
+    private final int NUMBER_OF_PREYS = 10;
     @ArgumentsAnnotation(name="numberofpreys", defaultValue="10")
     private int numberOfPreys;
 
+    private final double ROBOTS_CIRCLE_RADIUS = 0.5;
+    @ArgumentsAnnotation(name="robotsCircleRadius", defaultValue="0.5", help="radius of the circle where the robots are placed")
+    private double robotsCircleRadius;
+    
+    
+    private int ROBOTS_IN_CIRCLE = 1;
+    @ArgumentsAnnotation(name="robotsInCircle", defaultValue="1", help="number of robots in the robots circle. robots are evenly spaced. Number of robots in the center equals the total number of robots minus the robots in the circle")
+    private int robotsInCircle;
+    
+    
+    
+    
+    
+    
     @ArgumentsAnnotation(name="densityofpreys", defaultValue="")
     private Nest nest;
     
@@ -75,14 +92,14 @@ public class CooperativeForagingEnvironment extends Environment {
 
     
     
-    private Wall wall;                          //environment wall, if exists
+    private Wall wall;                              //environment wall, if exists
     
     
     private Simulator simulator;
     private Arguments args;
 
     
-    public CooperativeForagingEnvironment(Simulator simulator, Arguments arguments) {
+    public CooperativeCircleForagingEnvironment(Simulator simulator, Arguments arguments) {
         
             super(simulator, arguments);
             
@@ -95,6 +112,11 @@ public class CooperativeForagingEnvironment extends Environment {
             
             closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
             teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
+            robotsCircleRadius  = arguments.getArgumentAsDoubleOrSetDefault("robotsCircleRadius", ROBOTS_CIRCLE_RADIUS);
+            robotsInCircle      = arguments.getArgumentAsIntOrSetDefault("robotsInCircle", ROBOTS_IN_CIRCLE);
+            numberOfPreys      = arguments.getArgumentAsIntOrSetDefault("numberOfPreys", NUMBER_OF_PREYS);
+            
+            
             
             walled              = arguments.getArgumentAsIntOrSetDefault("wall", WALLED) == 1;
             
@@ -102,7 +124,7 @@ public class CooperativeForagingEnvironment extends Environment {
             preyMass            = arguments.getArgumentAsDoubleOrSetDefault("preyMass", PREY_MASS);
             preyRadius          = arguments.getArgumentAsDoubleOrSetDefault("preyRadius", PREY_RADIUS);
             
-            lastPreyCaptureTime = 1.0 * super.getSteps();
+            lastPreyCaptureTime = 0.0;
     }
 	
     
@@ -111,19 +133,60 @@ public class CooperativeForagingEnvironment extends Environment {
     @Override
     public void setup(Simulator simulator) {
             
+        
         super.setup(simulator);
 
-        if(simulator.getRobots().size() == 1) {
-                Robot r = simulator.getRobots().get(0);
-                r.setPosition(0, 0);
-                r.setOrientation(0);
-        }
-
-        
-       
-        
-        
         this.random = simulator.getRandom();
+        int numberOfRobots = simulator.getRobots().size();
+        
+        
+                                                                        //randomize central
+        for (int i = 0; i <  numberOfRobots - robotsInCircle; i++) {    //robots orientations
+            simulator.getRobots().get(i).setOrientation( random.nextDouble()*2*Math.PI );
+        }
+        
+        
+        
+        
+        Set<Integer> preyPositions = new HashSet<>();
+        int preyPosition;
+        while ( preyPositions.size() < numberOfPreys ) {        //randomize 
+            preyPosition = random.nextInt( robotsInCircle );    //prey
+            if ( !preyPositions.contains(preyPosition) ) {      //positions
+                preyPositions.add( preyPosition );
+            }
+        }
+        
+        
+        
+        double base = ( random.nextDouble()*2*Math.PI );
+        
+        TwoWheelActuator wheelAct;
+        Vector2d robotPos, preyPos;
+        for (int i = 0; i < robotsInCircle; i++) {                       
+            robotPos = new Vector2d( base + i * (2*Math.PI/robotsInCircle) );   //place
+            robotPos.setLength( robotsCircleRadius );                           //robots in
+                                                                                //the circle
+            simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).setPosition( robotPos );               
+            simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).setOrientation( base + i * (2*Math.PI/robotsInCircle) );
+            
+            wheelAct = (TwoWheelActuator) simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).getActuatorByType( TwoWheelActuator.class );
+            if ( wheelAct != null ) {               //robots in circle 
+                wheelAct.setMaxSpeed( 0 );          //can not move
+            }
+            
+            if ( preyPositions.contains(i) ) {          
+                preyPos = new Vector2d( base + i * (2*Math.PI/robotsInCircle) ); 
+                preyPos.setLength( robotsCircleRadius + 0.065);                 //place preys                
+                addPrey(new Prey(simulator, "Prey "+i, preyPos, 0, preyMass, preyRadius));
+            }
+            
+        }
+        
+        
+        
+        
+        
 
 
 
@@ -139,15 +202,16 @@ public class CooperativeForagingEnvironment extends Environment {
                         numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
                 }
         } else {
-                numberOfPreys = args.getArgumentIsDefined("numberofpreys") ? args.getArgumentAsInt("numberofpreys") : 20;
+                numberOfPreys = args.getArgumentIsDefined("numberofpreys") ? args.getArgumentAsInt("numberofpreys") : NUMBER_OF_PREYS;
         }
 
         
 
 
-        for(int i = 0; i < numberOfPreys; i++ ){
-                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius));
-        }
+        
+//        for(int i = 0; i < numberOfPreys; i++ ){
+//                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius));
+//        }
         
         
         nest = new Nest(simulator, "Nest", 0, 0, nestLimit);
@@ -167,7 +231,6 @@ public class CooperativeForagingEnvironment extends Environment {
             
             wall = new Wall( simulator, 0, wallSize, 2*wallSize, 0.10);
             super.addObject( wall );
-            
             
             
         }
@@ -219,7 +282,6 @@ public class CooperativeForagingEnvironment extends Environment {
                     
                 }
                 
-                
 //                if ( closeRobot.isEnabled() ) {            //to the enabled
 //                    enabledRobots.add( closeRobot );       //robots list
 //                }
@@ -234,7 +296,10 @@ public class CooperativeForagingEnvironment extends Environment {
                 currentPrey.teleportTo( new Vector2d(100, 100) );
                 numberOfFoodSuccessfullyForaged++;              //account for
                                                                 //foraged prey
+                
                 lastPreyCaptureTime = time;
+                
+                
                 
             }
         }

@@ -49,14 +49,6 @@ public class TwoWheelActuator extends Actuator {
     @Override
     public void apply(Robot robot, double timeDelta) {
         
-        //DEBUG CODE
-        if (robot.getId() != 0) {
-            leftSpeed = 0;
-            rightSpeed = 0;
-        }
-        //END OF DEBUG CODE
-        
-        
         //sum the wheel speed spent since last call to this method
         //to the total wheel speed
         totalWheelSpeed += tickDuration * ( Math.abs(leftSpeed) + Math.abs(rightSpeed) );

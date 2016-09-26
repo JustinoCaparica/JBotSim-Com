@@ -31,12 +31,10 @@ import simulation.physicalobjects.Prey;
 import simulation.physicalobjects.Wall;
 import simulation.physicalobjects.Wall.Edge;
 import simulation.robot.Robot;
-import simulation.robot.actuators.RecruitedActuator;
-import simulation.robot.actuators.RecruiterActuator;
 import simulation.robot.actuators.RecruitmentActuator;
+import simulation.robot.actuators.RecruitmentImmediateActuator;
 import simulation.robot.sensors.ConeTypeSensor;
 import simulation.robot.sensors.PreySensor;
-import simulation.robot.sensors.RecruitSensor;
 import simulation.robot.sensors.RecruiterSensor;
 import simulation.robot.sensors.Sensor;
 import simulation.robot.sensors.TwoWheelActuatorEnergySensor;
@@ -559,15 +557,44 @@ public class TwoDRenderer extends Renderer
                 //visualization for the recruitment actuator
                 RecruitmentActuator recruitmentAct;
                 recruitmentAct = (RecruitmentActuator) robot.getActuatorByType( RecruitmentActuator.class );
-                if ( recruitmentAct != null && recruitmentAct.isRecruiting() ) {
-                    graphics.setColor( Color.RED );
+                
+                //visualization for the recruitmentImmediate actuator
+                RecruitmentImmediateActuator recruitmentImmediateAct;
+                recruitmentImmediateAct = (RecruitmentImmediateActuator) robot.getActuatorByType( RecruitmentImmediateActuator.class );
+                
+                if ( recruitmentAct != null ) {
+                    if ( recruitmentAct.isRecruiting() ) {
+                        graphics.setColor( Color.RED );
+                    }
+                    else if( recruitmentAct.isBeingRecruited() ){
+                        graphics.setColor( Color.GREEN );
+                    }
+                    else{
+                        graphics.setColor( Color.BLACK );
+                    }
                 }
-                else if(recruitmentAct != null && recruitmentAct.isBeingRecruited()){
-                    graphics.setColor( Color.GREEN );
+                else if( recruitmentImmediateAct != null ){
+                    if ( recruitmentImmediateAct.isRecruiting() ) {
+                        graphics.setColor( Color.RED );
+                    }
+                    else if( recruitmentImmediateAct.isBeingRecruited() ){
+                        graphics.setColor( Color.GREEN );
+                    }
+                    else{
+                        graphics.setColor( Color.BLACK );
+                    }
                 }
-                else{
-                    graphics.setColor( Color.BLACK );
-                }
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
                 
                 
                 
@@ -666,6 +693,9 @@ public class TwoDRenderer extends Renderer
                      recruiterSensor.getRecruiter() != null ) { //has a recruiter
                     
                         
+                    //debug
+                    //System.out.println("Robot " + robot.getId() + " has a recruiter ");
+                    
                     recruitPos = robot.getPosition();
                     recruiterPos = recruiterSensor.getRecruiter().getPosition();
                     drawLine( new Line( simulator, "recruitment",   //draw the line to represent
@@ -673,10 +703,17 @@ public class TwoDRenderer extends Renderer
                                         recruiterPos.x, recruiterPos.y, 
                                         Color.red) ); 
                     
-                    recruiterIDstring = new String( Integer.toString( recruiterSensor.getRecruiter().getId() ) );
+                    recruiterIDstring = Integer.toString( recruiterSensor.getRecruiter().getId() );
                     graphics.drawString( recruiterIDstring, x, y);
                     
+                }else{
+                    //debug
+                    //System.out.println("Robot " + robot.getId() + " does NOT have a recruiter ");
                 }
+                
+                
+                
+                
                 
                 
                 

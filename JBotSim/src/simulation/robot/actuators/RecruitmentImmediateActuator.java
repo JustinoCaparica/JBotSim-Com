@@ -27,10 +27,10 @@ import simulation.util.ArgumentsAnnotation;
  * searches for another robot that is available 
  * to be recruited and recruits the
  * available robot immediately without
- * sending any message
+ * exchanging messages
  * @author gus
  */
-public class RecruitmentActuatorImmediate extends Actuator {
+public class RecruitmentImmediateActuator extends Actuator {
 
     
     private final static double RANGE_DEFAULT = 0.8;
@@ -47,6 +47,7 @@ public class RecruitmentActuatorImmediate extends Actuator {
     private Robot recruit;                  
     private RecruiterSensor recruiterSensor;
     private RecruitSensor recruitSensor;    
+    private RecruitmentImmediateActuator recruitmentImmediateAct;
     /***************************************************/
      
     
@@ -65,7 +66,7 @@ public class RecruitmentActuatorImmediate extends Actuator {
      * @param id the actuator id
      * @param args the arguments
      */
-    public RecruitmentActuatorImmediate( Simulator simulator, int id, Arguments args ) {
+    public RecruitmentImmediateActuator( Simulator simulator, int id, Arguments args ) {
         super(simulator, id, args);
         
         
@@ -105,13 +106,11 @@ public class RecruitmentActuatorImmediate extends Actuator {
                       
         if ( recruiting ) {                 //NN decided to recruit
             recruiting( robot );
-            //notBeRecruited( robot );        //can not be recruited in simultaneous
+            //notBeRecruited( robot );      //can not be recruited in simultaneous
         }
         else{                               //NN decided not to recruit
             notRecruiting( robot );         
         }
-        
-        
         
         
         
@@ -159,9 +158,21 @@ public class RecruitmentActuatorImmediate extends Actuator {
                  (recruit != null &&                                                        // OR
                   robot.getPosition().distanceTo( recruit.getPosition() ) > range ) ) {     //current recruit is beyond range
                         
+                if ( recruit != null ) {
+                    recruiterSensor = getRecruiterSensor( recruit );                        //tell the recruit
+                    recruiterSensor.setRecruiter( null );                                   //he has no recruiter anymore
+                }
+                
+                
                 recruitSensor.setRecruit( chooseCloseRecruit( robot ) );                    //choose another recruit
                                                                                             //which can be null if 
                                                                                             //no recruit is available
+                                                                                                                  
+                if ( recruitSensor.getRecruit() != null ) {                                 //if a recruit
+                    recruiterSensor = getRecruiterSensor( recruitSensor.getRecruit() );     //was found
+                    recruiterSensor.setRecruiter( robot );                                  //tell the recruit
+                }                                                                           //who the recruiter is
+                                       
             }
         }
         
@@ -185,12 +196,25 @@ public class RecruitmentActuatorImmediate extends Actuator {
         closeRobots = env.getClosestRobots( robot.getPosition(),//within actuator's 
                                             range);             //range
         
+//        if ( robot.getId() == 0 ) {
+//            System.out.println("");
+//            System.out.println("Robot 0 choosing a new recruit");
+//        }
         
-        RecruitmentActuatorImmediate act;
-        for (Robot closeRobot : closeRobots) {                  
-            act = getRecruitmentActuatorImmediate( closeRobot );    
-            if ( act.isAvailableToBeRecruited( closeRobot ) ) { //robot is available
-                return closeRobot;                              //choose it!
+        
+        RecruitmentImmediateActuator act;
+        for (Robot closeRobot : closeRobots) {
+            if ( closeRobot.getId() != robot.getId() ) {            //avoid recruiting self
+                //System.out.println("Robot " + robot.getId() + " analysing robot " + closeRobot.getId() );
+                act = getRecruitmentImmediateActuator( closeRobot );    
+                if ( act.isAvailableToBeRecruited( closeRobot ) ) { //robot is available
+                    //System.out.println("    - YES available");
+                    //System.out.println("Robot " + robot.getId() + " recruited robot " + closeRobot.getId() );
+                    return closeRobot;                              //choose it!
+                }
+                else{
+                    //System.out.println("    - not available");
+                }
             }
         }
         
@@ -220,11 +244,11 @@ public class RecruitmentActuatorImmediate extends Actuator {
      */
     private Boolean isAvailableToBeRecruited( Robot r ) {
         
+        recruitmentImmediateAct = getRecruitmentImmediateActuator( r );
         recruiterSensor = getRecruiterSensor( r );
         if ( recruiterSensor != null ) {
-            return !recruiting &&                           //not recruiting
-                    beRecruited &&                          //accepting recruiter
-                    recruiterSensor.getRecruiter() != null; //does not have a recruiter yet
+            return  recruitmentImmediateAct.isBeingRecruited() &&           //accepting recruiter AND
+                    recruiterSensor.getRecruiter() == null;                 //does not have a recruiter yet
         }
         
         return false;                   //there is no recruiter sensor
@@ -269,14 +293,14 @@ public class RecruitmentActuatorImmediate extends Actuator {
     
     
     /**
-     * Gets the RecruitmentActuatorImmediate
+     * Gets the RecruitmentImmediateActuator
      * of a robot
      * @param robot the robot
      * @return the actuator or null
      * if there is none
      */
-    private RecruitmentActuatorImmediate getRecruitmentActuatorImmediate( Robot robot ) {
-        return (RecruitmentActuatorImmediate) robot.getActuatorByType( RecruitmentActuatorImmediate.class );
+    private RecruitmentImmediateActuator getRecruitmentImmediateActuator( Robot robot ) {
+        return (RecruitmentImmediateActuator) robot.getActuatorByType(RecruitmentImmediateActuator.class );
     }
 
 
