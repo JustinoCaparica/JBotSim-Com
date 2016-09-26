@@ -2,6 +2,7 @@ package evolutionaryrobotics.evaluationfunctions;
 
 import mathutils.Vector2d;
 import simulation.Simulator;
+import simulation.environment.CooperativeCircleForagingEnvironment;
 import simulation.environment.CooperativeForagingEnvironment;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
@@ -47,8 +48,15 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
     @Override
     public double getFitness() {
         
-        return 1.0 - (1.0 * timeStep / totalSteps);
+        Double fitPreys = ( 1.0 * preysCaptured / preys );
+        
+        Double timePenalty = (0.9*1.0/preys) * ( (1.0 * timeStep) / (totalSteps) );
+        
+        return fitPreys - timePenalty;
+        
+        //return 1.0 - ( (1.0 * timeStep) / (totalSteps) );
     
+        
     }
 
     
@@ -56,19 +64,35 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
     @Override
     public void update(Simulator simulator) {
 
-        //TODO next two lines are ugly, fix it when time is a surplus
-        CooperativeForagingEnvironment env;
-        env = (CooperativeForagingEnvironment)(simulator.getEnvironment());
+        //TODO next lines are ugly, fix it when time is a surplus
+        if ( (simulator.getEnvironment()).getClass().equals( CooperativeForagingEnvironment.class )) {
+            CooperativeForagingEnvironment env;
+            env = (CooperativeForagingEnvironment)(simulator.getEnvironment());
+            preys = env.getNumberOfPreys(); 
+            teamSize = simulator.getRobots().size();
+            currentTime = simulator.getTime();
+
+            preysCaptured = env.getNumberOfFoodSuccessfullyForaged();
+
+            timeStep = env.getLastPreyCaptureTime();
+            totalSteps = env.getSteps();
+        }else{
+            CooperativeCircleForagingEnvironment env;
+            env = (CooperativeCircleForagingEnvironment)(simulator.getEnvironment());
+            preys = env.getNumberOfPreys(); 
+            teamSize = simulator.getRobots().size();
+            currentTime = simulator.getTime();
+
+            preysCaptured = env.getNumberOfFoodSuccessfullyForaged();
+
+            timeStep = env.getLastPreyCaptureTime();
+            totalSteps = env.getSteps();
+        }
         
         
-        preys = env.getNumberOfPreys(); 
-        teamSize = simulator.getRobots().size();
-        currentTime = simulator.getTime();
         
-        preysCaptured = env.getNumberOfFoodSuccessfullyForaged();
         
-        timeStep = env.getLastPreyCaptureTime();
-        totalSteps = env.getSteps();
+        
         
     }
 }
