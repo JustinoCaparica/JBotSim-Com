@@ -20,10 +20,10 @@ public class ExportFitnessPlots {
 //		String f = "bigdisk/behaviormapping/maze_type"; String[] setups = new String[]{/*f+"0_20/",f+"1_20/",*/f+"3_20/"};
 //		String f = "bigdisk/orientation/"; String[] setups = new String[]{f+"maze_orientation/"};
 
-            String f = "experiments/";
-            String[] setups = new String[]{ f + "CooperativeForaging-NonSocial/",
-                                            f + "CooperativeForaging-Social/",
-                                            f + "CooperativeForaging-Social-RecruiterOnly/" };
+            String f = "../../experiments/BasicExperiments/";
+            String[] setups = new String[]{ //f + "CooperativeForaging-Social-CircleForaging/CooperativeForaging-Social-CircleForaging/"};//,
+                                            f + "CooperativeForaging-NonSocial-CircleForaging/CooperativeForaging-NonSocial-CircleForaging/"};//,
+                                            //f + "CooperativeForaging-Social-RecruiterOnly/" };
 
             
             
