@@ -102,7 +102,7 @@ public class CooperativeForagingEnvironment extends Environment {
             preyMass            = arguments.getArgumentAsDoubleOrSetDefault("preyMass", PREY_MASS);
             preyRadius          = arguments.getArgumentAsDoubleOrSetDefault("preyRadius", PREY_RADIUS);
             
-            lastPreyCaptureTime = 1.0 * super.getSteps();
+            lastPreyCaptureTime = 0.0;
     }
 	
     

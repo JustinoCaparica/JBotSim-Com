@@ -57,6 +57,9 @@ public class RecruitmentImmediateActuator extends Actuator {
                                             //recruitment requests?
     
     
+    private Robot actOwner;                 //robot that owns the actuator
+    
+    
     private final Environment env;          //the environment
     
     
@@ -77,6 +80,8 @@ public class RecruitmentImmediateActuator extends Actuator {
         
         env = simulator.getEnvironment();
         
+        actOwner = null;
+        
     }
 
     
@@ -96,6 +101,8 @@ public class RecruitmentImmediateActuator extends Actuator {
     @Override
     public void apply( Robot robot, double timeDelta ) {
           
+        actOwner = robot;
+        
         
         if ( !robot.isEnabled() ) {                 //disabled robot
             notRecruiting( robot );
@@ -246,8 +253,10 @@ public class RecruitmentImmediateActuator extends Actuator {
         
         recruitmentImmediateAct = getRecruitmentImmediateActuator( r );
         recruiterSensor = getRecruiterSensor( r );
-        if ( recruiterSensor != null ) {
-            return  recruitmentImmediateAct.isBeingRecruited() &&           //accepting recruiter AND
+        recruitSensor = getRecruitSensor( r );
+        if ( recruiterSensor != null && recruitSensor != null ) {
+            return  recruitSensor.getRecruit() == null &&                   //does not have a recruit AND
+                    recruitmentImmediateAct.isBeingRecruited() &&           //accepting recruiter AND
                     recruiterSensor.getRecruiter() == null;                 //does not have a recruiter yet
         }
         
@@ -341,7 +350,19 @@ public class RecruitmentImmediateActuator extends Actuator {
      * request is received
      */
     public void setBeRecruited( boolean beRecruited ) {
+        //DEBUG
+//        if ( actOwner != null ) {
+//            if ( actOwner.getId() == 0 || actOwner.getId() == 1 ) {
+//                this.beRecruited = beRecruited;
+//            }else{
+//                this.beRecruited = false;
+//            }
+//        }else{
+//            this.beRecruited = false;
+//        }
+            
         this.beRecruited = beRecruited;
+        
     }
     
     

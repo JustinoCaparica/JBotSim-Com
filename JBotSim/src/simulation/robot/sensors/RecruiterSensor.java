@@ -7,6 +7,8 @@ package simulation.robot.sensors;
 
 import mathutils.Vector2d;
 import simulation.Simulator;
+import simulation.physicalobjects.GeometricCalculator;
+import simulation.physicalobjects.GeometricInfo;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
@@ -22,7 +24,9 @@ public class RecruiterSensor extends Sensor {
     
     private Robot recruiter;                    //the recruiter robot
     
+    private Simulator sim;                      //the simulator
     
+    private GeometricCalculator calc;           //geometric calculator
     
     
     /**
@@ -37,6 +41,10 @@ public class RecruiterSensor extends Sensor {
         super(simulator, id, robot, args);
         
         recruiter        = null;
+        this.sim         = simulator;
+        
+        
+        calc = new GeometricCalculator();
     }
 
     
@@ -49,18 +57,50 @@ public class RecruiterSensor extends Sensor {
         }
         
         
-        switch ( sensorNumber ) {
+        double value;
+        
+        
+        
+        GeometricInfo sensorInfo = calc.getGeometricInfoBetween( super.robot.getPosition(), super.robot.getOrientation(), recruiter, sim.getTime() );
+			
+        switch (sensorNumber) {
             
-            case 0:                                                 //sensorNumber == 0                                            
-                return getDistanceOutVal(super.robot, recruiter);   //return distance
+            case 0:
+                //range
+                value = super.robot.getPosition().distanceTo( recruiter.getPosition() );
+                value = value + 1.0;                        //making sure distance >= 1
+                                                            //to avoid distance = 0
+                value = 1 / value;
+                break;
             
-            case 1:                                                 //sensorNumber == 1
-                return getAngleOutVal(super.robot, recruiter);      //return angle                                
-            
+            case 1:
+                //angle
+                value = sensorInfo.getAngle() / Math.PI / 2 + 0.5;
+                break;
                 
             default:
                 throw new RuntimeException( "Invalid sensor number in RecruiterSensor" );
         }
+
+            
+            
+        return value;
+        
+        
+        
+        
+//        switch ( sensorNumber ) {
+//            
+//            case 0:                                                 //sensorNumber == 0                                            
+//                return getDistanceOutVal(super.robot, recruiter);   //return distance
+//            
+//            case 1:                                                 //sensorNumber == 1
+//                return getAngleOutVal(super.robot, recruiter);      //return angle                                
+//            
+//                
+//            default:
+//                throw new RuntimeException( "Invalid sensor number in RecruiterSensor" );
+//        }
         
         
         
@@ -105,6 +145,12 @@ public class RecruiterSensor extends Sensor {
      * in range [0,1]
      */
     private double getAngleOutVal( Robot recruit, Robot recruiter ) {
+        
+        
+        
+        
+        
+        
         
         double recruitOrientation;
         recruitOrientation = recruit.getOrientation();      //orientation in range [-PI,PI]

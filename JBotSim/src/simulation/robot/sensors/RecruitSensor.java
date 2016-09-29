@@ -7,6 +7,8 @@ package simulation.robot.sensors;
 
 import mathutils.Vector2d;
 import simulation.Simulator;
+import simulation.physicalobjects.GeometricCalculator;
+import simulation.physicalobjects.GeometricInfo;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
@@ -20,6 +22,9 @@ public class RecruitSensor extends Sensor {
     
     private Robot recruit;                      //the recruited robot
     
+    private Simulator sim;                      //the simulator
+    
+    private GeometricCalculator calc;           //geometric calculator
     
     
     /**
@@ -34,6 +39,10 @@ public class RecruitSensor extends Sensor {
         super(simulator, id, robot, args);
         
         recruit = null;
+        
+        this.sim         = simulator;
+        
+        calc = new GeometricCalculator();
     }
 
     
@@ -46,23 +55,34 @@ public class RecruitSensor extends Sensor {
         }
         
         
+        double value;
         
         
-        switch ( sensorNumber ) {
+        
+        GeometricInfo sensorInfo = calc.getGeometricInfoBetween( super.robot.getPosition(), super.robot.getOrientation(), recruit, sim.getTime() );
+			
+        switch (sensorNumber) {
             
-            case 0:                                             //sensorNumber is 0
-                                                                //return distance
-                return getDistanceOutVal( recruit, super.robot );
+            case 0:
+                //range
+                value = super.robot.getPosition().distanceTo( recruit.getPosition() );
+                value = value + 1.0;                        //making sure distance >= 1
+                                                            //to avoid distance = 0
+                value = 1 / value;
+                break;
             
-            case 1:                                             //sensorNumber is 1
-                return getAngleOutVal( recruit, super.robot );  //return angle                                
-            
-            //case 2:                                             //sensorNumber is 2
-            //    return 1.0;                                     //return boolean "there is a recruit"
-            
+            case 1:
+                //angle
+                value = sensorInfo.getAngle() / Math.PI / 2 + 0.5;
+                break;
+                
             default:
-                throw new RuntimeException("Invalid sensor number in RecruitedSensor");
+                throw new RuntimeException( "Invalid sensor number in RecruiterSensor" );
         }
+
+            
+            
+        return value;
         
         
         
