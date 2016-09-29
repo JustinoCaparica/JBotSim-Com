@@ -48,12 +48,28 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
     @Override
     public double getFitness() {
         
+        
+        //reward for preys captured
+//        Double fitPreys = ( 1.0 * (preysCaptured*preysCaptured) / (preys*preys) );
+//        
+//        
+//        //time penalty: the longer it takes to capture all captured  preys, the higher the penalty
+//        Double timePenalty = fitPreys - ( 1.0 * ( (preysCaptured-1) * (preysCaptured-1) ) / (preys*preys) );
+//        timePenalty = ( 0.66 * timePenalty) * ( (1.0 * timeStep) / (totalSteps) );
+//        
+//        
+//        return fitPreys - timePenalty;
+        
+        
+        
+        
+        //version 0.2
         Double fitPreys = ( 1.0 * preysCaptured / preys );
-        
-        Double timePenalty = (0.9*1.0/preys) * ( (1.0 * timeStep) / (totalSteps) );
-        
+        Double timePenalty = (0.66*1.0/preys) * ( (1.0 * timeStep) / (totalSteps) );
         return fitPreys - timePenalty;
         
+        
+        //version 0.1
         //return 1.0 - ( (1.0 * timeStep) / (totalSteps) );
     
         
