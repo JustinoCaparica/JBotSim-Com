@@ -176,13 +176,6 @@ public class Simulator implements Serializable {
                 
                 
                 
-            //DEBUG CODE
-            if ( environment.getClass().equals(CooperativeForagingEnvironment.class) && 
-                ((CooperativeForagingEnvironment)environment).getNumberOfFoodSuccessfullyForaged() == ((CooperativeForagingEnvironment)environment).getNumberOfPreys() ){
-                stopSimulation = true;
-            }
-            //DEBUG CODE
-                
                 
                 
 	}
