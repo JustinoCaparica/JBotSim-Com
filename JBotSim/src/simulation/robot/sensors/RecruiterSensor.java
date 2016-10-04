@@ -68,7 +68,7 @@ public class RecruiterSensor extends Sensor {
             case 0:
                 //range
                 value = super.robot.getPosition().distanceTo( recruiter.getPosition() );
-                value = value + 1.0;                        //making sure distance >= 1
+                value = value + 1.0;                        //make sure distance >= 1
                                                             //to avoid distance = 0
                 value = 1 / value;
                 break;
@@ -145,11 +145,6 @@ public class RecruiterSensor extends Sensor {
      * in range [0,1]
      */
     private double getAngleOutVal( Robot recruit, Robot recruiter ) {
-        
-        
-        
-        
-        
         
         
         double recruitOrientation;
