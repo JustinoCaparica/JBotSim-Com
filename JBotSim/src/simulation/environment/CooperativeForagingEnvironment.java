@@ -236,6 +236,10 @@ public class CooperativeForagingEnvironment extends Environment {
                                                                 //foraged prey
                 lastPreyCaptureTime = time;
                 
+                
+                if ( numberOfFoodSuccessfullyForaged == numberOfPreys ) {
+                    simulator.stopSimulation();         //no more preys
+                }                                       //stop simulation, save time
             }
         }
 

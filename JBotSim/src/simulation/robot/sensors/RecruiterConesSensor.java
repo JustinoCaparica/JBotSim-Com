@@ -13,9 +13,9 @@ import simulation.util.Arguments;
  * A sensor to perceive the recruiter
  * @author gus
  */
-public class RecruiterSensorCones extends RobotSensor {
+public class RecruiterConesSensor extends RobotSensor {
     
-    public RecruiterSensorCones(Simulator simulator, int id, Robot robot, Arguments args) {
+    public RecruiterConesSensor(Simulator simulator, int id, Robot robot, Arguments args) {
         super(simulator, id, robot, args);
     }
     

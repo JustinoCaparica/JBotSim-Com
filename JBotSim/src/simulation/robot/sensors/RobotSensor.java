@@ -12,8 +12,8 @@ public class RobotSensor extends LightTypeSensor {
 
     private Robot target;                   //the robot to be perceived
                                             //by this sensor. If set to
-                                            //null all robots within 
-                                            //range are perceived
+                                            //null any robot within 
+                                            //range can be perceived
 
     @ArgumentsAnnotation(name = "seeDisabledRobots", defaultValue = "1", help = "If this value is set to 0 the sensor will not see disabled robots")
     private boolean seeDisabledRobots;
@@ -34,6 +34,14 @@ public class RobotSensor extends LightTypeSensor {
     @Override
     protected double calculateContributionToSensor(int sensorNumber, PhysicalObjectDistance source) {
         
+        if ( target != null &&                  //there is a target 
+             !target.equals(source) ) {         //that is not the source
+            return 0.0;                         //return 0.0
+        }
+        
+        
+        
+        
         boolean enabledDebug;
         enabledDebug = source.getObject().isEnabled();
         
@@ -43,61 +51,6 @@ public class RobotSensor extends LightTypeSensor {
         }
         
         
-//
-//            if (target == null ) {
-//                System.out.println("target = null");
-//            }else{
-//                System.out.println( "target=" + target.getDescription() );
-//            }
-//            
-//            System.out.println("source.getObject():" + source.getObject());
-
-
-//        if ( !seeRobotsWhenInRecruitment ) {
-//            if ( target != null &&                          //there is a target and
-//                !source.getObject().equals( target ) ) {    //the target is not the source
-//                return 0.0;                                 //return contribution of 0.0
-//            }
-//        }
-        
-
-//        if ( !seeRobotsWhenInRecruitment ) {
-            
-//            if ( robot.getId() == 0) {
-//                System.out.println("");
-//                System.out.println("Do NOT see robots in recruitment");
-//                System.out.println("robotSensor " + this.sensorPosition.toString() );
-//                
-//            }
-                
-            
-//            if ( target != null ) {                         //there is a target
-////                if ( robot.getId() == 0 ) {
-////                    System.out.println("Robot 0 says there is a target. Return 0.0 for the robotSensor");
-////                    System.out.println("The target is robot " + target.getId() );
-////                    RobotSensor robotSensor = (RobotSensor) target.getSensorByType( RobotSensor.class );
-////                    if ( robotSensor.getTarget() != null ) {
-////                        System.out.println("Robot " + target.getId() + " robotSensor is targeting robot id: " + robotSensor.getTarget().getId() );
-////                    }
-////                    else{
-////                        System.out.println("Robot " + target.getId() + " robotSensor is NULL");
-////                    }
-////                    
-////                }
-//                return 0.0;                                 //return contribution of 0.0
-//            }
-//            else{
-////                if ( robot.getId() == 0 ) {
-////                    System.out.println("Robot 0 says there is NO target. Return some VALUE for the robotSensor");
-////                }
-//            }
-//            
-//        
-//        }
-//        else{
-////            System.out.println("see robots in recruitment");
-////            System.out.println("");
-//        }
         
 
 
