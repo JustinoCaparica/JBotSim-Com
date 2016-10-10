@@ -300,6 +300,9 @@ public class CooperativeCircleForagingEnvironment extends Environment {
                 lastPreyCaptureTime = time;
                 
                 
+                if ( numberOfFoodSuccessfullyForaged == numberOfPreys ) {
+                    simulator.stopSimulation();         //no more preys
+                }                                       //stop simulation, save time
                 
             }
         }
