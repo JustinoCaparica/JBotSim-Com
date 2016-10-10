@@ -12,6 +12,7 @@ import simulation.Simulator;
 import simulation.robot.Robot;
 import simulation.robot.messenger.message.Message;
 import simulation.robot.messenger.message.MessageType;
+import simulation.robot.sensors.RecruiterConesSensor;
 import simulation.robot.sensors.RecruiterSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -41,7 +42,7 @@ public class RecruitmentActuator extends Actuator {
     private List<Robot> requesters;         //list of recruit requesters
     
     
-    private RecruiterSensor recruiterSensor;//sensor to perceive the recruiter
+    private RecruiterConesSensor recruiterSensor;//sensor to perceive the recruiter
     
     
     
@@ -212,7 +213,7 @@ public class RecruitmentActuator extends Actuator {
      */
     private void notBeRecruited( Robot robot ) {
         
-        recruiterSensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
+        recruiterSensor = (RecruiterConesSensor) robot.getSensorByType( RecruiterConesSensor.class );
         if ( recruiterSensor != null ) {
             recruiterSensor.setRecruiter( null );
         }
@@ -230,7 +231,7 @@ public class RecruitmentActuator extends Actuator {
     private void beRecruited( Robot robot ) {
         
         
-        recruiterSensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
+        recruiterSensor = (RecruiterConesSensor) robot.getSensorByType( RecruiterConesSensor.class );
         if ( recruiterSensor != null ) {            
             recruiterSensor.setRecruiter( null );       //reset recruiter sensor
         }                                               //and let the code

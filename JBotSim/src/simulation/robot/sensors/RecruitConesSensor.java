@@ -15,6 +15,15 @@ import simulation.util.Arguments;
  */
 public class RecruitConesSensor extends RobotSensor {
     
+    
+    
+    private Robot target;                   //the robot to be perceived
+                                            //by this sensor. If set to
+                                            //null any robot within 
+                                            //range can be perceived
+    
+    
+    
     public RecruitConesSensor(Simulator simulator, int id, Robot robot, Arguments args) {
         super(simulator, id, robot, args);
     }
@@ -26,7 +35,7 @@ public class RecruitConesSensor extends RobotSensor {
      * @param recruit the recruit
      */
     public void setRecruit( Robot recruit ){
-        super.setTarget( recruit );
+        target = recruit;
     }
 
     
@@ -38,7 +47,7 @@ public class RecruitConesSensor extends RobotSensor {
      * none
      */
     public Robot getRecruit() {
-        return super.getTarget();
+        return target;
     }
     
     

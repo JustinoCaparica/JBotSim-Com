@@ -2,6 +2,7 @@ package simulation.robot.sensors;
 
 import simulation.Simulator;
 import simulation.physicalobjects.GeometricInfo;
+import simulation.physicalobjects.PhysicalObject;
 import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.physicalobjects.checkers.AllowAllRobotsChecker;
 import simulation.robot.Robot;
@@ -9,11 +10,6 @@ import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 
 public class RobotSensor extends LightTypeSensor {
-
-    private Robot target;                   //the robot to be perceived
-                                            //by this sensor. If set to
-                                            //null any robot within 
-                                            //range can be perceived
 
     @ArgumentsAnnotation(name = "seeDisabledRobots", defaultValue = "1", help = "If this value is set to 0 the sensor will not see disabled robots")
     private boolean seeDisabledRobots;
@@ -24,7 +20,6 @@ public class RobotSensor extends LightTypeSensor {
         super(simulator, id, robot, args);
         setAllowedObjectsChecker(new AllowAllRobotsChecker(robot.getId()));
 
-        target = null;
 
         seeDisabledRobots = args.getArgumentAsIntOrSetDefault("seeDisabledRobots", 1) == 1;
         
@@ -33,12 +28,6 @@ public class RobotSensor extends LightTypeSensor {
 
     @Override
     protected double calculateContributionToSensor(int sensorNumber, PhysicalObjectDistance source) {
-        
-        if ( target != null &&                  //there is a target 
-             !target.equals(source) ) {         //that is not the source
-            return 0.0;                         //return 0.0
-        }
-        
         
         
         
@@ -50,10 +39,6 @@ public class RobotSensor extends LightTypeSensor {
             return 0.0;
         }
         
-        
-        
-
-
 
         GeometricInfo sensorInfo = getSensorGeometricInfo(sensorNumber, source);
 
@@ -72,24 +57,6 @@ public class RobotSensor extends LightTypeSensor {
         }
     }
 
-    /**
-     * Sets the targets of this sensor.
-     *
-     * @param target a specific robot to be perceived by the sensor or null to
-     * perceive all neighbor robots
-     */
-    public void setTarget(Robot target) {
-        this.target = target;
-    }
-
-    /**
-     * Gets the target of this sensor
-     * @return the target or 
-     * null if no target exists
-     */
-    public Robot getTarget() {
-        return target;
-    }
 
     
     

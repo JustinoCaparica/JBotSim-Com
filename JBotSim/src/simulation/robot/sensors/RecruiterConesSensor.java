@@ -6,6 +6,7 @@
 package simulation.robot.sensors;
 
 import simulation.Simulator;
+import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
@@ -14,6 +15,11 @@ import simulation.util.Arguments;
  * @author gus
  */
 public class RecruiterConesSensor extends RobotSensor {
+    
+    private Robot target;                   //the robot to be perceived
+                                            //by this sensor. If set to
+                                            //null any robot within 
+                                            //range can be perceived
     
     public RecruiterConesSensor(Simulator simulator, int id, Robot robot, Arguments args) {
         super(simulator, id, robot, args);
@@ -26,8 +32,24 @@ public class RecruiterConesSensor extends RobotSensor {
      * @param recruiter the recruiter
      */
     public void setRecruiter( Robot recruiter ){
-        super.setTarget( recruiter );
+       target = recruiter;
     }
+
+    @Override
+    protected double calculateContributionToSensor(int sensorNumber, PhysicalObjectDistance source) {
+        
+        
+        if ( target == null ||                                  //there is no target 
+             target.getId() != source.getObject().getId() ) {   //target is not the source
+            return 0.0;                                         //return 0.0
+        }
+        
+                                                                //there is a target
+                                                                //which is the source
+        return super.calculateContributionToSensor(sensorNumber, source); 
+    }
+    
+    
     
     
     /**
@@ -38,7 +60,7 @@ public class RecruiterConesSensor extends RobotSensor {
      * none
      */
     public Robot getRecruiter() {
-        return super.getTarget();
+        return target;
     }
     
     
