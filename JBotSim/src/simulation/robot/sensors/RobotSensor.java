@@ -18,9 +18,6 @@ public class RobotSensor extends LightTypeSensor {
     @ArgumentsAnnotation(name = "seeDisabledRobots", defaultValue = "1", help = "If this value is set to 0 the sensor will not see disabled robots")
     private boolean seeDisabledRobots;
     
-    @ArgumentsAnnotation(name = "seeRobotsWhenInRecruitment", defaultValue = "1", help = "If this value is set to 0 the sensor will not see other robots besides the recruiter/recruit when in a recruitment relationship")
-    private boolean seeRobotsWhenInRecruitment;
-    
     
 
     public RobotSensor(Simulator simulator, int id, Robot robot, Arguments args) {
@@ -30,8 +27,6 @@ public class RobotSensor extends LightTypeSensor {
         target = null;
 
         seeDisabledRobots = args.getArgumentAsIntOrSetDefault("seeDisabledRobots", 1) == 1;
-        
-        seeRobotsWhenInRecruitment = args.getArgumentAsIntOrSetDefault("seeRobotsWhenInRecruitment", 1) == 1;
         
         
     }

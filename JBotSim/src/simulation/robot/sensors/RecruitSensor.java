@@ -11,6 +11,7 @@ import simulation.physicalobjects.GeometricCalculator;
 import simulation.physicalobjects.GeometricInfo;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
+import simulation.util.ArgumentsAnnotation;
 
 /**
  * Sensor to perceive the distance
@@ -25,6 +26,10 @@ public class RecruitSensor extends Sensor {
     private Simulator sim;                      //the simulator
     
     private GeometricCalculator calc;           //geometric calculator
+    
+    
+    
+    
     
     
     /**
