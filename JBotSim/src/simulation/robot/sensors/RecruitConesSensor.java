@@ -28,6 +28,18 @@ public class RecruitConesSensor extends RobotSensor {
     public void setRecruit( Robot recruit ){
         super.setTarget( recruit );
     }
+
+    
+    /**
+     * Gets the recruit being
+     * perceived
+     * @return the recruit
+     * or null if there is
+     * none
+     */
+    public Robot getRecruit() {
+        return super.getTarget();
+    }
     
     
     

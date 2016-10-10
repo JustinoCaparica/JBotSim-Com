@@ -35,6 +35,7 @@ import simulation.robot.actuators.RecruitmentActuator;
 import simulation.robot.actuators.RecruitmentImmediateActuator;
 import simulation.robot.sensors.ConeTypeSensor;
 import simulation.robot.sensors.PreySensor;
+import simulation.robot.sensors.RecruiterConesSensor;
 import simulation.robot.sensors.RecruiterSensor;
 import simulation.robot.sensors.Sensor;
 import simulation.robot.sensors.TwoWheelActuatorEnergySensor;
@@ -687,8 +688,8 @@ public class TwoDRenderer extends Renderer
                 //Visualization for when a robot accepts a recruiter
                 String recruiterIDstring;
                 Vector2d recruitPos, recruiterPos;
-                RecruiterSensor recruiterSensor;
-                recruiterSensor = (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
+                RecruiterConesSensor recruiterSensor;
+                recruiterSensor = (RecruiterConesSensor) robot.getSensorByType( RecruiterConesSensor.class );
                 if ( recruiterSensor != null &&                 //this robot
                      recruiterSensor.getRecruiter() != null ) { //has a recruiter
                     

@@ -30,5 +30,16 @@ public class RecruiterConesSensor extends RobotSensor {
     }
     
     
+    /**
+     * Gets the recruiter being
+     * perceived
+     * @return the recruiter
+     * or null if there is
+     * none
+     */
+    public Robot getRecruiter() {
+        return super.getTarget();
+    }
+    
     
 }

@@ -9,7 +9,9 @@ import java.util.List;
 import simulation.Simulator;
 import simulation.environment.Environment;
 import simulation.robot.Robot;
+import simulation.robot.sensors.RecruitConesSensor;
 import simulation.robot.sensors.RecruitSensor;
+import simulation.robot.sensors.RecruiterConesSensor;
 import simulation.robot.sensors.RecruiterSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -45,8 +47,8 @@ public class RecruitmentImmediateActuator extends Actuator {
     /** creating them every time a method is called   **/
     private Robot recruiter;                
     private Robot recruit;                  
-    private RecruiterSensor recruiterSensor;
-    private RecruitSensor recruitSensor;    
+    private RecruiterConesSensor recruiterSensor;
+    private RecruitConesSensor recruitSensor;    
     private RecruitmentImmediateActuator recruitmentImmediateAct;
     /***************************************************/
      
@@ -280,8 +282,8 @@ public class RecruitmentImmediateActuator extends Actuator {
      * @return the recruit sensor
      * or null if none is found
      */
-    private RecruitSensor getRecruitSensor( Robot robot ) {
-        return (RecruitSensor) robot.getSensorByType( RecruitSensor.class );
+    private RecruitConesSensor getRecruitSensor( Robot robot ) {
+        return (RecruitConesSensor) robot.getSensorByType( RecruitConesSensor.class );
     }
 
     
@@ -294,8 +296,8 @@ public class RecruitmentImmediateActuator extends Actuator {
      * @return the recruiter sensor
      * or null if none is found
      */
-    private RecruiterSensor getRecruiterSensor( Robot robot ) {
-        return (RecruiterSensor) robot.getSensorByType( RecruiterSensor.class );
+    private RecruiterConesSensor getRecruiterSensor( Robot robot ) {
+        return (RecruiterConesSensor) robot.getSensorByType( RecruiterConesSensor.class );
     }
 
     
