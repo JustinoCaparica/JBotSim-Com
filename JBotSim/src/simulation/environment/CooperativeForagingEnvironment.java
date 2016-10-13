@@ -238,7 +238,7 @@ public class CooperativeForagingEnvironment extends Environment {
                 
                 
                 if ( numberOfFoodSuccessfullyForaged == numberOfPreys ) {
-                    simulator.stopSimulation();         //no more preys
+                    simulator.stopSimulation();         //no more preys:
                 }                                       //stop simulation, save time
             }
         }

@@ -69,11 +69,13 @@ public class CooperativeCircleForagingEnvironment extends Environment {
     private double robotsCircleRadius;
     
     
-    private int ROBOTS_IN_CIRCLE = 1;
+    private final int ROBOTS_IN_CIRCLE = 1;
     @ArgumentsAnnotation(name="robotsInCircle", defaultValue="1", help="number of robots in the robots circle. robots are evenly spaced. Number of robots in the center equals the total number of robots minus the robots in the circle")
     private int robotsInCircle;
     
-    
+    private final int ROBOTS_IN_CIRCLE_CAN_MOVE = 0;
+    @ArgumentsAnnotation(name="robotsInCircleCanMove", defaultValue="0", help="can robots in circle move?")
+    private final Boolean robotsInCircleCanMove;
     
     
     
@@ -114,8 +116,9 @@ public class CooperativeCircleForagingEnvironment extends Environment {
             teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
             robotsCircleRadius  = arguments.getArgumentAsDoubleOrSetDefault("robotsCircleRadius", ROBOTS_CIRCLE_RADIUS);
             robotsInCircle      = arguments.getArgumentAsIntOrSetDefault("robotsInCircle", ROBOTS_IN_CIRCLE);
-            numberOfPreys      = arguments.getArgumentAsIntOrSetDefault("numberOfPreys", NUMBER_OF_PREYS);
+            numberOfPreys       = arguments.getArgumentAsIntOrSetDefault("numberOfPreys", NUMBER_OF_PREYS);
             
+            robotsInCircleCanMove = arguments.getArgumentAsIntOrSetDefault("robotsInCircleCanMove", ROBOTS_IN_CIRCLE_CAN_MOVE) != 0;
             
             
             walled              = arguments.getArgumentAsIntOrSetDefault("wall", WALLED) == 1;
@@ -170,10 +173,13 @@ public class CooperativeCircleForagingEnvironment extends Environment {
             simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).setPosition( robotPos );               
             simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).setOrientation( base + i * (2*Math.PI/robotsInCircle) );
             
-            wheelAct = (TwoWheelActuator) simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).getActuatorByType( TwoWheelActuator.class );
-            if ( wheelAct != null ) {               //robots in circle 
-                wheelAct.setMaxSpeed( 0 );          //can not move
+            if ( !robotsInCircleCanMove ) {
+                wheelAct = (TwoWheelActuator) simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).getActuatorByType( TwoWheelActuator.class );
+                if ( wheelAct != null ) {               //robots in circle 
+                    wheelAct.setMaxSpeed( 0 );          //can not move
+                }
             }
+            
             
             if ( preyPositions.contains(i) ) {          
                 preyPos = new Vector2d( base + i * (2*Math.PI/robotsInCircle) ); 
