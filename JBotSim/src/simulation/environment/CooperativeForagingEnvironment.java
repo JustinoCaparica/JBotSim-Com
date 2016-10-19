@@ -1,5 +1,8 @@
 package simulation.environment;
 
+import controllers.RandomRobotController;
+import controllers.RandomWalkerController;
+import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -9,6 +12,7 @@ import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.Prey;
 import simulation.physicalobjects.Wall;
 import simulation.robot.Robot;
+import simulation.robot.actuators.TwoWheelActuator;
 import simulation.robot.sensors.PreySensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -55,16 +59,20 @@ public class CooperativeForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="foragelimit", defaultValue="2.0")
     private double forageLimit;
 
+    
+    private static final double FORAGE_START_LIMIT = 0.80;
+    @ArgumentsAnnotation(name="forageStartLimit", defaultValue="0.8")
+    private final double forageStartLimit;
+    
     @ArgumentsAnnotation(name="forbiddenarea", defaultValue="5.0")
     private double forbiddenArea;
 
-    @ArgumentsAnnotation(name="numberofpreys", defaultValue="10")
+    private static final int NUMBER_OF_PREYS = 10;
+    @ArgumentsAnnotation(name="numberofpreys", defaultValue="10", help="number of preys in the environment")
     private int numberOfPreys;
 
-    @ArgumentsAnnotation(name="densityofpreys", defaultValue="")
-    private Nest nest;
     
-    @ArgumentsAnnotation(name="densityofpreysValues", help="list of possible values for the preys density. One value is randomly chosen from the list when the environment is created", defaultValue="")
+    private Nest nest;                              //the nest
     
     
     private Double lastPreyCaptureTime;             //moment when the last
@@ -91,6 +99,7 @@ public class CooperativeForagingEnvironment extends Environment {
             
             nestLimit           = arguments.getArgumentIsDefined("nestlimit") ? arguments.getArgumentAsDouble("nestlimit")       : .5;
             forageLimit         = arguments.getArgumentIsDefined("foragelimit") ? arguments.getArgumentAsDouble("foragelimit")       : 2.0;
+            forageStartLimit    = arguments.getArgumentAsDoubleOrSetDefault("forageStartLimit", FORAGE_START_LIMIT);
             forbiddenArea       = arguments.getArgumentIsDefined("forbiddenarea") ? arguments.getArgumentAsDouble("forbiddenarea")       : 5.0;
             
             closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
@@ -120,6 +129,20 @@ public class CooperativeForagingEnvironment extends Environment {
         }
 
         
+        //create preprogrammed robots
+        Arguments args = simulator.getArguments().get("--preprogrammed");
+        int numberOfWalkers = args.getArgumentAsIntOrSetDefault("numberofrobots",1);
+        for(int i = 0; i < numberOfWalkers; i++){
+                Robot walker = Robot.getRobot(simulator, args);
+                walker.setController(new RandomWalkerController(simulator, walker, args));
+                walker.setBodyColor( Color.yellow );
+                walker.setPosition( simulator.getRandom().nextDouble() * 0.15 - 0.075, simulator.getRandom().nextDouble() * 0.15 - 0.075 );
+                walker.setOrientation( simulator.getRandom().nextDouble() * Math.PI );
+                addRobot(walker);
+        }
+        
+        
+        
        
         
         
@@ -127,22 +150,23 @@ public class CooperativeForagingEnvironment extends Environment {
 
 
 
-        if(args.getArgumentIsDefined("densityofpreys")){
-                double densityoffood = args.getArgumentAsDouble("densityofpreys");
-                numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
-        } 
-        else if ( args.getArgumentIsDefined("densityofpreysValues") ) {
-                String[] rawArray = args.getArgumentAsString("densityofpreysValues").split(",");
-
-                if(rawArray.length > 1){                        //randomize number of preys
-                        double densityoffood = Double.parseDouble(rawArray[simulator.getRandom().nextInt(rawArray.length)]);
-                        numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
-                }
-        } else {
-                numberOfPreys = args.getArgumentIsDefined("numberofpreys") ? args.getArgumentAsInt("numberofpreys") : 20;
-        }
+//        if(args.getArgumentIsDefined("densityofpreys")){
+//                double densityoffood = args.getArgumentAsDouble("densityofpreys");
+//                numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
+//        } 
+//        else if ( args.getArgumentIsDefined("densityofpreysValues") ) {
+//                String[] rawArray = args.getArgumentAsString("densityofpreysValues").split(",");
+//
+//                if(rawArray.length > 1){                        //randomize number of preys
+//                        double densityoffood = Double.parseDouble(rawArray[simulator.getRandom().nextInt(rawArray.length)]);
+//                        numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
+//                }
+//        } else {
+//                numberOfPreys = args.getArgumentIsDefined("numberofpreys") ? args.getArgumentAsInt("numberofpreys") : 20;
+//        }
 
         
+        numberOfPreys = args.getArgumentAsIntOrSetDefault("numberofpreys", NUMBER_OF_PREYS);
 
 
         for(int i = 0; i < numberOfPreys; i++ ){
@@ -179,12 +203,20 @@ public class CooperativeForagingEnvironment extends Environment {
 
     
     private Vector2d newRandomPosition() {
-        double radius = random.nextDouble()*(forageLimit-nestLimit)+nestLimit*1.1;
+        
+        double radius = random.nextDouble() * (forageLimit-forageStartLimit) + forageStartLimit;
         //double radius = forageLimit;
         double angle = random.nextDouble()*2*Math.PI;
-        return new Vector2d(radius*Math.cos(angle),radius*Math.sin(angle));
+        
+        return new Vector2d( radius * Math.cos(angle), radius * Math.sin(angle) );
+    
     }
 	
+    
+    
+    
+    
+    
     
     
     @Override
@@ -207,7 +239,7 @@ public class CooperativeForagingEnvironment extends Environment {
             for ( Robot closeRobot : closeRobots ) {       //add enabled robots
                 
                 
-                if ( closeRobot.isEnabled() ){
+                if ( closeRobot.isEnabled() && !(closeRobot.getController() instanceof RandomWalkerController) ){
                     preySensor = (PreySensor)closeRobot.getSensorByType( PreySensor.class );
                     if ( preySensor != null ) {
                         if ( preySensor.detects(currentPrey) ) {

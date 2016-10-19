@@ -5,6 +5,7 @@
  */
 package simulation.robot.actuators;
 
+import controllers.RandomWalkerController;
 import java.util.List;
 import simulation.Simulator;
 import simulation.environment.Environment;
@@ -112,7 +113,14 @@ public class RecruitmentImmediateActuator extends Actuator {
             return;                                 //does not act
         }
         
+        recruiterSensor = getRecruiterSensor( robot );
+        if ( recruiterSensor != null &&                     //if there is a recruiter
+             recruiterSensor.getRecruiter() != null ) {     //do nothing because i can only
+            return;                                         //free myself from the recruiter
+        }                                                   //if the recruiter frees me
                       
+        
+        
         if ( recruiting ) {                 //NN decided to recruit
             recruiting( robot );
             //notBeRecruited( robot );      //can not be recruited in simultaneous
@@ -120,7 +128,6 @@ public class RecruitmentImmediateActuator extends Actuator {
         else{                               //NN decided not to recruit
             notRecruiting( robot );         
         }
-        
         
         
     }
@@ -163,8 +170,8 @@ public class RecruitmentImmediateActuator extends Actuator {
         recruitSensor = getRecruitSensor( robot );
         if ( recruitSensor != null ) {
             recruit = recruitSensor.getRecruit();
-            if ( recruit == null ||                                                         //there is no current recruit
-                 (recruit != null &&                                                        // OR
+            if ( recruit == null ||                                                         //there is no current recruit OR
+                 (recruit != null &&                                                        // 
                   robot.getPosition().distanceTo( recruit.getPosition() ) > range ) ) {     //current recruit is beyond range
                         
                 if ( recruit != null ) {
@@ -213,7 +220,8 @@ public class RecruitmentImmediateActuator extends Actuator {
         
         RecruitmentImmediateActuator act;
         for (Robot closeRobot : closeRobots) {
-            if ( closeRobot.getId() != robot.getId() ) {            //avoid recruiting self
+            if ( !(closeRobot.getController() instanceof RandomWalkerController)
+                   && closeRobot.getId() != robot.getId() ) {            //avoid recruiting self
                 //System.out.println("Robot " + robot.getId() + " analysing robot " + closeRobot.getId() );
                 act = getRecruitmentImmediateActuator( closeRobot );    
                 if ( act.isAvailableToBeRecruited( closeRobot ) ) { //robot is available

@@ -6,6 +6,7 @@
 package simulation.robot.sensors;
 
 import simulation.Simulator;
+import simulation.physicalobjects.PhysicalObjectDistance;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
@@ -38,6 +39,20 @@ public class RecruitConesSensor extends RobotSensor {
         target = recruit;
     }
 
+    @Override
+    protected double calculateContributionToSensor(int sensorNumber, PhysicalObjectDistance source) {
+        
+        
+        if ( target == null ||                                  //there is no target 
+             target.getId() != source.getObject().getId() ) {   //target is not the source
+            return 0.0;                                         //return 0.0
+        }
+        
+                                                                //there is a target
+                                                                //which is the source
+        return super.calculateContributionToSensor(sensorNumber, source); 
+    }
+    
     
     /**
      * Gets the recruit being

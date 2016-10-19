@@ -19,6 +19,7 @@ import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 import simulation.util.Factory;
 import controllers.Controller;
+import controllers.RandomWalkerController;
 import java.util.List;
 import simulation.robot.messenger.MessageBox;
 import simulation.robot.messenger.message.Message;
@@ -204,7 +205,8 @@ public class Robot extends MovableObject {
 
         for (Robot robot : robots) {
                                                                 //robot is in range
-            if ( robot.getPosition().distanceTo( this.getPosition()) < range
+            if ( !(robot.getController() instanceof RandomWalkerController)
+                 && robot.getPosition().distanceTo( this.getPosition()) < range
                  && !robot.equals(this) ) {                     //do not send msg to himself!
                 
                 robot.getMsgBox().addMsg( msg, this );   //send message
