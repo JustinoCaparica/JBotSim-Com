@@ -61,12 +61,16 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
 //        return fitPreys - timePenalty;
         
         
+        //version 0.3
+        return ( 1.0 * preysCaptured / preys ); 
+
+
         
         
         //version 0.2
-        Double fitPreys = ( 1.0 * preysCaptured / preys );
-        Double timePenalty = (0.66*1.0/preys) * ( (1.0 * timeStep) / (totalSteps) );
-        return fitPreys - timePenalty;
+//        Double fitPreys = ( 1.0 * preysCaptured / preys );
+//        Double timePenalty = (0.66*1.0/preys) * ( (1.0 * timeStep) / (totalSteps) );
+//        return fitPreys - timePenalty;
         
         
         //version 0.1
