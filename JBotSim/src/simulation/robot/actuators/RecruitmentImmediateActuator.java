@@ -114,8 +114,7 @@ public class RecruitmentImmediateActuator extends Actuator {
         actOwner = robot;
         
         
-        if ( !robot.isEnabled() ||                  //disabled robot OR
-             !enabled ) {                           //disabled actuator
+        if ( !robot.isEnabled() ){                  //disabled robot 
             notRecruiting( robot );                 //do nothing and forget recruit
             return;                                 
         }
@@ -266,14 +265,17 @@ public class RecruitmentImmediateActuator extends Actuator {
      */
     private Boolean isAvailableToBeRecruited( Robot r ) {
         
-        
+        if ( !enabled || 
+             !r.isEnabled() ) {
+            return false;
+        }
         
         recruitmentImmediateAct = getRecruitmentImmediateActuator( r );
         recruiterSensor = getRecruiterSensor( r );
         recruitSensor = getRecruitSensor( r );
         if ( recruiterSensor != null && recruitSensor != null ) {
             return  recruitSensor.getRecruit() == null &&                   //does not have a recruit AND
-                    //recruitmentImmediateAct.isBeingRecruited() &&           //accepting recruiter AND
+                    //recruitmentImmediateAct.isBeingRecruited() &&         //accepting recruiter AND
                     recruiterSensor.getRecruiter() == null;                 //does not have a recruiter yet
         }
         

@@ -41,9 +41,9 @@ public class RecruitmentImmediateNNOutput extends NNOutput{
     public void apply() {
         
         if ( this.nnOutputValue < 0.5 ) {   
-            actuator.setRecruiting( true );
-        }else {
             actuator.setRecruiting( false );
+        }else {
+            actuator.setRecruiting( true );
         }
             
     }

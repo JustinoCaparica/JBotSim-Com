@@ -189,8 +189,8 @@ public class CooperativeCircleForagingEnvironment extends Environment {
                 addPrey(new Prey(simulator, "Prey "+i, preyPos, 0, preyMass, preyRadius));
             }else{
                 recruitmentAct = (RecruitmentImmediateActuator) simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).getActuatorByType( RecruitmentImmediateActuator.class );
-                if ( recruitmentAct != null ) {             //robot has no prey in sight
-                    recruitmentAct.setEnabled( false );     //can not use recruitment actuator
+                if ( recruitmentAct != null ) {             //there is no prey near robot,
+                    recruitmentAct.setEnabled( false );     //robot can not use recruitment actuator
                 }
             }
             
