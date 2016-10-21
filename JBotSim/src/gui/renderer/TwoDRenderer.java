@@ -578,9 +578,9 @@ public class TwoDRenderer extends Renderer
                     if ( recruitmentImmediateAct.isRecruiting() ) {
                         graphics.setColor( Color.RED );
                     }
-                    else if( recruitmentImmediateAct.isBeingRecruited() ){
-                        graphics.setColor( Color.GREEN );
-                    }
+                    //else if( recruitmentImmediateAct.isBeingRecruited() ){
+                    //    graphics.setColor( Color.GREEN );
+                    //}
                     else{
                         graphics.setColor( Color.BLACK );
                     }

@@ -44,14 +44,14 @@ public class RandomWalkerController extends Controller {
     public void controlStep(double time) {
         
         if ( robot.getId() % 3 == 0 ) {
-            ((DifferentialDriveRobot)robot).setWheelSpeed( maxSpeed * 0.44, maxSpeed * 0.48 );
+            ((DifferentialDriveRobot)robot).setWheelSpeed( maxSpeed * 0.54, maxSpeed * 0.58 );
         }
         else{
             if ( robot.getId() % 2 == 0 ) {
-            ((DifferentialDriveRobot)robot).setWheelSpeed( maxSpeed * 0.65, maxSpeed * 0.74 );
+            ((DifferentialDriveRobot)robot).setWheelSpeed( maxSpeed * 0.75, maxSpeed * 0.84 );
             }
             else{
-                ((DifferentialDriveRobot)robot).setWheelSpeed( maxSpeed * 0.88, maxSpeed * 0.81 );
+                ((DifferentialDriveRobot)robot).setWheelSpeed( maxSpeed * 0.98, maxSpeed * 0.91 );
             }
         }
         

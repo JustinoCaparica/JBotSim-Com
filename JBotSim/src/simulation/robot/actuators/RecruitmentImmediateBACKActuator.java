@@ -33,7 +33,7 @@ import simulation.util.ArgumentsAnnotation;
  * exchanging messages
  * @author gus
  */
-public class RecruitmentImmediateActuator extends Actuator {
+public class RecruitmentImmediateBACKActuator extends Actuator {
 
     
     private final static double RANGE_DEFAULT = 0.8;
@@ -50,7 +50,7 @@ public class RecruitmentImmediateActuator extends Actuator {
     private Robot recruit;                  
     private RecruiterConesSensor recruiterSensor;
     private RecruitConesSensor recruitSensor;    
-    private RecruitmentImmediateActuator recruitmentImmediateAct;
+    private RecruitmentImmediateBACKActuator recruitmentImmediateAct;
     /***************************************************/
      
     
@@ -66,18 +66,13 @@ public class RecruitmentImmediateActuator extends Actuator {
     private final Environment env;          //the environment
     
     
-    private Boolean enabled;                //to enable or disable
-                                            //the actuator
-    
-    
-    
     /**
      * Initializes a new instance
      * @param simulator the simulator
      * @param id the actuator id
      * @param args the arguments
      */
-    public RecruitmentImmediateActuator( Simulator simulator, int id, Arguments args ) {
+    public RecruitmentImmediateBACKActuator( Simulator simulator, int id, Arguments args ) {
         super(simulator, id, args);
         
         
@@ -89,8 +84,6 @@ public class RecruitmentImmediateActuator extends Actuator {
         env = simulator.getEnvironment();
         
         actOwner = null;
-        
-        enabled = true;
         
     }
 
@@ -114,10 +107,10 @@ public class RecruitmentImmediateActuator extends Actuator {
         actOwner = robot;
         
         
-        if ( !robot.isEnabled() ||                  //disabled robot OR
-             !enabled ) {                           //disabled actuator
-            notRecruiting( robot );                 //do nothing and forget recruit
-            return;                                 
+        if ( !robot.isEnabled() ) {                 //disabled robot
+            notRecruiting( robot );
+            //notBeRecruited( robot );
+            return;                                 //does not act
         }
         
         recruiterSensor = getRecruiterSensor( robot );
@@ -127,6 +120,7 @@ public class RecruitmentImmediateActuator extends Actuator {
         }                                                   //if the recruiter frees me
                       
         
+        
         if ( recruiting ) {                 //NN decided to recruit
             recruiting( robot );
             //notBeRecruited( robot );      //can not be recruited in simultaneous
@@ -134,6 +128,7 @@ public class RecruitmentImmediateActuator extends Actuator {
         else{                               //NN decided not to recruit
             notRecruiting( robot );         
         }
+        
         
     }
 
@@ -223,7 +218,7 @@ public class RecruitmentImmediateActuator extends Actuator {
 //        }
         
         
-        RecruitmentImmediateActuator act;
+        RecruitmentImmediateBACKActuator act;
         for (Robot closeRobot : closeRobots) {
             if ( !(closeRobot.getController() instanceof RandomWalkerController)
                    && closeRobot.getId() != robot.getId() ) {            //avoid recruiting self
@@ -266,14 +261,12 @@ public class RecruitmentImmediateActuator extends Actuator {
      */
     private Boolean isAvailableToBeRecruited( Robot r ) {
         
-        
-        
         recruitmentImmediateAct = getRecruitmentImmediateActuator( r );
         recruiterSensor = getRecruiterSensor( r );
         recruitSensor = getRecruitSensor( r );
         if ( recruiterSensor != null && recruitSensor != null ) {
             return  recruitSensor.getRecruit() == null &&                   //does not have a recruit AND
-                    //recruitmentImmediateAct.isBeingRecruited() &&           //accepting recruiter AND
+                    recruitmentImmediateAct.isBeingRecruited() &&           //accepting recruiter AND
                     recruiterSensor.getRecruiter() == null;                 //does not have a recruiter yet
         }
         
@@ -325,8 +318,8 @@ public class RecruitmentImmediateActuator extends Actuator {
      * @return the actuator or null
      * if there is none
      */
-    private RecruitmentImmediateActuator getRecruitmentImmediateActuator( Robot robot ) {
-        return (RecruitmentImmediateActuator) robot.getActuatorByType(RecruitmentImmediateActuator.class );
+    private RecruitmentImmediateBACKActuator getRecruitmentImmediateActuator( Robot robot ) {
+        return (RecruitmentImmediateBACKActuator) robot.getActuatorByType(RecruitmentImmediateBACKActuator.class );
     }
 
 
@@ -355,21 +348,44 @@ public class RecruitmentImmediateActuator extends Actuator {
     public void setRecruiting( boolean recruiting ) {
         this.recruiting = recruiting;
     }
-
+    
+    
     
     /**
-     * Enables or disables the actuator
-     * @param enabled if true the
-     * actuator becomes enabled,
-     * otherwise it becomes disabled
+     * Sets the robot's availability
+     * to be recruited
+     * @param beRecruited if true 
+     * the robot will accept to be 
+     * recruited if a recruitment
+     * request is received
      */
-    public void setEnabled( boolean enabled ) {
-        this.enabled = enabled;
+    public void setBeRecruited( boolean beRecruited ) {
+        //DEBUG
+//        if ( actOwner != null ) {
+//            if ( actOwner.getId() == 0 || actOwner.getId() == 1 ) {
+//                this.beRecruited = beRecruited;
+//            }else{
+//                this.beRecruited = false;
+//            }
+//        }else{
+//            this.beRecruited = false;
+//        }
+            
+        this.beRecruited = beRecruited;
+        
     }
     
     
-    
-    
+    /**
+     * Checks if the robot is available
+     * to be recruited
+     * @return true if the robot
+     * is available to be recruited,
+     * false otherwise
+     */
+    public boolean isBeingRecruited(){
+        return beRecruited;
+    }
     
 
     

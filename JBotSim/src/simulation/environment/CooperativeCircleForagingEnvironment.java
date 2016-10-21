@@ -11,6 +11,7 @@ import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.Prey;
 import simulation.physicalobjects.Wall;
 import simulation.robot.Robot;
+import simulation.robot.actuators.RecruitmentImmediateActuator;
 import simulation.robot.actuators.TwoWheelActuator;
 import simulation.robot.sensors.PreySensor;
 import simulation.util.Arguments;
@@ -165,6 +166,7 @@ public class CooperativeCircleForagingEnvironment extends Environment {
         double base = ( random.nextDouble()*2*Math.PI );
         
         TwoWheelActuator wheelAct;
+        RecruitmentImmediateActuator recruitmentAct;
         Vector2d robotPos, preyPos;
         for (int i = 0; i < robotsInCircle; i++) {                       
             robotPos = new Vector2d( base + i * (2*Math.PI/robotsInCircle) );   //place
@@ -185,6 +187,11 @@ public class CooperativeCircleForagingEnvironment extends Environment {
                 preyPos = new Vector2d( base + i * (2*Math.PI/robotsInCircle) ); 
                 preyPos.setLength( robotsCircleRadius + 0.065);                 //place preys                
                 addPrey(new Prey(simulator, "Prey "+i, preyPos, 0, preyMass, preyRadius));
+            }else{
+                recruitmentAct = (RecruitmentImmediateActuator) simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).getActuatorByType( RecruitmentImmediateActuator.class );
+                if ( recruitmentAct != null ) {             //robot has no prey in sight
+                    recruitmentAct.setEnabled( false );     //can not use recruitment actuator
+                }
             }
             
         }

@@ -6,6 +6,7 @@
 package evolutionaryrobotics.neuralnetworks.outputs;
 
 import simulation.robot.actuators.RecruitmentImmediateActuator;
+import simulation.robot.actuators.RecruitmentImmediateBACKActuator;
 import simulation.util.Arguments;
 
 /**
@@ -13,16 +14,16 @@ import simulation.util.Arguments;
  * according to the Neural Network Output
  * @author gus
  */
-public class RecruitmentImmediateNNOutput extends NNOutput{
+public class RecruitmentImmediateBACKNNOutput extends NNOutput{
 
-    private RecruitmentImmediateActuator actuator;      //the actuator that is
+    private RecruitmentImmediateBACKActuator actuator;      //the actuator that is
                                                         //controled by this NNOutput
     
     private double nnOutputValue;               //the neural network output
                                                 //value
     
     
-    public RecruitmentImmediateNNOutput( RecruitmentImmediateActuator actuator, Arguments args ) {
+    public RecruitmentImmediateBACKNNOutput( RecruitmentImmediateBACKActuator actuator, Arguments args ) {
         super(actuator, args);
         this.actuator = actuator;
     }
@@ -40,10 +41,15 @@ public class RecruitmentImmediateNNOutput extends NNOutput{
     @Override
     public void apply() {
         
-        if ( this.nnOutputValue < 0.5 ) {   
+        if ( this.nnOutputValue < 0.3333 ) {   
             actuator.setRecruiting( true );
+            actuator.setBeRecruited( false );
+        }else if ( this.nnOutputValue < 0.6666 ) {
+            actuator.setRecruiting( false );
+            actuator.setBeRecruited( false );
         }else {
             actuator.setRecruiting( false );
+            actuator.setBeRecruited( true );
         }
             
     }
