@@ -8,7 +8,7 @@ import simulation.environment.CooperativeMatrixForagingEnvironment;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
-public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunction{
+public class CooperativeForagingQuantityTimeEvaluationFunction extends EvaluationFunction{
 	
     
     protected Vector2d   nestPosition = new Vector2d(0, 0);
@@ -37,7 +37,7 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
     
     
     
-    public CooperativeForagingTimeEvaluationFunction(Arguments args) {
+    public CooperativeForagingQuantityTimeEvaluationFunction(Arguments args) {
             super(args);	
             
             preysCaptured = 0;
@@ -63,23 +63,19 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
         
         
         //version 0.3
-//        return ( 1.0 * preysCaptured / preys ); 
+        //return ( 1.0 * preysCaptured / preys ); 
 
 
         
         
         //version 0.2
-//        Double fitPreys = ( 1.0 * preysCaptured / preys );
-//        Double timePenalty = (0.66*1.0/preys) * ( (1.0 * timeStep) / (totalSteps) );
-//        return fitPreys - timePenalty;
+        Double fitPreys = ( 1.0 * preysCaptured / preys );
+        Double timePenalty = (0.66*1.0/preys) * ( (1.0 * timeStep) / (totalSteps) );
+        return fitPreys - timePenalty;
         
         
         //version 0.1
-        if ( preysCaptured == 0 ) {
-            return 0.0;
-        }
-        
-        return 1.0 - ( (1.0 * timeStep) / (totalSteps) );
+        //return 1.0 - ( (1.0 * timeStep) / (totalSteps) );
     
         
     }
@@ -101,8 +97,7 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
 
             timeStep = env.getLastPreyCaptureTime();
             totalSteps = env.getSteps();
-        }
-        else if ((simulator.getEnvironment()).getClass().equals( CooperativeMatrixForagingEnvironment.class )) {
+        }else if ((simulator.getEnvironment()).getClass().equals( CooperativeMatrixForagingEnvironment.class )) {
             CooperativeMatrixForagingEnvironment env;
             env = (CooperativeMatrixForagingEnvironment)(simulator.getEnvironment());
             preys = env.getNumberOfPreys(); 
@@ -113,8 +108,9 @@ public class CooperativeForagingTimeEvaluationFunction extends EvaluationFunctio
 
             timeStep = env.getLastPreyCaptureTime();
             totalSteps = env.getSteps();
-        }
-        else {
+            
+            
+        }else{
             CooperativeCircleForagingEnvironment env;
             env = (CooperativeCircleForagingEnvironment)(simulator.getEnvironment());
             preys = env.getNumberOfPreys(); 
