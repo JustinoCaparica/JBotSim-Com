@@ -130,16 +130,19 @@ public class CooperativeForagingEnvironment extends Environment {
 
         
         //create preprogrammed robots
-        Arguments args = simulator.getArguments().get("--preprogrammed");
-        int numberOfWalkers = args.getArgumentAsIntOrSetDefault("numberofrobots",1);
-        for(int i = 0; i < numberOfWalkers; i++){
-                Robot walker = Robot.getRobot(simulator, args);
-                walker.setController(new RandomWalkerController(simulator, walker, args));
-                walker.setBodyColor( Color.yellow );
-                walker.setPosition( simulator.getRandom().nextDouble() * 0.15 - 0.075, simulator.getRandom().nextDouble() * 0.15 - 0.075 );
-                walker.setOrientation( simulator.getRandom().nextDouble() * Math.PI );
-                addRobot(walker);
+        Arguments argsPreprog = simulator.getArguments().get("--preprogrammed");
+        if ( argsPreprog != null ) {
+            int numberOfWalkers = argsPreprog.getArgumentAsIntOrSetDefault("numberofrobots",1);
+            for(int i = 0; i < numberOfWalkers; i++){
+                    Robot walker = Robot.getRobot(simulator, argsPreprog);
+                    walker.setController(new RandomWalkerController(simulator, walker, argsPreprog));
+                    walker.setBodyColor( Color.yellow );
+                    walker.setPosition( simulator.getRandom().nextDouble() * 0.15 - 0.075, simulator.getRandom().nextDouble() * 0.15 - 0.075 );
+                    walker.setOrientation( simulator.getRandom().nextDouble() * Math.PI );
+                    addRobot(walker);
+            }
         }
+        
         
         
         

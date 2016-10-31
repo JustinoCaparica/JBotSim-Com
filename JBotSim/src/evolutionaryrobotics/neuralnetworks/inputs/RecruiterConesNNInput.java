@@ -31,7 +31,7 @@ public class RecruiterConesNNInput extends NNInput {
     
     @Override
     public int getNumberOfInputValues() {
-        return 2;
+        return 1;
     }
 
     @Override

@@ -20,11 +20,12 @@ import simulation.util.ArgumentsAnnotation;
 
 /**
  * An Environment where preys must be captured by 
- * more than one robot. Robots are placed in a circle 
- * around the nest with a given radius
+ * more than one robot. Robots are placed in the nodes of
+ * a matrix with a given width and height. The number of
+ * robots and preys may be defined
  * @author gus
  */
-public class CooperativeCircleForagingEnvironment extends Environment {
+public class CooperativeMatrixForagingEnvironment extends Environment {
 
     private static final double PREY_RADIUS = 0.025;
     @ArgumentsAnnotation(name="preyRadius", help="prey radius", defaultValue="0.025")
@@ -55,43 +56,59 @@ public class CooperativeCircleForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="nestlimit", defaultValue="0.5")
     private double nestLimit;
 
-    @ArgumentsAnnotation(name="foragelimit", defaultValue="2.0")
-    private double forageLimit;
-
-    @ArgumentsAnnotation(name="forbiddenarea", defaultValue="5.0")
-    private double forbiddenArea;
 
     private final int NUMBER_OF_PREYS = 10;
     @ArgumentsAnnotation(name="numberofpreys", defaultValue="10")
     private int numberOfPreys;
 
-    private final double ROBOTS_CIRCLE_RADIUS = 0.5;
-    @ArgumentsAnnotation(name="robotsCircleRadius", defaultValue="0.5", help="radius of the circle where the robots are placed")
-    private double robotsCircleRadius;
     
     
-    private final int ROBOTS_IN_CIRCLE = 1;
-    @ArgumentsAnnotation(name="robotsInCircle", defaultValue="1", help="number of robots in the robots circle. robots are evenly spaced. Number of robots in the center equals the total number of robots minus the robots in the circle")
-    private int robotsInCircle;
-    
-    private final int ROBOTS_IN_CIRCLE_CAN_MOVE = 0;
-    @ArgumentsAnnotation(name="robotsInCircleCanMove", defaultValue="0", help="can robots in circle move?")
-    private final Boolean robotsInCircleCanMove;
+    private final int MATRIX_COLUMNS = 4;
+    @ArgumentsAnnotation(name="matrixColumns", defaultValue="4", help="the number of matrix columns to each side of the (0,0) location")
+    private int matrixColumns;
     
     
+    private final int MATRIX_LINES = 4;
+    @ArgumentsAnnotation(name="matrixLines", defaultValue="4", help="the number of matrix lines to each side of the (0,0) location")
+    private int matrixLines;
     
     
-    @ArgumentsAnnotation(name="densityofpreys", defaultValue="")
+    private final double MATRIX_X_INTERVAL = 0.5;
+    @ArgumentsAnnotation(name="matrixXinterval", defaultValue="0.5", help="interval between columns")
+    private double matrixXinterval;
+    
+    
+    private final double MATRIX_Y_INTERVAL = 0.5;
+    @ArgumentsAnnotation(name="matrixYinterval", defaultValue="0.5", help="interval between lines")
+    private double matrixYinterval;
+    
+    
+    private final double MATRIX_ROBOTS_MAX_SPEED = 0.6;
+    @ArgumentsAnnotation(name="matrixRobotsMaxSpeed", defaultValue="0.6", help="max speed for the robots that are placed on the matrix; 0.5 is stoped")
+    private double matrixRobotsMaxSpeed;
+    
+    
+//    
+//    private final int ROBOTS_IN_MATRIX = 1;
+//    @ArgumentsAnnotation(name="robotsInMatrix", defaultValue="1", help="number of robots in the matrix. Number of robots in the center equals the total number of robots minus the robots in the matrix")
+//    private int robotsInMatrix;
+//    
+    
+    
+    
+    
+    
+    
     private Nest nest;
-    
-    @ArgumentsAnnotation(name="densityofpreysValues", help="list of possible values for the preys density. One value is randomly chosen from the list when the environment is created", defaultValue="")
     
     
     private Double lastPreyCaptureTime;             //moment when the last
                                                     //prey was captured
     
-    private int numberOfFoodSuccessfullyForaged = 0;        
-    private Random random;
+    private int numberOfFoodSuccessfullyForaged = 0;//number of preys captured        
+    
+    private Random random;                          //random generator, get it
+                                                    //from the simulator
 
     
     
@@ -102,7 +119,7 @@ public class CooperativeCircleForagingEnvironment extends Environment {
     private Arguments args;
 
     
-    public CooperativeCircleForagingEnvironment(Simulator simulator, Arguments arguments) {
+    public CooperativeMatrixForagingEnvironment(Simulator simulator, Arguments arguments) {
         
             super(simulator, arguments);
             
@@ -110,16 +127,20 @@ public class CooperativeCircleForagingEnvironment extends Environment {
             this.args           = arguments;
             
             nestLimit           = arguments.getArgumentIsDefined("nestlimit") ? arguments.getArgumentAsDouble("nestlimit")       : .5;
-            forageLimit         = arguments.getArgumentIsDefined("foragelimit") ? arguments.getArgumentAsDouble("foragelimit")       : 2.0;
-            forbiddenArea       = arguments.getArgumentIsDefined("forbiddenarea") ? arguments.getArgumentAsDouble("forbiddenarea")       : 5.0;
             
             closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
             teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
-            robotsCircleRadius  = arguments.getArgumentAsDoubleOrSetDefault("robotsCircleRadius", ROBOTS_CIRCLE_RADIUS);
-            robotsInCircle      = arguments.getArgumentAsIntOrSetDefault("robotsInCircle", ROBOTS_IN_CIRCLE);
+            
+            
+            matrixColumns       = arguments.getArgumentAsIntOrSetDefault("matrixColumns", MATRIX_COLUMNS);
+            matrixLines         = arguments.getArgumentAsIntOrSetDefault("matrixLines", MATRIX_LINES);
+            matrixXinterval     = arguments.getArgumentAsDoubleOrSetDefault("matrixXinterval", MATRIX_X_INTERVAL);
+            matrixYinterval     = arguments.getArgumentAsDoubleOrSetDefault("matrixYinterval", MATRIX_Y_INTERVAL);
+            
+            //robotsInMatrix      = arguments.getArgumentAsIntOrSetDefault("robotsInMatrix", ROBOTS_IN_MATRIX);
             numberOfPreys       = arguments.getArgumentAsIntOrSetDefault("numberOfPreys", NUMBER_OF_PREYS);
             
-            robotsInCircleCanMove = arguments.getArgumentAsIntOrSetDefault("robotsInCircleCanMove", ROBOTS_IN_CIRCLE_CAN_MOVE) != 0;
+            matrixRobotsMaxSpeed = arguments.getArgumentAsDoubleOrSetDefault("matrixRobotsMaxSpeed", MATRIX_ROBOTS_MAX_SPEED) ;
             
             
             walled              = arguments.getArgumentAsIntOrSetDefault("wall", WALLED) == 1;
@@ -144,84 +165,48 @@ public class CooperativeCircleForagingEnvironment extends Environment {
         int numberOfRobots = simulator.getRobots().size();
         
         
-                                                                        //randomize central
-        for (int i = 0; i <  numberOfRobots - robotsInCircle; i++) {    //robots orientations
+        int matrixRobotsCount = matrixColumns * 2 * matrixLines * 2;
+        int centerRobotsCount = numberOfRobots - matrixRobotsCount;
+        
+        
+                                                                    //randomize central
+        for (int i = 0; i <  centerRobotsCount; i++) {              //robots orientations
             simulator.getRobots().get(i).setOrientation( random.nextDouble()*2*Math.PI );
         }
         
         
         
         
-        Set<Integer> preyPositions = new HashSet<>();
-        int preyPosition;
-        while ( preyPositions.size() < numberOfPreys ) {        //randomize 
-            preyPosition = random.nextInt( robotsInCircle );    //prey
-            if ( !preyPositions.contains(preyPosition) ) {      //positions
-                preyPositions.add( preyPosition );
+        Set<Integer> robotsWithPreyIndices = new HashSet<>();
+        int robotWithPreyIndex;
+        while ( robotsWithPreyIndices.size() < numberOfPreys ) {                            //randomize 
+            robotWithPreyIndex = random.nextInt( matrixRobotsCount ) + centerRobotsCount;   //prey
+            if ( !robotsWithPreyIndices.contains(robotWithPreyIndex) ) {                    //positions
+                robotsWithPreyIndices.add( robotWithPreyIndex );
             }
         }
         
         
         
-        double base = ( random.nextDouble()*2*Math.PI );
         
-        TwoWheelActuator wheelAct;
-        RecruitmentImmediateActuator recruitmentAct;
-        Vector2d robotPos, preyPos;
-        for (int i = 0; i < robotsInCircle; i++) {                       
-            robotPos = new Vector2d( base + i * (2*Math.PI/robotsInCircle) );   //place
-            robotPos.setLength( robotsCircleRadius );                           //robots in
-                                                                                //the circle
-            simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).setPosition( robotPos );               
-            simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).setOrientation( base + i * (2*Math.PI/robotsInCircle) );
+        
+        int robotIndex = centerRobotsCount;
+        double xCoord, yCoord;
+        
+        for (int x = 1; x < matrixColumns + 1; x++) {
+            xCoord = ( x * matrixXinterval );                   //determine robot position xCoord
             
-            if ( !robotsInCircleCanMove ) {
-                wheelAct = (TwoWheelActuator) simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).getActuatorByType( TwoWheelActuator.class );
-                if ( wheelAct != null ) {               //robots in circle 
-                    wheelAct.setMaxSpeed( 0 );          //can not move
-                }
+            for (int y = 1; y < matrixLines + 1; y++) {
+                yCoord = ( y * matrixYinterval );               //determine robot position yCoord
+                
+                addRobotToMatrix( simulator, robotsWithPreyIndices, robotIndex++,  xCoord,  yCoord );
+                addRobotToMatrix( simulator, robotsWithPreyIndices, robotIndex++, -xCoord,  yCoord );
+                addRobotToMatrix( simulator, robotsWithPreyIndices, robotIndex++,  xCoord, -yCoord );
+                addRobotToMatrix( simulator, robotsWithPreyIndices, robotIndex++, -xCoord, -yCoord );
+                
             }
-            
-            
-            if ( preyPositions.contains(i) ) {          
-                preyPos = new Vector2d( base + i * (2*Math.PI/robotsInCircle) ); 
-                preyPos.setLength( robotsCircleRadius + 0.065);                 //place preys                
-                //preyPos.setLength( robotsCircleRadius + 0.1);                 //place preys                
-                addPrey(new Prey(simulator, "Prey "+i, preyPos, 0, preyMass, preyRadius));
-            }else{
-                recruitmentAct = (RecruitmentImmediateActuator) simulator.getRobots().get( i + numberOfRobots - robotsInCircle ).getActuatorByType( RecruitmentImmediateActuator.class );
-                if ( recruitmentAct != null ) {             //there is no prey near robot,
-                    recruitmentAct.setEnableBeingRecruited( false );     //robot can not use recruitment actuator
-                }
-            }
-            
         }
         
-        
-        
-        
-        
-
-
-
-        if(args.getArgumentIsDefined("densityofpreys")){
-                double densityoffood = args.getArgumentAsDouble("densityofpreys");
-                numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
-        } 
-        else if ( args.getArgumentIsDefined("densityofpreysValues") ) {
-                String[] rawArray = args.getArgumentAsString("densityofpreysValues").split(",");
-
-                if(rawArray.length > 1){                        //randomize number of preys
-                        double densityoffood = Double.parseDouble(rawArray[simulator.getRandom().nextInt(rawArray.length)]);
-                        numberOfPreys = (int) ( densityoffood * Math.PI * forageLimit * forageLimit + .5 );
-                }
-        } else {
-                numberOfPreys = args.getArgumentIsDefined("numberofpreys") ? args.getArgumentAsInt("numberofpreys") : NUMBER_OF_PREYS;
-        }
-
-        
-
-
         
 //        for(int i = 0; i < numberOfPreys; i++ ){
 //                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius));
@@ -246,7 +231,6 @@ public class CooperativeCircleForagingEnvironment extends Environment {
             wall = new Wall( simulator, 0, wallSize, 2*wallSize, 0.10);
             super.addObject( wall );
             
-            
         }
         
 
@@ -255,13 +239,6 @@ public class CooperativeCircleForagingEnvironment extends Environment {
     }
 
     
-    private Vector2d newRandomPosition() {
-        double radius = random.nextDouble()*(forageLimit-nestLimit)+nestLimit*1.1;
-        //double radius = forageLimit;
-        double angle = random.nextDouble()*2*Math.PI;
-        return new Vector2d(radius*Math.cos(angle),radius*Math.sin(angle));
-    }
-	
     
     
     @Override
@@ -352,13 +329,6 @@ public class CooperativeCircleForagingEnvironment extends Environment {
             return nestLimit;
     }
 
-    public double getForageRadius() {
-            return forageLimit;
-    }
-
-    public double getForbiddenArea() {
-            return forbiddenArea;
-    }
     
     /**
      * Gets the initial number of
@@ -368,6 +338,57 @@ public class CooperativeCircleForagingEnvironment extends Environment {
      */
     public int getNumberOfPreys(){
         return numberOfPreys;
+    }
+
+    
+    
+    /**
+     * Adds a robot to a point in the matrix
+     * @param simulator the simulator
+     * @param robotsWithPreyIndices indices of
+     * the robots who should have a prey in sight
+     * @param robotIndex the index of the robot
+     * to be added
+     * @param xCoord the x coordinate of the point
+     * where the robot is to be added
+     * @param yCoord the y coordinate of the point
+     * where the robot is to be added
+     */
+    private void addRobotToMatrix(  Simulator simulator, Set<Integer> robotsWithPreyIndices,
+                                    int robotIndex, 
+                                    double xCoord, double yCoord) {
+        
+        TwoWheelActuator wheelAct;
+        RecruitmentImmediateActuator recruitmentAct;
+        
+        
+        simulator.getRobots().get( robotIndex ).setPosition( xCoord, yCoord );
+        
+
+
+
+        wheelAct = (TwoWheelActuator) simulator.getRobots().get( robotIndex ).getActuatorByType( TwoWheelActuator.class );
+        if ( wheelAct != null ) {                               //robots in matrix 
+            wheelAct.setMaxSpeed( matrixRobotsMaxSpeed );       //max speed
+        }
+
+        
+        
+        if ( robotsWithPreyIndices.contains(robotIndex) ) {                         
+            addPrey( new Prey( simulator, "Prey "+ this.getPrey().size(),
+                                new Vector2d( xCoord + 0.05, yCoord + 0.0), 
+                                0, preyMass, preyRadius));
+            simulator.getRobots().get( robotIndex ).setOrientation( 0 );
+        }
+        else{
+            simulator.getRobots().get( robotIndex ).setOrientation( simulator.getRandom().nextDouble() * 2 * Math.PI );
+        }
+        
+        recruitmentAct = (RecruitmentImmediateActuator) simulator.getRobots().get( robotIndex ).getActuatorByType( RecruitmentImmediateActuator.class );
+        if ( recruitmentAct != null ) {                         
+            recruitmentAct.setEnableBeingRecruited( false );    //robot can not use recruitment actuator to be recruited
+        }
+        
     }
     
     

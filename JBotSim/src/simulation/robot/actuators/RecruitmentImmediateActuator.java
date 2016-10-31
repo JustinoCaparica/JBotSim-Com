@@ -11,9 +11,7 @@ import simulation.Simulator;
 import simulation.environment.Environment;
 import simulation.robot.Robot;
 import simulation.robot.sensors.RecruitConesSensor;
-import simulation.robot.sensors.RecruitSensor;
 import simulation.robot.sensors.RecruiterConesSensor;
-import simulation.robot.sensors.RecruiterSensor;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 
@@ -66,8 +64,8 @@ public class RecruitmentImmediateActuator extends Actuator {
     private final Environment env;          //the environment
     
     
-    private Boolean enabled;                //to enable or disable
-                                            //the actuator
+    private Boolean enableBeingRecruited;   //to enable or disable
+                                            //the ability to be recruited
     
     
     
@@ -90,7 +88,7 @@ public class RecruitmentImmediateActuator extends Actuator {
         
         actOwner = null;
         
-        enabled = true;
+        enableBeingRecruited = true;
         
     }
 
@@ -178,7 +176,7 @@ public class RecruitmentImmediateActuator extends Actuator {
                  (recruit != null &&                                                        // 
                   robot.getPosition().distanceTo( recruit.getPosition() ) > range ) ) {     //current recruit is beyond range
                         
-                if ( recruit != null ) {
+                if ( recruit != null ) {                                                    //if current recruit is beyond range
                     recruiterSensor = getRecruiterSensor( recruit );                        //tell the recruit
                     recruiterSensor.setRecruiter( null );                                   //he has no recruiter anymore
                 }
@@ -224,19 +222,28 @@ public class RecruitmentImmediateActuator extends Actuator {
         
         RecruitmentImmediateActuator act;
         for (Robot closeRobot : closeRobots) {
+            
             if ( !(closeRobot.getController() instanceof RandomWalkerController)
                    && closeRobot.getId() != robot.getId() ) {            //avoid recruiting self
                 //System.out.println("Robot " + robot.getId() + " analysing robot " + closeRobot.getId() );
-                act = getRecruitmentImmediateActuator( closeRobot );    
+                act = getRecruitmentImmediateActuator( closeRobot );  
+                
+                
+                
+                
+                
                 if ( act.isAvailableToBeRecruited( closeRobot ) ) { //robot is available
                     //System.out.println("    - YES available");
                     //System.out.println("Robot " + robot.getId() + " recruited robot " + closeRobot.getId() );
+                    //System.out.println(closeRobot.getId() + " enabled? " + ((RecruitmentImmediateActuator)closeRobot.getActuatorByType(RecruitmentImmediateActuator.class)).getEnableBeingRecruited() );
+                    
                     return closeRobot;                              //choose it!
                 }
                 else{
                     //System.out.println("    - not available");
                 }
             }
+            
         }
         
         return null;
@@ -265,7 +272,7 @@ public class RecruitmentImmediateActuator extends Actuator {
      */
     private Boolean isAvailableToBeRecruited( Robot r ) {
         
-        if ( !enabled || 
+        if ( !enableBeingRecruited || 
              !r.isEnabled() ) {
             return false;
         }
@@ -360,17 +367,27 @@ public class RecruitmentImmediateActuator extends Actuator {
 
     
     /**
-     * Enables or disables the actuator
+     * Enables or disables the actuator's
+     * ability to be recruited
      * @param enabled if true the
-     * actuator becomes enabled,
-     * otherwise it becomes disabled
+     * actuator becomes able to be recruited,
+     * otherwise it becomes unable
      */
-    public void setEnabled( boolean enabled ) {
-        this.enabled = enabled;
+    public void setEnableBeingRecruited( boolean enabled ) {
+        this.enableBeingRecruited = enabled;
     }
     
     
-    
+    /**
+     * Gets the actuator's
+     * ability to be recruited
+     * @return true if the
+     * actuator is able to be recruited,
+     * false otherwise
+     */
+    public Boolean getEnableBeingRecruited() {
+        return this.enableBeingRecruited;
+    }
     
     
 
