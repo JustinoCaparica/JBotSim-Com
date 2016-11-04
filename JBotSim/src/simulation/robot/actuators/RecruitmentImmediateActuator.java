@@ -41,6 +41,17 @@ public class RecruitmentImmediateActuator extends Actuator {
                                             //be possible for me to recruit him?
     
     
+    
+    
+    private final static int CHOOSE_CLOSEST = 0;
+    @ArgumentsAnnotation(name="chooseClosest", defaultValue="0", help="If 1, the closest available recruit is choosen, otherwise a random available recruit is choosen")
+    private final boolean chooseClosest;            //if true, the closest
+                                                    //available robot is choosen
+    
+    
+    
+    
+    
     /***************************************************/
     /** Convenience references declared here to avoid **/
     /** creating them every time a method is called   **/
@@ -82,7 +93,10 @@ public class RecruitmentImmediateActuator extends Actuator {
         recruiting = false;
         beRecruited = false;
         
-        range = args.getArgumentAsDoubleOrSetDefault("range", RANGE_DEFAULT);
+        range = args.getArgumentAsDoubleOrSetDefault( "range", RANGE_DEFAULT );
+        
+        chooseClosest = args.getArgumentAsIntOrSetDefault( "chooseClosest", CHOOSE_CLOSEST ) == 1;
+        
         
         env = simulator.getEnvironment();
         
@@ -182,9 +196,14 @@ public class RecruitmentImmediateActuator extends Actuator {
                 }
                 
                 
-                recruitSensor.setRecruit( chooseCloseRecruit( robot ) );                    //choose another recruit
-                                                                                            //which can be null if 
-                                                                                            //no recruit is available
+                if ( chooseClosest ) {                                          //choose another recruit
+                    recruitSensor.setRecruit( chooseClosestRecruit( robot ) );  //which can be null if 
+                }else{                                                          //no recruit is available
+                    recruitSensor.setRecruit( chooseCloseRecruit( robot ) );
+                }
+                                  
+                                                                                            
+                                                                                            
                                                                                                                   
                 if ( recruitSensor.getRecruit() != null ) {                                 //if a recruit
                     recruiterSensor = getRecruiterSensor( recruitSensor.getRecruit() );     //was found
@@ -198,9 +217,73 @@ public class RecruitmentImmediateActuator extends Actuator {
 
     
     
+    /**
+     * Chooses the closest recruit
+     * @param robot the robot
+     * that owns this actuator
+     * @return returns the closest
+     * recruit that is available 
+     * to be recruited or null
+     * of there is none available
+     */
+    private Robot chooseClosestRecruit( Robot robot ) {
+        
+        List<Robot> closeRobots;                                //get robots
+        closeRobots = env.getClosestRobots( robot.getPosition(),//within actuator's 
+                                            range);             //range
+        
+//        if ( robot.getId() == 0 ) {
+//            System.out.println("");
+//            System.out.println("Robot 0 choosing a new recruit");
+//        }
+        
+        Robot chosenRobot = null;
+        double distToChosenRobot = Double.MAX_VALUE;
+        double distToCloseRobot;
+        
+        RecruitmentImmediateActuator act;
+        for (Robot closeRobot : closeRobots) {
+            
+            if ( !(closeRobot.getController() instanceof RandomWalkerController)
+                   && closeRobot.getId() != robot.getId() ) {            //avoid recruiting self
+                //System.out.println("Robot " + robot.getId() + " analysing robot " + closeRobot.getId() );
+                act = getRecruitmentImmediateActuator( closeRobot );  
+                
+                
+                
+                
+                
+                if ( act.isAvailableToBeRecruited( closeRobot ) ) { //robot is available
+                    //System.out.println("    - YES available");
+                    //System.out.println("Robot " + robot.getId() + " recruited robot " + closeRobot.getId() );
+                    //System.out.println(closeRobot.getId() + " enabled? " + ((RecruitmentImmediateActuator)closeRobot.getActuatorByType(RecruitmentImmediateActuator.class)).getEnableBeingRecruited() );
+                    
+                    distToCloseRobot = robot.getDistanceBetween( closeRobot.getPosition() );
+                    if ( distToCloseRobot < distToChosenRobot ) {
+                        chosenRobot = closeRobot;
+                        distToChosenRobot = distToCloseRobot;
+                    }
+                    
+                                        
+                }
+            }
+            
+        }
+        
+        return chosenRobot;
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     
     /**
-     * Chooses a recruit
+     * Chooses a random recruit
      * @param robot the robot
      * that owns this actuator
      * @return returns the first 

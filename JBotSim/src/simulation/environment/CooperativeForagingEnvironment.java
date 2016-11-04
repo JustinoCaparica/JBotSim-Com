@@ -64,6 +64,17 @@ public class CooperativeForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="forageStartLimit", defaultValue="0.8")
     private final double forageStartLimit;
     
+    
+    private static final int RANDOMIZE_NEST_POSITION = 0;
+    @ArgumentsAnnotation(name="randomizeNestPosition", defaultValue="0", help="if set to 1, the nest position is randomized")
+    private final boolean randomizeNestPosition;
+    
+    
+    private static final int RANDOMIZE_ROBOTS_POSITION = 0;
+    @ArgumentsAnnotation(name="randomizeRobotsPosition", defaultValue="0", help="if set to 1, all robots positions are randomized")
+    private final boolean randomizeRobotsPosition;
+    
+    
     @ArgumentsAnnotation(name="forbiddenarea", defaultValue="5.0")
     private double forbiddenArea;
 
@@ -101,6 +112,11 @@ public class CooperativeForagingEnvironment extends Environment {
             forageLimit         = arguments.getArgumentIsDefined("foragelimit") ? arguments.getArgumentAsDouble("foragelimit")       : 2.0;
             forageStartLimit    = arguments.getArgumentAsDoubleOrSetDefault("forageStartLimit", FORAGE_START_LIMIT);
             forbiddenArea       = arguments.getArgumentIsDefined("forbiddenarea") ? arguments.getArgumentAsDouble("forbiddenarea")       : 5.0;
+            randomizeNestPosition = arguments.getArgumentAsIntOrSetDefault("randomizeNestPosition", RANDOMIZE_NEST_POSITION) == 1;
+            
+            
+            randomizeRobotsPosition = arguments.getArgumentAsIntOrSetDefault("randomizeRobotsPosition", RANDOMIZE_ROBOTS_POSITION) == 1;
+            
             
             closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
             teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
@@ -138,13 +154,20 @@ public class CooperativeForagingEnvironment extends Environment {
                     walker.setController(new RandomWalkerController(simulator, walker, argsPreprog));
                     walker.setBodyColor( Color.yellow );
                     walker.setPosition( simulator.getRandom().nextDouble() * 0.15 - 0.075, simulator.getRandom().nextDouble() * 0.15 - 0.075 );
+                    
+                    
                     walker.setOrientation( simulator.getRandom().nextDouble() * Math.PI );
                     addRobot(walker);
             }
         }
         
         
-        
+        if ( randomizeRobotsPosition ) {                        //randomize robots positions
+            for ( Robot robot : simulator.getRobots() ) {       //within forage area
+                robot.setPosition( simulator.getRandom().nextDouble() * 2 * forageLimit - forageLimit, 
+                                   simulator.getRandom().nextDouble() * 2 * forageLimit - forageLimit);
+            }
+        }
         
        
         
@@ -177,7 +200,15 @@ public class CooperativeForagingEnvironment extends Environment {
         }
         
         
-        nest = new Nest(simulator, "Nest", 0, 0, nestLimit);
+        if ( !randomizeNestPosition ) {
+            nest = new Nest(simulator, "Nest", 0, 0, nestLimit);
+        }else{
+            double x = random.nextDouble() * (forageLimit*2) - forageLimit;
+            double y = random.nextDouble() * (forageLimit*2) - forageLimit;
+            nest = new Nest(simulator, "Nest", x, y, nestLimit);
+        }
+        
+        
         addObject(nest);
         
         
