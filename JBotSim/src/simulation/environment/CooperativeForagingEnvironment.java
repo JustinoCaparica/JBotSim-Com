@@ -143,7 +143,28 @@ public class CooperativeForagingEnvironment extends Environment {
                 r.setPosition(0, 0);
                 r.setOrientation(0);
         }
+        
+        this.random = simulator.getRandom();
 
+        
+        if ( !randomizeNestPosition ) {                         
+                                                                //place nest at center
+            nest = new Nest(simulator, "Nest", 0, 0, nestLimit);
+        }else{
+                                                                //randomize nest position
+            double x = random.nextDouble() * (forageLimit*2) - forageLimit;
+            double y = random.nextDouble() * (forageLimit*2) - forageLimit;
+            nest = new Nest(simulator, "Nest", x, y, nestLimit);
+        }
+        
+        addObject(nest);
+        
+        
+        
+        
+        
+        
+        
         
         //create preprogrammed robots
         Arguments argsPreprog = simulator.getArguments().get("--preprogrammed");
@@ -153,10 +174,9 @@ public class CooperativeForagingEnvironment extends Environment {
                     Robot walker = Robot.getRobot(simulator, argsPreprog);
                     walker.setController(new RandomWalkerController(simulator, walker, argsPreprog));
                     walker.setBodyColor( Color.yellow );
-                    walker.setPosition( simulator.getRandom().nextDouble() * 0.15 - 0.075, simulator.getRandom().nextDouble() * 0.15 - 0.075 );
+                    walker.setPosition( nest.getPosition().getX() + simulator.getRandom().nextDouble() * 0.15 - 0.075, nest.getPosition().getY() + simulator.getRandom().nextDouble() * 0.15 - 0.075 );
                     
-                    
-                    walker.setOrientation( simulator.getRandom().nextDouble() * Math.PI );
+                    walker.setOrientation( simulator.getRandom().nextDouble() * 2 * Math.PI );
                     addRobot(walker);
             }
         }
@@ -166,13 +186,19 @@ public class CooperativeForagingEnvironment extends Environment {
             for ( Robot robot : simulator.getRobots() ) {       //within forage area
                 robot.setPosition( simulator.getRandom().nextDouble() * 2 * forageLimit - forageLimit, 
                                    simulator.getRandom().nextDouble() * 2 * forageLimit - forageLimit);
+                robot.setOrientation( simulator.getRandom().nextDouble() * 2 * Math.PI );
+            }
+        }else{
+            for ( Robot robot : simulator.getRobots() ) {       //place robots at nest
+                robot.setPosition( nest.getPosition().getX(), nest.getPosition().getY());
+                robot.setOrientation( simulator.getRandom().nextDouble() * 2 * Math.PI );
             }
         }
         
        
         
         
-        this.random = simulator.getRandom();
+        
 
 
 
@@ -200,16 +226,7 @@ public class CooperativeForagingEnvironment extends Environment {
         }
         
         
-        if ( !randomizeNestPosition ) {
-            nest = new Nest(simulator, "Nest", 0, 0, nestLimit);
-        }else{
-            double x = random.nextDouble() * (forageLimit*2) - forageLimit;
-            double y = random.nextDouble() * (forageLimit*2) - forageLimit;
-            nest = new Nest(simulator, "Nest", x, y, nestLimit);
-        }
         
-        
-        addObject(nest);
         
         
         int wallSize = 2;
