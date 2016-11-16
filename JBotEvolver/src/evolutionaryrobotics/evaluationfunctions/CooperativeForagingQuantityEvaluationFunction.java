@@ -4,6 +4,8 @@ import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.environment.CooperativeCircleForagingEnvironment;
 import simulation.environment.CooperativeForagingEnvironment;
+import simulation.environment.CooperativeMatrixForagingEnvironment;
+import simulation.environment.CooperativeNestForagingEnvironment;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
@@ -84,7 +86,7 @@ public class CooperativeForagingQuantityEvaluationFunction extends EvaluationFun
     @Override
     public void update(Simulator simulator) {
 
-        //TODO next lines are ugly, fix it when time is a surplus
+       //TODO next lines are ugly, fix it when time is a surplus
         if ( (simulator.getEnvironment()).getClass().equals( CooperativeForagingEnvironment.class )) {
             CooperativeForagingEnvironment env;
             env = (CooperativeForagingEnvironment)(simulator.getEnvironment());
@@ -96,7 +98,34 @@ public class CooperativeForagingQuantityEvaluationFunction extends EvaluationFun
 
             timeStep = env.getLastPreyCaptureTime();
             totalSteps = env.getSteps();
-        }else{
+        }
+        else if ((simulator.getEnvironment()).getClass().equals( CooperativeMatrixForagingEnvironment.class )) {
+            CooperativeMatrixForagingEnvironment env;
+            env = (CooperativeMatrixForagingEnvironment)(simulator.getEnvironment());
+            preys = env.getNumberOfPreys(); 
+            teamSize = simulator.getRobots().size();
+            currentTime = simulator.getTime();
+
+            preysCaptured = env.getNumberOfFoodSuccessfullyForaged();
+
+            timeStep = env.getLastPreyCaptureTime();
+            totalSteps = env.getSteps();
+            
+        }
+        else if ((simulator.getEnvironment()).getClass().equals( CooperativeNestForagingEnvironment.class )) {
+            CooperativeNestForagingEnvironment env;
+            env = (CooperativeNestForagingEnvironment)(simulator.getEnvironment());
+            preys = env.getNumberOfPreys(); 
+            teamSize = simulator.getRobots().size();
+            currentTime = simulator.getTime();
+
+            preysCaptured = env.getNumberOfFoodSuccessfullyForaged();
+
+            timeStep = env.getLastPreyCaptureTime();
+            totalSteps = env.getSteps();
+            
+        }
+        else{
             CooperativeCircleForagingEnvironment env;
             env = (CooperativeCircleForagingEnvironment)(simulator.getEnvironment());
             preys = env.getNumberOfPreys(); 
@@ -108,10 +137,6 @@ public class CooperativeForagingQuantityEvaluationFunction extends EvaluationFun
             timeStep = env.getLastPreyCaptureTime();
             totalSteps = env.getSteps();
         }
-        
-        
-        
-        
         
         
     }
