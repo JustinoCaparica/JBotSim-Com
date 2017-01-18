@@ -90,7 +90,7 @@ public class NEATEvolution extends Evolution {
 							* population.getPopulationSize());
 
 		double highestFitness = population.getHighestFitness();
-
+                
 		while (!population.evolutionDone() && executeEvolution) {
 			double d = Double.valueOf(df.format(highestFitness));
 
