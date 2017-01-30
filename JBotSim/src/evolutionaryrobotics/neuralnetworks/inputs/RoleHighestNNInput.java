@@ -5,19 +5,19 @@
  */
 package evolutionaryrobotics.neuralnetworks.inputs;
 
-import simulation.robot.sensors.RoleSensor;
+import simulation.robot.sensors.RoleHighestSensor;
 import simulation.robot.sensors.Sensor;
 
 /**
  * NNInput to get the readings
- * from the RoleSensor
+ * from the RoleHighestSensor
  * @author gus
  */
-public class RoleNNInput extends NNInput {
+public class RoleHighestNNInput extends NNInput {
 
-    private final RoleSensor roleSensor;        //sensor that
-                                                //perceives the role of other 
-                                                //robots
+    private final RoleHighestSensor roleHighestSensor;  //sensor that
+                                                        //perceives the highest role 
+                                                        //of other robots
 
     /**
      * Initializes a new instance
@@ -25,9 +25,9 @@ public class RoleNNInput extends NNInput {
      * that this NNInput will
      * use
      */
-    public RoleNNInput( Sensor s ) {
+    public RoleHighestNNInput( Sensor s ) {
         super(s);
-        this.roleSensor = ( RoleSensor ) s;
+        this.roleHighestSensor = ( RoleHighestSensor ) s;
     }
     
     @Override
@@ -38,7 +38,7 @@ public class RoleNNInput extends NNInput {
     @Override
     public double getValue( int index ) {
         
-        return roleSensor.getSensorReading( index );
+        return roleHighestSensor.getSensorReading( index );
         
     }
     

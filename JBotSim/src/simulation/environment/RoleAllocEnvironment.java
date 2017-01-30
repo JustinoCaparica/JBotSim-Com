@@ -69,15 +69,14 @@ public class RoleAllocEnvironment extends Environment {
             
         super.setup(simulator);
 
-        if(simulator.getRobots().size() == 1) {
-                Robot r = simulator.getRobots().get(0);
-                r.setPosition(0, 0);
-                r.setOrientation(0);
-        }
-        
+       
         this.random = simulator.getRandom();
 
-        
+        for (Robot robot : simulator.getRobots()) {
+            robot.setPosition( (random.nextDouble() * 2 - 1) * width/2.5,
+                               (random.nextDouble() * 2 - 1) * height/2.5);
+            robot.setOrientation( random.nextDouble() * Math.PI);
+        }
         
        
         

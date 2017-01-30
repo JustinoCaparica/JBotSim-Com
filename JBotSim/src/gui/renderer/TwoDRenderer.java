@@ -33,6 +33,7 @@ import simulation.physicalobjects.Wall.Edge;
 import simulation.robot.Robot;
 import simulation.robot.actuators.RecruitmentActuator;
 import simulation.robot.actuators.RecruitmentImmediateActuator;
+import simulation.robot.actuators.RoleActuator;
 import simulation.robot.sensors.ConeTypeSensor;
 import simulation.robot.sensors.PreySensor;
 import simulation.robot.sensors.RecruiterConesSensor;
@@ -716,16 +717,28 @@ public class TwoDRenderer extends Renderer
                 
                 
                 
-                
-                
-                
-                
-                
-                
-                
-                graphics.setColor(Color.WHITE);
+                graphics.setColor( Color.WHITE );
                 graphics.fillPolygon(xp, yp, 3);
-		graphics.setColor(Color.BLACK);
+		graphics.setColor( Color.BLACK );
+                
+                
+                //draw RoleActuator output in a greyscale code:
+                //the higher the output the darker the color
+                RoleActuator roleAct;
+                roleAct = (RoleActuator)robot.getActuatorByType( RoleActuator.class );
+                if ( roleAct != null ) {
+                    int color = (int) Math.round( (roleAct.getValue()) * 255);
+                    graphics.setColor(new Color( color, 0, color) );
+                    graphics.drawString( new DecimalFormat("0.0").format(roleAct.getValue()), x, y);
+                    graphics.fillOval(x, y, 15, 15);
+                    graphics.setColor(Color.BLACK);
+                }
+                
+                
+                
+                
+                
+                
                 
 	}
 

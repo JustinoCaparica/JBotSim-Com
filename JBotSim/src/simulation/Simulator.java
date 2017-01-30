@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 import comm.FileProvider;
+import java.util.List;
 import simulation.environment.CooperativeForagingEnvironment;
 import simulation.environment.Environment;
 import simulation.physicalobjects.PhysicalObject;
@@ -153,11 +154,16 @@ public class Simulator implements Serializable {
 		} else {
 			// Update the readings for all the sensors:
 			// long d = System.currentTimeMillis();
+                    System.out.println("");
+                    System.out.println("## time:" + time);
+                    System.out.println("updateAllRobotSensors");
 			updateAllRobotSensors(time);
 			// Call the controllers:
+                    System.out.println("updateAllControllers");
 			updateAllControllers(time);
 			// Compute the actions of the robot's actuators on the environment
 			// and on itself
+                    System.out.println("updateAllRobotActuators");    
 			updateAllRobotActuators(time);
 			// d = System.currentTimeMillis()-d;
 			// d/=environment.getRobots().size();
@@ -181,11 +187,17 @@ public class Simulator implements Serializable {
 	}
 
 	protected void updateAllControllers(Double time) {
-		for (Robot r : environment.getRobots()) {
-			if (r.isEnabled())
-				if (r.getController() != null)
-					r.getController().controlStep(time);
-		}
+            
+//            List<Robot> robots;                             //shuffle robots
+//            robots = (List<Robot>)environment.getRobots();  //to ensure different
+//            Collections.shuffle( robots, random);           //order every time step
+            
+            
+            for (Robot r : environment.getRobots() ) {
+                    if (r.isEnabled())
+                            if (r.getController() != null)
+                                    r.getController().controlStep(time);
+            }
 	}
 
 	protected void updateEnvironment(Double time) {

@@ -266,7 +266,9 @@ public abstract class Environment implements KeyListener, Serializable {
      * incl.
      * @return a list with
      * the robots that are
-     * within radius
+     * within radius, including
+     * the robot in the position
+     * if any
      */
     public List<Robot> getClosestRobots( Vector2d position, Double radius ) {
         

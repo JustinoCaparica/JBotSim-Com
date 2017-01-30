@@ -19,12 +19,21 @@ public class RoleActuator extends Actuator {
     
                  
     
-    private Double value;                    //the value that this actuator
+    private Double value;                   //the value that this actuator
                                             //stores, representing the role
+    private Double valueTemp;               //value set by the NN only 
+                                            //available when apply is called
     
     
-    private Double lastValue;                //variable to store the value
+    
+    private Double lastValue;               //variable to store the value
                                             //from the last time step
+    private Double lastValueTemp;           //value set by the NN only 
+                                            //available when apply is called
+    
+    
+    
+    private Robot robot;                    //robot that owns the actuator
     
     
     public RoleActuator(Simulator simulator, int id, Arguments args) {
@@ -34,13 +43,20 @@ public class RoleActuator extends Actuator {
         lastValue = 0.0;
     }
 
+    
     @Override
     public void apply( Robot robot, double timeDelta ) {
         
-        //meh.. do nothing
+        this.robot = robot;
+        
+        lastValue = valueTemp;              //store current value in a variable
+        
+        this.value = valueTemp;             //replace current value 
+                                            //for the new value
         
     }
 
+    
     /**
      * Gets the value that this actuator
      * stores, representing the role
@@ -61,13 +77,14 @@ public class RoleActuator extends Actuator {
      */
     public void setValue( Double value ) {
         
-        lastValue = this.value;             //store current value in a variable
+        lastValueTemp = valueTemp;          //store current value in a variable
         
-        this.value = value;                 //replace current value 
-                                            //for the new value
-    
+        valueTemp = value;                 //replace current value 
+                                           //for the new value
+        
     }
 
+    
     /**
      * Gets the value that this actuator
      * stored in the previous time step

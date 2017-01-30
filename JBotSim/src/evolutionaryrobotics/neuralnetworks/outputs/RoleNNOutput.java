@@ -16,7 +16,7 @@ import simulation.util.Arguments;
 public class RoleNNOutput extends NNOutput {
 
     
-    private RoleActuator act;                   //the actuator controlled 
+    private final RoleActuator act;             //the actuator controlled 
                                                 //by this NNOutput
     
     private Double outputValue;                 //the neuron's output value
