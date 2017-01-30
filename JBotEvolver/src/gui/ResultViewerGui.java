@@ -96,6 +96,7 @@ public class ResultViewerGui extends Gui implements Updatable {
 	protected JPanel extraOptionsPanel;
 
 	protected JButton pauseButton;
+        protected JButton stepButton;
 	protected JButton plotButton;
 	protected JButton newRandomSeedButton = new JButton("New Random Seed");
 
@@ -251,10 +252,13 @@ public class ResultViewerGui extends Gui implements Updatable {
 		sideTopPanel.setLayout(new BoxLayout(sideTopPanel, BoxLayout.Y_AXIS));
 
 		pauseButton = new JButton("Start/Pause");
+                stepButton = new JButton("Step");
 		plotButton = new JButton("Plot Neural Activations");
 
 		pauseButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		sideTopPanel.add(pauseButton);
+                stepButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		sideTopPanel.add(stepButton);
 		plotButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		sideTopPanel.add(plotButton);
 
@@ -362,6 +366,7 @@ public class ResultViewerGui extends Gui implements Updatable {
 		}
 
 		pauseButton.setPreferredSize(new Dimension(panelWidth, 50));
+                stepButton.setPreferredSize(new Dimension(panelWidth, 50));
 		plotButton.setPreferredSize(new Dimension(panelWidth, 50));
 
 		return sideWrapperPanel;
@@ -519,6 +524,13 @@ public class ResultViewerGui extends Gui implements Updatable {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				startPauseButton();
+			}
+		});
+                
+                stepButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+                            shiftSimulationBy(1, false);
 			}
 		});
 

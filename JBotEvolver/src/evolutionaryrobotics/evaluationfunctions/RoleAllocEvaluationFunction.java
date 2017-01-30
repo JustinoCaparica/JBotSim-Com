@@ -18,6 +18,8 @@ public class RoleAllocEvaluationFunction extends EvaluationFunction{
                                             //for the duration of the simulation
     
 
+    private Double currentStep;             //currentStep
+    
     
     private Double maxOutput;               //maximum output amongst all robots
     private Double[] outputs;               //outputs of all robots
@@ -39,26 +41,8 @@ public class RoleAllocEvaluationFunction extends EvaluationFunction{
     @Override
     public double getFitness() {
         
-
-                
+        return currentFitness;        
         
-        Double diffsSum = 0.0;                  //sum of all differences between
-                                                //maxoutput and all outputs
-        
-        
-        Double diffsAvg;                        //average of all differences
-        
-        for (Double output : outputs) {         //determine sum of
-            diffsSum += (maxOutput - output);   //all differences
-        }
-        
-        diffsAvg = diffsSum / outputs.length;   //determine average of 
-                                                //all differences
-        
-        
-        currentFitness += ( diffsAvg / (totalSteps * numOfRobots) );
-        
-        return currentFitness;
     }
 
     
@@ -74,6 +58,7 @@ public class RoleAllocEvaluationFunction extends EvaluationFunction{
             
         }
         
+        currentStep = simulator.getTime();
         
         maxOutput = 0.0;                    //reinitialize maximum output
         
@@ -90,6 +75,19 @@ public class RoleAllocEvaluationFunction extends EvaluationFunction{
             }
             robotIndex++;
         }
+        
+        
+        Double diffsSum = 0.0;                  //sum of all differences between
+                                                //maxoutput and all outputs
+        
+        
+        for (Double output : outputs) {         //determine sum of
+            diffsSum += (maxOutput - output);   //all differences
+        }
+        
+        
+        currentFitness += ( diffsSum / (totalSteps * (numOfRobots - 1) ) );
+        
         
     }
 
