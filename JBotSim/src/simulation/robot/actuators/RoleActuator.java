@@ -39,8 +39,12 @@ public class RoleActuator extends Actuator {
     public RoleActuator(Simulator simulator, int id, Arguments args) {
         super(simulator, id, args);
         
-        value = 0.0;
-        lastValue = 0.0;
+        value       = 0.0;
+        lastValue   = 0.0;
+        
+        
+        valueTemp       = 0.0;
+        lastValueTemp   = 0.0;
     }
 
     
@@ -49,7 +53,7 @@ public class RoleActuator extends Actuator {
         
         this.robot = robot;
         
-        lastValue = valueTemp;              //store current value in a variable
+        lastValue = lastValueTemp;          //store current value in a variable
         
         this.value = valueTemp;             //replace current value 
                                             //for the new value

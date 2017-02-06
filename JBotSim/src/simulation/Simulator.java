@@ -154,16 +154,16 @@ public class Simulator implements Serializable {
 		} else {
 			// Update the readings for all the sensors:
 			// long d = System.currentTimeMillis();
-                    System.out.println("");
-                    System.out.println("## time:" + time);
-                    System.out.println("updateAllRobotSensors");
+//                    System.out.println("");
+//                    System.out.println("## time:" + time);
+//                    System.out.println("updateAllRobotSensors");
 			updateAllRobotSensors(time);
 			// Call the controllers:
-                    System.out.println("updateAllControllers");
+//                    System.out.println("updateAllControllers");
 			updateAllControllers(time);
 			// Compute the actions of the robot's actuators on the environment
 			// and on itself
-                    System.out.println("updateAllRobotActuators");    
+//                    System.out.println("updateAllRobotActuators");    
 			updateAllRobotActuators(time);
 			// d = System.currentTimeMillis()-d;
 			// d/=environment.getRobots().size();

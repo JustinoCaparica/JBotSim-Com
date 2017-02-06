@@ -9,11 +9,14 @@ import simulation.util.Arguments;
 import simulation.util.Factory;
 import evolutionaryrobotics.neuralnetworks.inputs.NNInput;
 import evolutionaryrobotics.neuralnetworks.outputs.NNOutput;
+import java.util.Map;
 
 public abstract class NeuralNetwork implements Serializable{
 	protected Vector<NNInput> inputs;
 	protected Vector<NNOutput> outputs;
 
+        
+        
 	protected boolean weightNoiseEnabled  = false;
 	protected double  weightNoiseAmount   = 0.0;
 	protected Random  weightNoiseRandom   = null;
@@ -43,6 +46,8 @@ public abstract class NeuralNetwork implements Serializable{
 
 		inputNeuronStates  = new double[numberOfInputNeurons];
 		outputNeuronStates = new double[numberOfOutputNeurons];
+                
+                
 	}
 
 	public int getNumberOfInputNeurons() {

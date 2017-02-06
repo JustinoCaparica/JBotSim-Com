@@ -5,6 +5,7 @@
  */
 package simulation.robot.sensors;
 
+import java.util.Random;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.robot.Robot;
@@ -21,11 +22,22 @@ public class RoleHighestSensor extends Sensor {
 
     private static final Double RANGE = 1.0;
     private static final String RANGE_STR = "1.0";
-    @ArgumentsAnnotation(name = "range", defaultValue = RANGE_STR, help = "actuator's range")
+    @ArgumentsAnnotation(name = "range", defaultValue = RANGE_STR, help = "sensor's range")
     private Double range; 
     
     
+    
+    private static final Double NOISE = 0.015;
+    private static final String NOISE_STR = "0.015";
+    @ArgumentsAnnotation(name = "noise", defaultValue = NOISE_STR, help = "sensor's noise. a value between -noise and noise is added to the sensor input. the final value is [0,1]")
+    private Double noise; 
+    
+    
+    
+    
     private Simulator simulator;            //the simulator
+    private Random random;                  //simulator randomizer
+    
     
     private Robot robot;                    //the robot that owns
                                             //this sensor
@@ -42,8 +54,10 @@ public class RoleHighestSensor extends Sensor {
         
         this.simulator  = simulator;
         this.robot      = robot;
+        this.random     = simulator.getRandom();
         
         range = args.getArgumentAsDoubleOrSetDefault( "range", RANGE );
+        noise = args.getArgumentAsDoubleOrSetDefault( "noise", NOISE );
     }
 
     
@@ -69,22 +83,44 @@ public class RoleHighestSensor extends Sensor {
         
         RoleActuator roleAct;
         Double maxOutput = 0.0;
-        
+        Double actVal;
         
         for (Robot closeRobot : simulator.getEnvironment().getClosestRobots(position, range) ) {
             
             if ( closeRobot != robot ) {                            //avoid choosing robot itself
                 roleAct = (RoleActuator) closeRobot.getActuatorByType( RoleActuator.class );
-                if ( roleAct.getValue() > maxOutput ) {             
-                    maxOutput = roleAct.getValue();
+                actVal = addNoise( roleAct.getValue() );
+                if ( actVal > maxOutput ) {             
+                    maxOutput = actVal;
                 }
             }
             
         }
         
-        System.out.println("Robot " + robot.getId() + " maxOutput " + maxOutput);
+        //System.out.println("Robot " + robot.getId() + " maxOutput " + maxOutput);
         return maxOutput;
         
+    }
+
+    /**
+     * Adds noise to a value
+     * @param value
+     * @return a value in the 
+     * interval [0,1]
+     */
+    private Double addNoise(Double value) {
+        
+        Double actVal = value;
+        
+        actVal += ((random.nextDouble() * 2) - 1) * noise;
+        if (actVal < 0) {
+            actVal = 0.0;
+        }
+        else if( actVal > 1){
+            actVal = 1.0;
+        }
+        
+        return actVal;
     }
     
     
