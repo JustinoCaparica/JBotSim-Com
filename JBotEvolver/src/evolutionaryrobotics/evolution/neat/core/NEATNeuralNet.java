@@ -45,7 +45,19 @@ public class NEATNeuralNet implements NeuralNet {
         public Synapse[] connections() {
             return connections;
         }
+
+        /**
+         * Get all the neurons
+         * on the network
+         * @return an array of
+         * NEATNeuron
+         */
+        public NEATNeuron[] getNeurons() {
+            return neurons;
+        }
 	
+        
+        
 	/**
 	 * Exercises the network for the given input data set
 	 */

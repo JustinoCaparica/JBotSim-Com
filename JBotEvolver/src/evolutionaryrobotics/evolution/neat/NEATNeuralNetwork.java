@@ -11,11 +11,13 @@ import evolutionaryrobotics.evolution.neat.core.NEATFeatureGene;
 import evolutionaryrobotics.evolution.neat.core.NEATLinkGene;
 import evolutionaryrobotics.evolution.neat.core.NEATNetDescriptor;
 import evolutionaryrobotics.evolution.neat.core.NEATNeuralNet;
+import evolutionaryrobotics.evolution.neat.core.NEATNeuron;
 import evolutionaryrobotics.evolution.neat.core.NEATNodeGene;
 import evolutionaryrobotics.evolution.neat.data.core.NetworkInput;
 import evolutionaryrobotics.evolution.neat.data.core.NetworkOutputSet;
 import evolutionaryrobotics.evolution.neat.data.csv.CSVInput;
 import evolutionaryrobotics.evolution.neat.ga.core.Gene;
+import evolutionaryrobotics.evolution.neat.nn.core.Synapse;
 import evolutionaryrobotics.neuralnetworks.NeuralNetwork;
 import evolutionaryrobotics.neuralnetworks.inputs.NNInput;
 import evolutionaryrobotics.neuralnetworks.outputs.NNOutput;
@@ -106,4 +108,41 @@ public class NEATNeuralNetwork extends NeuralNetwork{
         network.updateNetStructure();
         return network;
     }
+
+    
+    /**
+     * Get all the synapses
+     * on the network
+     * @return an array 
+     * where the elements 
+     * are the synapses
+     */
+    public Synapse[] getSynapses() {
+        return network.connections();
+    }
+
+    
+    /**
+    * Get all the neurons
+    * on the network
+    * @return an array of
+    * NEATNeuron
+    */
+   public NEATNeuron[] getNeurons() {
+       return network.getNeurons();
+   }
+
+   
+   /**
+    * Gets the output neurons
+    * of the neural network
+    * @return an array of
+    * NEATNeuron with the
+    * neural network's
+    * output neurons
+    */
+    public NEATNeuron[] getOutputNeurons() {
+        return network.outputNeurons();
+    }
+   
 }

@@ -25,6 +25,10 @@ package gui.util;
  ******************************************************************************
  */
 
+import evolutionaryrobotics.evolution.neat.NEATNeuralNetwork;
+import evolutionaryrobotics.evolution.neat.core.NEATNeuron;
+import evolutionaryrobotics.evolution.neat.nn.core.Neuron;
+import evolutionaryrobotics.evolution.neat.nn.core.Synapse;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GraphicsDevice;
@@ -46,6 +50,20 @@ import javax.swing.JPanel;
 
 import evolutionaryrobotics.neuralnetworks.CTRNNMultilayer;
 import evolutionaryrobotics.neuralnetworks.NeuralNetwork;
+import evolutionaryrobotics.neuralnetworks.inputs.NNInput;
+import evolutionaryrobotics.neuralnetworks.outputs.NNOutput;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Vector;
 
 /**
  * <dl>
@@ -167,10 +185,234 @@ public class GraphViz
 			   createNodes();
 			   connectNetwork();
 		   }
+                   else{
+                       if(network.getClass().equals(NEATNeuralNetwork.class)) {
+                           NEATNeuralNetwork neatNetwork = (NEATNeuralNetwork)network;
+                           neatNetwork.getSynapses();
+                           neatNetwork.getNeurons();
+                           //createNEATNN( neatNetwork );
+                           createNEATNNcomplete( neatNetwork );
+                           
+			   
+                       }
+                   }
 	   }
-	   
 	   addln(end_graph());
    }
+   
+   
+   
+   
+   /**
+    * Create the neural network
+    * description in a text format
+    * for the graphviz display, including
+    * all nodes and synapses, even if they're
+    * not useful
+    * @param net the NEAT neural 
+    * network
+    */
+   private void createNEATNNcomplete( NEATNeuralNetwork net ){
+       
+        String result = "node [shape=circle,fixedsize=true,width=0.9];";
+        result += "size=\"13,13\"; ranksep=\"2.2 equally\"";
+       
+        
+        
+        Vector<NNInput> nnInputs = net.getInputs();
+        Vector<NNOutput> nnOutputs = net.getOutputs();
+
+        Map<Integer, NNInput> neuronIDtoNNInputMap;
+        neuronIDtoNNInputMap = mapNeuronIDtoNNInput(nnInputs);
+
+        Map<Integer, NNOutput> neuronIDtoNNOutputMap;
+        neuronIDtoNNOutputMap = mapNeuronIDtoNNOutput(nnOutputs, neuronIDtoNNInputMap.size());
+        
+        
+        
+        
+        
+        
+        NEATNeuron[] neurons;
+        neurons = net.getNeurons();
+        
+        
+        if ( net.getNumberOfInputNeurons() > 0 ) {
+           result+="{rank=" + "source" + ";";
+            for(int i = 0 ; i < neurons.length ; i++){        //write input nodes
+                if ( neurons[i].isInput() ) {
+                    int indexOfNNInputString = neuronIDtoNNInputMap.get(neurons[i].id()).getSensor().getClass().getSimpleName().indexOf("Sensor");
+                    result+=""+neurons[i].id()+" [label=i" + neurons[i].id() + neuronIDtoNNInputMap.get(neurons[i].id()).getSensor().getClass().getSimpleName().substring(0, indexOfNNInputString) + "]";
+                }
+            }
+            result+=";}";
+        }
+        
+        
+       
+        
+        if ( net.getNumberOfOutputNeurons() + net.getNumberOfInputNeurons() < net.getNeurons().length ) {
+           result+="{rank=" + "same" + ";";
+            for(int i = 0 ; i < neurons.length ; i++){       //write hidden nodes
+                if ( neurons[i].isHidden() ) {
+                    result+=""+neurons[i].id()+"  [label=h" + neurons[i].id() + "]";
+                }
+                else if( !neurons[i].isInput() && !neurons[i].isOutput() ) {
+                    result+=""+neurons[i].id()+"  [label=what" + neurons[i].id() + "]";
+                }
+            }    
+            result+=";}";
+        }
+        
+        
+        if ( net.getNumberOfOutputNeurons() > 0  ) {
+           result+="{rank=" + "sink" + ";";
+            for(int i = 0 ; i < neurons.length ; i++){       //write output nodes
+                if ( neurons[i].isOutput() ) {
+                    int indexOfNNOutputString = neuronIDtoNNOutputMap.get(neurons[i].id()).getClass().getSimpleName().indexOf("NNOutput");
+                    result+=""+neurons[i].id()+" [label=o" + neurons[i].id() + neuronIDtoNNOutputMap.get(neurons[i].id()).getClass().getSimpleName().substring(0, indexOfNNOutputString) + "]";
+                }
+            }    
+            result+=";}";
+        }
+        
+
+        
+        addln(result);
+        
+        
+        DecimalFormat df = new DecimalFormat("#.#");       //to format the synapse
+        df.setRoundingMode(RoundingMode.CEILING);         //weight for 1 decimal
+        
+        Synapse[] synapses = net.getSynapses();
+        String edgeStr = "";
+        
+        for(Synapse syn: synapses){
+            if ( syn.isEnabled()) {
+                edgeStr = ""+( (NEATNeuron)syn.getFrom() ).id() +" -> "+( (NEATNeuron)syn.getTo()).id()+"";
+                //System.out.println(edgeStr);
+                edgeStr += "[ label=" + df.format(syn.getWeight()) + " ]" + ";";
+                addln(edgeStr);
+            }else{
+                edgeStr = ""+( (NEATNeuron)syn.getFrom() ).id() +" -> "+( (NEATNeuron)syn.getTo()).id()+"";
+                //System.out.println( "DISABLED " + edgeStr );
+            }
+        }
+       
+//        System.out.println("total neurons:" + net.getNeurons().length );
+//        for (int i=0; i < net.getNeurons().length; i++) {
+//            System.out.println("i:" + i + " id#" + ((NEATNeuron)net.getNeurons()[i]).id() );
+//       }
+        
+   }
+   
+   
+   
+   
+   /**
+    * Create the neural network
+    * description in a text format
+    * for the graphviz display
+    * @param net the NEAT neural 
+    * network
+    */
+   private void createNEATNN( NEATNeuralNetwork net ){
+       
+       NEATNeuron[] neurons;
+       neurons = net.getNeurons();
+       
+       Synapse[] synapses;
+       synapses = net.getSynapses();
+       
+       
+       Vector<NNInput> nnInputs = net.getInputs();
+       Vector<NNOutput> nnOutputs = net.getOutputs();
+       
+       Map<Integer, NNInput> neuronIDtoNNInputMap;
+       neuronIDtoNNInputMap = mapNeuronIDtoNNInput(nnInputs);
+       
+       Map<Integer, NNOutput> neuronIDtoNNOutputMap;
+       neuronIDtoNNOutputMap = mapNeuronIDtoNNOutput(nnOutputs, neuronIDtoNNInputMap.size());
+       
+       Set<Integer> neuronsWithNoOutput;
+       int numberOfInAndOutNeurons = net.getNumberOfInputNeurons() + net.getNumberOfOutputNeurons();
+       neuronsWithNoOutput = getNeuronsWithNoOutput( numberOfInAndOutNeurons, synapses, neurons );
+       
+       
+       
+        String result = "node [shape=circle,fixedsize=true,width=0.9];";
+       
+        result += "size=\"13,13\"; ranksep=\"2.2 equally\"";
+
+        
+        
+        
+        
+        result+="{rank=" + "source" + ";";
+        for(int id = 0 ; id < neurons.length ; id++){        //write input nodes
+            if ( neurons[id].isInput() ) {
+                if ( neuronIDtoNNInputMap.get(id) != null ) {
+                    result+=""+id+" [label=i" + id + neuronIDtoNNInputMap.get(id).getClass().getSimpleName() + "]";
+                }
+                else{
+                    result+=""+id+" [label=i" + id + "]";
+                }
+            }
+        }
+        result+=";}";
+
+        
+        result+="{rank=" + "same" + ";";
+        for(int id = 0 ; id < neurons.length ; id++){       //write hidden nodes
+            if ( neurons[id].isHidden() && !neuronsWithNoOutput.contains(id) ) {
+                result+=""+id+"  [label=h" + id + "]";
+            }
+        }    
+        result+=";}";
+        
+        
+
+        result+="{rank=" + "sink" + ";";
+//        for (NEATNeuron outputNeuron : outputNeurons) {
+//           result+=""+ outputNeuron.id() +"  [label=o" + outputNeuron.id() + "]";
+//        }
+        for(int id = 0 ; id < neurons.length ; id++){       //write output nodes
+            if ( neurons[id].isOutput() ) {
+                if ( neuronIDtoNNOutputMap.get(id) != null ) {
+                    result+=""+id+" [label=o" + id + neuronIDtoNNOutputMap.get(id).getClass().getSimpleName() + "]";
+                }
+                else{
+                    result+=" "+id+" [label=o" + id + "]";
+                }
+            }
+        }    
+        result+=";}";
+
+        addln(result);
+        
+        
+        DecimalFormat df = new DecimalFormat("#.#");       //to format the synapse
+        df.setRoundingMode(RoundingMode.CEILING);          //weight for 1 decimal
+
+        String edgeStr = "";
+        for(Synapse syn: synapses){
+            if ( !neuronsWithNoOutput.contains(((NEATNeuron)syn.getFrom()).id()) && 
+                    !neuronsWithNoOutput.contains(((NEATNeuron)syn.getTo()).id()) ){
+                edgeStr = ""+( (NEATNeuron)syn.getFrom() ).id() +" -> "+( (NEATNeuron)syn.getTo()).id()+"";
+                edgeStr += "[ label=" + df.format(syn.getWeight()) + " ]" + ";";
+                addln(edgeStr);
+            }
+        }
+            
+   }
+   
+   
+   
+   
+   
+   
+   
+   
    
    private void createNodes() {
 	   String result = "node [shape=circle,fixedsize=true,width=0.9];";
@@ -204,7 +446,7 @@ public class GraphViz
 		   result+="in"+i+" [style=filled, fillcolor=\"#"+currentColor+"\"];";
 	   }
 	
-	   for(int i = 0 ; i < hidden ; i++) {
+	   for(int i = 0 ; i < hidden ; i++) {  
 		   currentColor = defaultColor;
 		   if(network != null) {
 			   CTRNNMultilayer ctrnn = (CTRNNMultilayer)network;
@@ -441,7 +683,101 @@ public class GraphViz
    public String end_graph() {
       return "}";
    }
+
    
+   /**
+    * Creates a map where the
+    * key is the neuron index
+    * and the element is the 
+    * NNInput
+    * @param nnInputs the NNInputs
+    * in the network
+    * @return a map
+    */
+    private Map<Integer, NNInput> mapNeuronIDtoNNInput(Vector<NNInput> nnInputs) {
+        
+        Map<Integer, NNInput> map;              //map with 
+        map = new HashMap<>();                  //the result
+        
+        int neuronID = 1;                       //current neuron id to 
+                                                //be addded to the map
+        
+        for (NNInput nnInput : nnInputs) {      //find the number of input
+                                                //neurons for each nnInput
+            for (int i = 0; i < nnInput.getNumberOfInputValues(); i++){
+                map.put(neuronID, nnInput);     //add each neuronID to the map
+                neuronID += 1;                  //go to next neuronID
+            }
+        }
+        
+        return map;
+    }
+
+    
+    /**
+    * Creates a map where the
+    * key is the neuron index
+    * and the element is the 
+    * NNOutput
+    * @param nnOutputs the NNOutputs
+    * in the network
+    * @param startNeuronID the index 
+    * of the first output neuron
+    * @return a map
+    */
+    private Map<Integer, NNOutput> mapNeuronIDtoNNOutput( Vector<NNOutput> nnOutputs, 
+                                                         int startNeuronID) {
+        
+        Map<Integer, NNOutput> map;             //map with 
+        map = new HashMap<>();                  //the result
+        
+        int neuronID = startNeuronID + 1;       //current neuron id to 
+                                                //be addded to the map
+        
+        for (NNOutput nnOutput : nnOutputs) {   //find the number of input
+                                                //neurons for each nnInput
+            for (int i = 0; i < nnOutput.getNumberOfOutputValues(); i++){
+                map.put(neuronID, nnOutput);    //add each neuronID to the map
+                neuronID += 1;                  //go to next neuronID
+            }
+        }
+        
+        return map;
+        
+    }
+
+    
+    /**
+     * Gets the ids of the neurons
+     * that are not input or output
+     * neurons and that
+     * have no output synapses
+     * @param startID the id of the first
+     * neuron that is not input nor
+     * output neuron
+     * @param synapses all the synapses
+     * @param neurons all the neurons
+     * @return a set with the ids
+     */
+    private Set<Integer> getNeuronsWithNoOutput( int startID, 
+                                                 Synapse[] synapses, 
+                                                NEATNeuron[] neurons) {
+        Set<Integer> result = new HashSet<>();
+        
+        for (int id = startID; id < neurons.length; id++) {
+            result.add( id );
+            for (Synapse synapse : synapses) {
+                if ( ((NEATNeuron)synapse.getFrom()).id() == id ) {
+                    result.remove(id);
+                }
+            }
+        }
+        
+        return result;
+    }
+   
+    
+    
    public class ImageShower extends JFrame{
 	   
 	   private ImagePanel panel;

@@ -148,4 +148,40 @@ public class NEATNeuron implements Neuron {
 	public void setNeuronDepth(int depth) {
 		this.depth = depth;
 	}
+
+        /**
+         * Checks if the neuron
+         * is an input neuron
+         * @return true if the
+         * neuron is an input neuron
+         * false otherwise
+         */
+        public boolean isInput() {
+            return type == NEATNodeGene.INPUT;
+        }
+        
+        /**
+         * Checks if the neuron
+         * is an output neuron
+         * @return true if the
+         * neuron is an output neuron
+         * false otherwise
+         */
+        public boolean isOutput() {
+            return type == NEATNodeGene.OUTPUT;
+        }
+        
+        
+        /**
+         * Checks if the neuron
+         * is an hidden neuron
+         * @return true if the
+         * neuron is an hidden neuron
+         * false otherwise
+         */
+        public boolean isHidden() {
+            return type == NEATNodeGene.HIDDEN;
+        }
+        
+        
 }

@@ -1052,7 +1052,8 @@ public class ResultViewerGui extends Gui implements Updatable {
 	}
 
 	protected void displayNeuralNetwork() {
-		if (showNeuralNetwork && graphViz == null) {
+		//if (showNeuralNetwork && graphViz == null) {
+                if (showNeuralNetwork){
 			NeuralNetworkController nn = (NeuralNetworkController) simulator.getEnvironment().getRobots().get(0)
 					.getController();
 			graphViz = new GraphViz(nn.getNeuralNetwork());
