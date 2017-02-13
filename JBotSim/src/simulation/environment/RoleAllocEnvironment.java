@@ -10,9 +10,9 @@ import simulation.util.ArgumentsAnnotation;
 
 
 /**
- * An Environment where preys must be transported to the nest by 
- * more than one robot. Thus, robots must cooperate
- * to transport preys.
+ * An Environment where robots must designate
+ * one of them to output a high value
+ * while all other robots output a low value
  * @author gus
  */
 public class RoleAllocEnvironment extends Environment {

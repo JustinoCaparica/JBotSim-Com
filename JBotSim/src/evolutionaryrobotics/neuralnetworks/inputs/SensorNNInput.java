@@ -2,6 +2,7 @@ package evolutionaryrobotics.neuralnetworks.inputs;
 
 import simulation.robot.sensors.ConeTypeSensor;
 import simulation.robot.sensors.Sensor;
+import simulation.robot.sensors.WallAndRobotSensor;
 
 public class SensorNNInput extends NNInput {
 
@@ -18,7 +19,12 @@ public class SensorNNInput extends NNInput {
 	
 	@Override
 	public int getNumberOfInputValues() {
-		return coneTypeSensor == null ? 1 : coneTypeSensor.getNumberOfSensors();
+            
+            if ( sensor instanceof WallAndRobotSensor ) {
+                return ((WallAndRobotSensor) sensor).getNumberOfSensors();
+            }
+            
+            return coneTypeSensor == null ? 1 : coneTypeSensor.getNumberOfSensors();
 	}
 
 	@Override
