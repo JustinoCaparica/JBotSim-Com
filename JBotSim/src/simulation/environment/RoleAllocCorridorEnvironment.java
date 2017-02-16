@@ -98,6 +98,7 @@ public class RoleAllocCorridorEnvironment extends Environment {
             super.addObject( wall );                        //left wall
             
             
+            
             double topWallLength = arenaHeight;
             double topWallX = corridorStartX - ( (topWallLength) / 2.0 );
             wall = new Wall( simulator, topWallX, arenaHeight/2, topWallLength, wallThick );
@@ -135,7 +136,7 @@ public class RoleAllocCorridorEnvironment extends Environment {
         }
         
         
-        nest = new Nest(simulator, null, corridorLength, 0, 0.025);
+        nest = new Nest(simulator, null, corridorLength + 0.02, 0, 0.02);
         super.addObject(nest);
 
         
@@ -153,9 +154,10 @@ public class RoleAllocCorridorEnvironment extends Environment {
         
         
         for (Robot robot : simulator.getRobots()) {
-            robot.setPosition( (random.nextDouble() * 2 - 1) * width*0.1 - arenaHeight/2,
-                               (random.nextDouble() * 2 - 1) * height*0.1);
+            robot.setPosition( (random.nextDouble() * 2 - 1) * width*0.2 - arenaHeight/2,
+                               (random.nextDouble() * 2 - 1) * arenaHeight/2*0.8);
             robot.setOrientation( random.nextDouble() * Math.PI);
+            //((TwoWheelActuator) robot.getActuatorByType(TwoWheelActuator.class)).setMaxSpeed(0.0);
         }
         
         
