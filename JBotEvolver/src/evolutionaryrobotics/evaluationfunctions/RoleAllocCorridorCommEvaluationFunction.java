@@ -76,14 +76,16 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
         
         RoleAllocCorridorEnvironment env;                   //get the environment
         env = (RoleAllocCorridorEnvironment) simulator.getEnvironment();
+        Vector2d nestPos = env.getNest().getPosition();
+        
         
         //* First behavioral fitness component: leader close to nest
         Robot leader;
-        leader = findClosestRobotToNest( simulator, env.getNest().getPosition() );
+        leader = findClosestRobotToNest( simulator, nestPos );
         
         
         double distanceLeaderToNest;
-        distanceLeaderToNest = leader.getDistanceBetween( env.getNest().getPosition() );
+        distanceLeaderToNest = leader.getDistanceBetween( nestPos );
 
         double bfc1 = (Math.max(0.0, maxDist-distanceLeaderToNest) / maxDist);
         
@@ -91,11 +93,14 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
         //* Second behavioral fitness component: keep all others away from nest
         double  distanceAllOthers = 0.0;
         for (Robot robot : simulator.getRobots()) {
+            //System.out.println("robot" + robot.getId() + " x,y:" + robot.getPosition().getX() + ", " + robot.getPosition().getY());
             if ( !robot.equals( leader ) ) {
-                distanceAllOthers += Math.min( 1, robot.getDistanceBetween( nestPosition ) ) / maxDist;
+                //System.out.println("robot " + robot.getId() + " distance to nest:" + robot.getDistanceBetween( nestPos ) );
+                distanceAllOthers += Math.min( maxDist, robot.getDistanceBetween( nestPos ) ) / maxDist;
             }
         }
-        double bfc2 = distanceAllOthers / (simulator.getRobots().size() - 1);
+        
+        double bfc2 = distanceAllOthers / ((simulator.getRobots().size() - 1));
         
         
         //* communication fitness component
@@ -109,15 +114,22 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
                                                     //get output value
             outputs[robotIndex] = act.getValue();   //of robot with index i
 
+            //System.out.println("robot " + robotIndex + " output:" + act.getValue() );
+            
             if ( act.getValue() > maxOutput ) {     //store the max output
                maxOutput = act.getValue();          //in a variable
             }
             robotIndex++;
         }
+        //System.out.println("maxOutput:" + maxOutput);
+        
         
         
         Double diffsSum = 0.0;                  //sum of all differences between
                                                 //maxoutput and all outputs
+        
+        
+        
         
         
         for (Double output : outputs) {         //determine sum of
@@ -125,19 +137,46 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
         }
         
         
-        double cfc = ( diffsSum / (totalSteps * (numOfRobots - 1) ) );
+        double cfc = ( diffsSum / ( (numOfRobots - 1) ) );
+        
+        //debug
+        //cfc = 0.0;
+        
+        currentFitness += 0.60 * (bfc1/totalSteps) + 0.20 * (bfc2/totalSteps) + 0.2 * (cfc/totalSteps);
         
         
+        //TODO 
+        //for the last update() call
+        //print bfc1, bfc2, cfc - sem ser ponderado, no intervalo [0,1]
+        //print (0.75 * bfc1 + 0.25 * bfc2)
+        //print total fitness
+        
+        
+        //debug
+//        System.out.println("t=" + simulator.getTime());
+//        System.out.println("leader id:" + leader.getId());
+//        System.out.println("nest pos:" + nestPos.toString());
+//        System.out.println("distanceLeaderToNest:" + distanceLeaderToNest);
+//        System.out.println("distanceAllOthers:" + distanceAllOthers);
+//        System.out.println("diffsSum=" + diffsSum);
+//        
 //        System.out.println("");
-//        System.out.println("bfc1=" + (bfc1/totalSteps) );
-//        System.out.println("bfc2=" + (bfc2/totalSteps) );
+//        System.out.println("bfc1=" + bfc1);
+//        System.out.println("bfc1/totalSteps=" + (bfc1/totalSteps) );
+//        System.out.println("bfc2=" + (bfc2) );
+//        System.out.println("bfc2/totalSteps=" + (bfc2/totalSteps) );
 //        System.out.println("cfc=" + cfc );
-        
-        
-        
-        currentFitness += 0.60 * (bfc1/totalSteps) + 0.20 * (bfc2/totalSteps) + 0.2 * cfc;
-        
-        
+//        System.out.println("cfc/totalSteps=" + cfc/totalSteps );
+//        
+//        
+//        
+//        System.out.println("0.6 * bfc1/totalSteps=" + (bfc1/totalSteps) * 0.6 );
+//        System.out.println("0.2 * bfc2/totalSteps=" + (bfc2/totalSteps) * 0.2 );
+//        System.out.println("0.2 * cfc/totalSteps=" + (cfc/totalSteps) * 0.2);
+//        System.out.println("step fitness=" + (0.6*bfc1 + 0.2*bfc2 + 0.2*cfc));
+//        System.out.println("step fitness/totalSteps=" + (0.60 * (bfc1/totalSteps) + 0.20 * (bfc2/totalSteps) + 0.2 * (cfc/totalSteps)));
+//        System.out.println("### #### ####");
+//        System.out.println("");
         
     }
 

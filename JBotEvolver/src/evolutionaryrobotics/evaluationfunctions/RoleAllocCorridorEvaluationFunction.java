@@ -72,15 +72,15 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
             
         }
         
-        Nest nest = null;
-        Vector2d nestPos = null;
-        
-        for (int i = 0; i < simulator.getEnvironment().getAllObjects().size() && nest == null; i++) {
-            if ( simulator.getEnvironment().getAllObjects().get(i) instanceof Nest ) {
-                nest = (Nest) simulator.getEnvironment().getAllObjects().get(i);
-                nestPos = nest.getPosition();
-            }
-        }
+//        Nest nest = null;
+//        Vector2d nestPos = null;
+//        
+//        for (int i = 0; i < simulator.getEnvironment().getAllObjects().size() && nest == null; i++) {
+//            if ( simulator.getEnvironment().getAllObjects().get(i) instanceof Nest ) {
+//                nest = (Nest) simulator.getEnvironment().getAllObjects().get(i);
+//                nestPos = nest.getPosition();
+//            }
+//        }
                 
         
                  
@@ -90,15 +90,17 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
         
         RoleAllocCorridorEnvironment env;                   //get the environment
         env = (RoleAllocCorridorEnvironment) simulator.getEnvironment();
+        Vector2d nestPos = env.getNest().getPosition();
+        
         
         //* First behavioral fitness component: leader close to nest
         Robot leader;
-        leader = findClosestRobotToNest( simulator, env.getNest().getPosition() );
+        leader = findClosestRobotToNest( simulator, nestPos );
         
         //leader = findHighestOutputRobot( simulator.getRobots() );
         
         double distanceLeaderToNest;
-        distanceLeaderToNest = leader.getDistanceBetween( env.getNest().getPosition() );
+        distanceLeaderToNest = leader.getDistanceBetween( nestPos );
 
         double bfc1 = (Math.max(0.0, maxDist-distanceLeaderToNest) / maxDist);
         
@@ -108,8 +110,8 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
         for (Robot robot : simulator.getRobots()) {
             if ( !robot.equals( leader ) ) {
                 distanceAllOthers += Math.min( 1, robot.getDistanceBetween( nestPos ) ) / maxDist;
-                //System.out.println("dist robot " + robot.getId() + " " + robot.getDistanceBetween( nestPos ));
-                //System.out.println("fit robot " + robot.getId() + " " + Math.min( 1, robot.getDistanceBetween( nestPosition ) ) / maxDist);
+                System.out.println("dist robot " + robot.getId() + " " + robot.getDistanceBetween( nestPos ));
+                System.out.println("fit robot " + robot.getId() + " " + Math.min( 1, robot.getDistanceBetween( nestPosition ) ) / maxDist);
             }
         }
         
@@ -120,9 +122,9 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
             bfc2 = 0.0;
         }
         
-//        System.out.println("");
-//        System.out.println("bfc1=" + (bfc1/totalSteps) );
-//        System.out.println("bfc2=" + (bfc2/totalSteps) );
+        System.out.println("");
+        System.out.println("bfc1=" + (bfc1/totalSteps) );
+        System.out.println("bfc2=" + (bfc2/totalSteps) );
         
         
         currentFitness += 0.75 * (bfc1/totalSteps) + 0.25 * (bfc2/totalSteps);
