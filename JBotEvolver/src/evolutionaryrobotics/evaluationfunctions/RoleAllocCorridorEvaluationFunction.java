@@ -41,12 +41,23 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
     
     private Double currentFitness;          //fitness value up to a moment
     
+    private Double bfc1Accum, bfc2Accum;    //acummulated
+                                            //fitness components
+    
     
     public RoleAllocCorridorEvaluationFunction(Arguments args) {
             super(args);	
             
-            currentFitness = 0.0;
+            currentFitness  = 0.0;
             
+            
+            
+            //fitness info
+            setFitnessInfoValue("bfc1", 0.0);
+            setFitnessInfoValue("bfc2", 0.0);
+            setFitnessInfoValue("cfc", 0.0);
+            setFitnessInfoValue("bfc", 0.0);
+            setFitnessInfoValue("fit", 0.0);
             
     }
 
@@ -72,64 +83,52 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
             
         }
         
-//        Nest nest = null;
-//        Vector2d nestPos = null;
-//        
-//        for (int i = 0; i < simulator.getEnvironment().getAllObjects().size() && nest == null; i++) {
-//            if ( simulator.getEnvironment().getAllObjects().get(i) instanceof Nest ) {
-//                nest = (Nest) simulator.getEnvironment().getAllObjects().get(i);
-//                nestPos = nest.getPosition();
-//            }
-//        }
-                
-        
-                 
-                 
-        RoleActuator act;                   //actuator that stores the output
+
         
         
         RoleAllocCorridorEnvironment env;                   //get the environment
         env = (RoleAllocCorridorEnvironment) simulator.getEnvironment();
         Vector2d nestPos = env.getNest().getPosition();
-        
+                
         
         //* First behavioral fitness component: leader close to nest
         Robot leader;
         leader = findClosestRobotToNest( simulator, nestPos );
         
-        //leader = findHighestOutputRobot( simulator.getRobots() );
         
         double distanceLeaderToNest;
         distanceLeaderToNest = leader.getDistanceBetween( nestPos );
 
-        double bfc1 = (Math.max(0.0, maxDist-distanceLeaderToNest) / maxDist);
-        
+        double bfc1 = (Math.max(0.0, maxDist-distanceLeaderToNest) / maxDist);         
+                 
         
         //* Second behavioral fitness component: keep all others away from nest
         double  distanceAllOthers = 0.0;
         for (Robot robot : simulator.getRobots()) {
+            //System.out.println("robot" + robot.getId() + " x,y:" + robot.getPosition().getX() + ", " + robot.getPosition().getY());
             if ( !robot.equals( leader ) ) {
-                distanceAllOthers += Math.min( 1, robot.getDistanceBetween( nestPos ) ) / maxDist;
-                System.out.println("dist robot " + robot.getId() + " " + robot.getDistanceBetween( nestPos ));
-                System.out.println("fit robot " + robot.getId() + " " + Math.min( 1, robot.getDistanceBetween( nestPosition ) ) / maxDist);
+                //System.out.println("robot " + robot.getId() + " distance to nest:" + robot.getDistanceBetween( nestPos ) );
+                distanceAllOthers += Math.min( maxDist, robot.getDistanceBetween( nestPos ) ) / maxDist;
             }
         }
         
-        double bfc2;
-        if ( simulator.getRobots().size() > 1 ) {
-            bfc2 = distanceAllOthers / (simulator.getRobots().size() - 1);
-        }else{
-            bfc2 = 0.0;
-        }
+        double bfc2 = distanceAllOthers / ((simulator.getRobots().size() - 1));
         
-        System.out.println("");
-        System.out.println("bfc1=" + (bfc1/totalSteps) );
-        System.out.println("bfc2=" + (bfc2/totalSteps) );
-        
+//        
+//        
+//        System.out.println("");
+//        System.out.println("bfc1=" + (bfc1/totalSteps) );
+//        System.out.println("bfc2=" + (bfc2/totalSteps) );
+//        
         
         currentFitness += 0.75 * (bfc1/totalSteps) + 0.25 * (bfc2/totalSteps);
         
         
+        getFitnessInfo().put("bfc1", getFitnessInfo().get("bfc1") + bfc1/totalSteps);
+        getFitnessInfo().put("bfc2", getFitnessInfo().get("bfc2") + bfc2/totalSteps);
+        getFitnessInfo().put("cfc", 0.0);
+        getFitnessInfo().put("bfc", getFitnessInfo().get("bfc") + ((0.75*bfc1/totalSteps) + (0.25*bfc2/totalSteps)) );
+        getFitnessInfo().put("fit", currentFitness);
         
     }
 

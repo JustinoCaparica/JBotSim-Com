@@ -1,6 +1,7 @@
 package evolutionaryrobotics.evaluationfunctions;
 
 import java.util.ArrayList;
+import java.util.Map;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.environment.RoleAllocCorridorEnvironment;
@@ -40,12 +41,23 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
     
     private Double currentFitness;          //fitness value up to a moment
     
+    private Double bfc1Accum, bfc2Accum, cfcAccum;   //acummulated
+                                                    //fitness components
+    
     
     public RoleAllocCorridorCommEvaluationFunction(Arguments args) {
             super(args);	
             
-            currentFitness = 0.0;
+            currentFitness  = 0.0;
             
+            
+            
+            //fitness info
+            setFitnessInfoValue("bfc1", 0.0);
+            setFitnessInfoValue("bfc2", 0.0);
+            setFitnessInfoValue("cfc", 0.0);
+            setFitnessInfoValue("bfc", 0.0);
+            setFitnessInfoValue("fit", 0.0);
             
     }
 
@@ -145,7 +157,24 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
         currentFitness += 0.60 * (bfc1/totalSteps) + 0.20 * (bfc2/totalSteps) + 0.2 * (cfc/totalSteps);
         
         
-        //TODO 
+        getFitnessInfo().put("bfc1", getFitnessInfo().get("bfc1") + bfc1/totalSteps);
+        getFitnessInfo().put("bfc2", getFitnessInfo().get("bfc2") + bfc2/totalSteps);
+        getFitnessInfo().put("cfc", getFitnessInfo().get("cfc")   + cfc/totalSteps);
+        getFitnessInfo().put("bfc", getFitnessInfo().get("bfc")   + ((0.75*bfc1/totalSteps) + (0.25*bfc2/totalSteps)) );
+        getFitnessInfo().put("fit", currentFitness);
+        
+        
+//        bfc1Accum += bfc1/totalSteps;
+//        bfc2Accum += bfc2/totalSteps;
+//        cfcAccum  += cfc/totalSteps;
+        
+//        if ( simulator.getTime() == simulator.getEnvironment().getSteps()-1 ) {
+//            System.out.println("bfc1Accum:" + bfc1Accum);
+//            System.out.println("bfc2Accum:" + bfc2Accum);
+//            System.out.println("cfcAccum:" + cfcAccum);
+//        }
+        
+        
         //for the last update() call
         //print bfc1, bfc2, cfc - sem ser ponderado, no intervalo [0,1]
         //print (0.75 * bfc1 + 0.25 * bfc2)

@@ -1,5 +1,6 @@
 package evolutionaryrobotics.util;
 
+import evolutionaryrobotics.populations.NEATPopulation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -14,6 +15,7 @@ import java.util.Vector;
 import java.util.zip.GZIPOutputStream;
 
 import evolutionaryrobotics.populations.Population;
+import java.util.Map;
 import simulation.util.Arguments;
 
 public class DiskStorage implements Serializable{
@@ -27,8 +29,10 @@ public class DiskStorage implements Serializable{
 	protected final String argumentsFilename = "_arguments.conf";
 	protected final String showBestFilename = "showbest";
 	protected final String restartFilename = "_restartevolution.conf";
+        protected final String fitnessInfoLogFilename = "_fitnessInfo.log";
 
 	protected PrintStream fitnessLog;
+        protected PrintStream fitnessInfoLog;
 
 	public DiskStorage(String outputDirectory) {
 		this.outputDirectory = outputDirectory;
@@ -58,6 +62,7 @@ public class DiskStorage implements Serializable{
 									+ outputDirectory + "/populations");
 				}
 			openFitnessLog(true);
+                        openFitnessInfoLog(true);
 		}
 
 	}
@@ -89,7 +94,7 @@ public class DiskStorage implements Serializable{
 	public void close() {
 		if (outputDirectory != null) {
 			fitnessLog.close();
-			
+			fitnessInfoLog.close();
 		}
 	}
 
@@ -120,6 +125,7 @@ public class DiskStorage implements Serializable{
 	public void savePopulations(Population populationA, Population populationB) throws IOException {
 		if (outputDirectory != null) {
 			updateFitnessLog(populationA, populationB);
+                        //updateFitnessInfoLog(populationA, populationB);
 
 			// Save population:
 			savePopulationToFile(populationA, "a");
@@ -144,6 +150,7 @@ public class DiskStorage implements Serializable{
 	public void updateFitnessOnly(Population population) {
 		if (outputDirectory != null) {
 			updateFitnessLog(population);
+                        updateFitnessInfoLog(population);
 		}
 	}
 
@@ -151,6 +158,7 @@ public class DiskStorage implements Serializable{
 			throws IOException {
 		if (outputDirectory != null) {
 			updateFitnessLog(population);
+                        updateFitnessInfoLog(population);
 
 			// Save population:
 			savePopulationToFile(population, "");
@@ -183,6 +191,23 @@ public class DiskStorage implements Serializable{
 		}
 	}
 
+        private void openFitnessInfoLog(boolean append) {
+		try {
+			
+			if(fitnessInfoLog != null)
+				fitnessInfoLog.close();
+			
+			fitnessInfoLog = openForWriting(outputDirectory + "/" + fitnessInfoLogFilename, append);
+			fitnessInfoLog.println("# Evoluation started on " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+			fitnessInfoLog.println("# Generation\t   bfc1 \t   bfc2 \t   cfc \t   bfc \t   fit ");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+        
+        
+        
+        
 	private void updateFitnessLog(Population populationA, Population populationB) {
 		
 		if(populationA.getNumberOfCurrentGeneration() == 0) {
@@ -201,6 +226,27 @@ public class DiskStorage implements Serializable{
 		fitnessLog.flush();
 	}
 
+//        private void updateFitnessInfoLog(Population populationA, Population populationB) {
+//		
+//		if(populationA.getNumberOfCurrentGeneration() == 0) {
+//			openFitnessLog(false);
+//		}
+//	
+//		fitnessInfoLog
+//				.printf("\t%3d\t\t%18.10f\t%18.10f\t%18.10f\t%18.10f\t%18.10f\t%18.10f%n",
+//						populationA.getNumberOfCurrentGeneration(),
+//						populationA.getHighestFitness(),
+//						populationA.getAverageFitness(),
+//						populationA.getLowestFitness(),
+//						populationB.getHighestFitness(),
+//						populationB.getAverageFitness(),
+//						populationB.getLowestFitness());
+//		fitnessInfoLog.flush();
+//	}
+        
+        
+        
+        
 	private void updateFitnessLog(Population population) {
 		if(population.getNumberOfCurrentGeneration() == 0) {
 			openFitnessLog(false);
@@ -212,6 +258,40 @@ public class DiskStorage implements Serializable{
 		fitnessLog.flush();
 	}
 
+        
+        private void updateFitnessInfoLog(Population population) {
+            
+
+            if ( population instanceof NEATPopulation ) {
+                
+                if(population.getNumberOfCurrentGeneration() == 0) {
+                    openFitnessInfoLog(false);
+                }
+                
+                
+                //String line = "\t%3d\t\t%8.3f\t%8.3f\t%8.3f%n";
+                Map<String, Double> fitInfo;
+                fitInfo = ((NEATPopulation)population).getBestFitnessInfo();
+                
+//                System.out.println("fitInfo.get(\"bfc1\")" + fitInfo.get("bfc1"));
+//                System.out.println("fitInfo.get(\"bfc2\")" + fitInfo.get("bfc2"));
+//                System.out.println("fitInfo.get(\"cfc\")" + fitInfo.get("cfc"));
+//                System.out.println("fitInfo.get(\"bfc\")" + fitInfo.get("bfc"));
+                
+                fitnessInfoLog.printf("\t%3d\t%8.3f\t%8.3f\t%8.3f\t%8.3f\t%8.3f%n",
+                                population.getNumberOfCurrentGeneration(),
+                                fitInfo.get("bfc1"), fitInfo.get("bfc2"),
+                                fitInfo.get("cfc"), fitInfo.get("bfc"), 
+                                fitInfo.get("fit"));
+                fitnessInfoLog.flush();
+                
+            }
+
+            
+	}
+        
+        
+        
 	private void saveShowCurrentBest(Population populationA,
 			Population populationB, long randomSeed, String prefixA,
 			String prefixB) throws FileNotFoundException {
@@ -351,5 +431,8 @@ public class DiskStorage implements Serializable{
 	public String getOutputDirectory() {
 		return outputDirectory;
 	}
+
+        
+        
 
 }

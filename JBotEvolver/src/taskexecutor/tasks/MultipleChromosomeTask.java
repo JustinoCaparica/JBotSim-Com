@@ -6,6 +6,9 @@ import java.util.Random;
 import evolutionaryrobotics.JBotEvolver;
 import evolutionaryrobotics.evaluationfunctions.EvaluationFunction;
 import evolutionaryrobotics.neuralnetworks.MultipleChromosome;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import result.Result;
 import simulation.Simulator;
 import simulation.robot.Robot;
@@ -19,14 +22,20 @@ public class MultipleChromosomeTask extends JBotEvolverTask{
 	private Random random;
 	private long seed;
 
+        private Map<String, Double> fitInfo;    //fitness info
+        
+        
 	public MultipleChromosomeTask(JBotEvolver jBotEvolver, int samples, MultipleChromosome chromosome, long seed) {
 		super(jBotEvolver);
 		this.samples = samples;
 		this.chromosome = chromosome;
 		this.random = new Random(seed);
 		this.seed = seed;
+                
+                fitInfo = new HashMap<>();
 	}
 
+        
 	@Override
 	public void run() {
 
@@ -49,12 +58,31 @@ public class MultipleChromosomeTask extends JBotEvolverTask{
 			simulator.simulate();
 
 			fitness+= eval.getFitness();
+                        
+                        //average the values for the fitness information
+                        Iterator<String> it = eval.getFitnessInfo().keySet().iterator();
+                        while( it.hasNext() ){
+                            String key = it.next();
+                            if ( fitInfo.get(key) == null ) {
+                                fitInfo.put( key, eval.getFitnessInfo().get(key)/samples );
+                            }
+                            else{
+                                fitInfo.put( key, fitInfo.get(key) + (eval.getFitnessInfo().get(key)/samples) );
+                            }
+                        }
 		}
 	}
+        
+        
 	@Override
 	public Result getResult() {
-		SimpleFitnessResult fr = new SimpleFitnessResult(getId(),chromosome.getID(),fitness/samples);
-		return fr;
+            //SimpleFitnessResult fr = new SimpleFitnessResult(getId(),chromosome.getID(),fitness/samples);
+            SimpleFitnessResult fr = new SimpleFitnessResult(getId(),chromosome.getID(),fitness/samples, fitInfo);
+            
+            
+            
+            
+            return fr;
 	}
 
 }

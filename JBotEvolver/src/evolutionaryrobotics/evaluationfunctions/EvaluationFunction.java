@@ -2,18 +2,48 @@ package evolutionaryrobotics.evaluationfunctions;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 import simulation.Updatable;
 import simulation.util.Arguments;
 
 public abstract class EvaluationFunction implements Serializable, Updatable {
 	protected double fitness;
 
-	public EvaluationFunction(Arguments args) {}
+        private final Map<String, Double> fitnessInfo;    //structure to store
+                                                    //aditional fitness info
+                                                    //map keys are the parameters
+                                                    //map values are the values
+                                                    //associated with each parameter
+        
+	public EvaluationFunction(Arguments args) {
+            fitnessInfo = new HashMap<>();
+        }
 
 	public double getFitness() {
 		return fitness;
 	}
+
+        /**
+         * Gets a structure that stores
+         * additional fitness information
+         * @return a map where keys are the
+         * info parameters and map values are the 
+         * values associated with each parameter
+         */
+        public Map<String, Double> getFitnessInfo() {
+            return fitnessInfo;
+        }
 	
+        public void setFitnessInfoValue( String parameter, Double value ){
+            fitnessInfo.put(parameter, value);
+        }
+        
+        public Double getFitnessInfoValue( String parameter ){
+            return fitnessInfo.get(parameter);
+        }
+        
+        
 	public static EvaluationFunction getEvaluationFunction(Arguments arguments) {
 		if (!arguments.getArgumentIsDefined("classname"))
 			throw new RuntimeException("Evaluation 'classname' not defined: "+arguments.toString());

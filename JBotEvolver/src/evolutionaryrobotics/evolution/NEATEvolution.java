@@ -108,6 +108,7 @@ public class NEATEvolution extends Evolution {
 
 				try {
 					diskStorage.savePopulation(population);
+                                        
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

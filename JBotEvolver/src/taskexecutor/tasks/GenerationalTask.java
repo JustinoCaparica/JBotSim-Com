@@ -6,6 +6,9 @@ import java.util.Random;
 import evolutionaryrobotics.JBotEvolver;
 import evolutionaryrobotics.evaluationfunctions.EvaluationFunction;
 import evolutionaryrobotics.neuralnetworks.Chromosome;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import result.Result;
 import simulation.Simulator;
 import simulation.robot.Robot;
@@ -18,13 +21,21 @@ public class GenerationalTask extends JBotEvolverTask {
 	private double fitness = 0;
 	private Chromosome chromosome;
 	private Random random;
-	
+        
+
+	private Map<String, Double> fitInfo;    //fitness info
+        
+        
 	public GenerationalTask(JBotEvolver jBotEvolver, int samples, Chromosome chromosome, long seed) {
 		super(jBotEvolver);
 		this.samples = samples;
 		this.chromosome = chromosome;
 		this.random = new Random(seed);
-	}
+                
+                fitInfo = new HashMap<>();
+                
+                
+        }
 	
 	@Override
 	public void run() {
@@ -48,11 +59,31 @@ public class GenerationalTask extends JBotEvolverTask {
 			simulator.simulate();
 			
 			fitness+= eval.getFitness();
+                        
+                        //average the values for the fitness information
+                        Iterator<String> it = eval.getFitnessInfo().keySet().iterator();
+                        while( it.hasNext() ){
+                            String key = it.next();
+                            if ( fitInfo.get(key) == null ) {
+                                fitInfo.put( key, eval.getFitnessInfo().get(key)/samples );
+                            }
+                            else{
+                                fitInfo.put( key, fitInfo.get(key) + (eval.getFitnessInfo().get(key)/samples) );
+                            }
+                        }
+                        
 		}
 	}
+        
+        
 	@Override
 	public Result getResult() {
-		SimpleFitnessResult fr = new SimpleFitnessResult(getId(),chromosome.getID(),fitness/samples);
-		return fr;
+		//SimpleFitnessResult fr = new SimpleFitnessResult(getId(),chromosome.getID(),fitness/samples);
+		
+                SimpleFitnessResult fr = new SimpleFitnessResult(getId(),chromosome.getID(),fitness/samples, fitInfo);
+                
+                //System.out.println("evalFunc.getFitnessInfo().get(\"bfc1Accum\"):" + fitInfo.get("bfc1Accum"));
+                
+                return fr;
 	}
 }

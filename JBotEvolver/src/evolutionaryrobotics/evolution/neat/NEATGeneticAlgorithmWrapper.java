@@ -67,8 +67,9 @@ public class NEATGeneticAlgorithmWrapper extends NEATGeneticAlgorithm {
 
 		for (i = 0; i < genotypes.length && evo.continueExecuting(); i++) {
 			SimpleFitnessResult r = (SimpleFitnessResult) evo.getTaskExecutor().getResult();
-			evo.getPopulation().setEvaluationResult(convertedGenotypes[r.getChromosomeId()], r.getFitness());
-			genotypes[r.getChromosomeId()].updateFitness(r.getFitness());
+			//evo.getPopulation().setEvaluationResult(convertedGenotypes[r.getChromosomeId()], r.getFitness());
+			evo.getPopulation().setEvaluationResult(convertedGenotypes[r.getChromosomeId()], r.getFitness(), r.getFitnessInfo() );
+                        genotypes[r.getChromosomeId()].updateFitness(r.getFitness());
 			System.out.print("!");
 		}
 	}

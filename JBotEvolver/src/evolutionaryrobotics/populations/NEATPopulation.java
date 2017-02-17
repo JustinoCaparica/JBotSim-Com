@@ -10,6 +10,8 @@ import evolutionaryrobotics.evolution.neat.core.NEATNetDescriptor;
 import evolutionaryrobotics.evolution.neat.core.NEATNeuralNet;
 import evolutionaryrobotics.evolution.neat.core.NEATPopulation4J;
 import evolutionaryrobotics.neuralnetworks.Chromosome;
+import java.util.HashMap;
+import java.util.Map;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
@@ -24,6 +26,10 @@ public class NEATPopulation extends Population implements Serializable {
 	protected Chromosome chromosomes[];
 	
 	protected double bestFitness;
+        protected Map<String, Double> bestFitnessInfo;  //info associated with
+                                                        //the highest fitness 
+                                                        //chromossome
+        
 	protected double accumulatedFitness;
 	protected double worstFitness = Double.MAX_VALUE;
 	protected int numberOfChromosomesEvaluated;
@@ -31,6 +37,7 @@ public class NEATPopulation extends Population implements Serializable {
 	public NEATPopulation(Arguments arguments) {
 		super(arguments);
 		size = arguments.getArgumentAsIntOrSetDefault("size",size);
+                bestFitnessInfo = new HashMap<>();
 	}
 	
 	public void setNEATPopulation4J(NEATPopulation4J pop) {
@@ -81,6 +88,36 @@ public class NEATPopulation extends Population implements Serializable {
 			bestFitness = Math.max(bestFitness,fitness);
 		}
 	}
+        
+        
+        @Override
+        public void setEvaluationResult(Chromosome chromosome, double fitness, Map<String, Double> fitnessInfo){
+            numberOfChromosomesEvaluated++;
+            accumulatedFitness+=fitness;
+            worstFitness = Math.min(worstFitness,fitness);
+
+            if(bestFitness < fitness || bestChromosome == null) {
+                    bestChromosome = chromosome;
+                    bestFitness = Math.max(bestFitness,fitness);
+                    this.bestFitnessInfo = fitnessInfo;
+            }
+        };
+
+        
+        /**
+         * Gets a structure that stores
+         * additional fitness information
+         * @return a map where keys are the
+         * info parameters and map values are the 
+         * values associated with each parameter
+         */
+        public Map<String, Double> getBestFitnessInfo() {
+            return bestFitnessInfo;
+        }
+        
+        
+        
+        
 
 	@Override
 	public void setEvaluationResultForId(int pos, double fitness) {

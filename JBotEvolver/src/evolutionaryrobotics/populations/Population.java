@@ -15,6 +15,7 @@ import simulation.util.ArgumentsAnnotation;
 import simulation.util.Factory;
 import comm.FileProvider;
 import evolutionaryrobotics.neuralnetworks.Chromosome;
+import java.util.Map;
 
 /**
  * Super-class for populations/evolutionary algorithms.
@@ -142,6 +143,19 @@ public abstract class Population implements Serializable {
      */
     public abstract void setEvaluationResult(Chromosome chromosome, double fitness);
 
+    /**
+     * Set the fitness for a chromosome obtained by a call to {@link #getNextChromosomeToEvaluate()}.
+     * 
+     * @param chromosome
+     * @param fitness
+     * @param fitnessInfo a map where keys are the
+     * info parameters and map values are the 
+     * values associated with each parameter
+     */
+    public abstract void setEvaluationResult(Chromosome chromosome, double fitness, Map<String, Double> fitnessInfo);
+    
+    
+    
      /**
      * Set the fitness for a chromosome in position pos obtained by a call to {@link #getNextChromosomeToEvaluate()}.
      * 
