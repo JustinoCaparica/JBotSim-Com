@@ -21,6 +21,10 @@ public abstract class CollisionManager implements Serializable {
 
 	public abstract void handleCollisions(Environment environment, double time);
 	
+        
+        
+        
+        
 	static public boolean checkCollisionBetweenTwoObjects(
 				Shape collisionObject1,
 				Shape collisionObject2) {

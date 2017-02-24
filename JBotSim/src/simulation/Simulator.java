@@ -34,6 +34,7 @@ public class Simulator implements Serializable {
 	private int numberPhysicalObjects = 0;
 	private ArrayList<Updatable> callbacks = new ArrayList<Updatable>();
 	private boolean stopSimulation = false;
+        private boolean stopWhenCollide = false;
 	private int[] robotIndexes;
 	private boolean setup = false;
 
@@ -56,7 +57,8 @@ public class Simulator implements Serializable {
 		if (args != null) {
 			timeDelta = args.getArgumentAsDoubleOrSetDefault("timedelta", timeDelta);
 			parallel = args.getArgumentAsIntOrSetDefault("parallel", 0) == 1;
-
+                        stopWhenCollide = args.getArgumentAsIntOrSetDefault("stopWhenCollide", 0) == 1;
+                        
 			if (args.getArgumentIsDefined("fixedseed") && args.getArgumentAsDouble("fixedseed") != 0) {
 				this.randomSeed = args.getArgumentAsInt("fixedseed");
 				this.random = new Random(args.getArgumentAsInt("fixedseed"));
@@ -173,7 +175,12 @@ public class Simulator implements Serializable {
 		updateEnvironment(time);
 		// Update the positions of everything
 		updatePositions(time);
-
+                if ( time > 1 && stopWhenCollide && collisionsExist() ) {
+                    stopSimulation = true;
+                }
+                
+                
+                
 		for (Updatable r : callbacks) {
 //			if(r instanceof Gui)
 //				continue;
@@ -326,6 +333,23 @@ public class Simulator implements Serializable {
 		return callbacks;
 	}
 
+        
+        
+        /**
+         * Determines the existence of collisions
+         * @return true if collisions happened
+         */
+        private boolean collisionsExist() {
+            for (Robot robot : environment.getRobots()) {
+                if ( robot.isInvolvedInCollison() || robot.isInvolvedInCollisonWall() ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        
+        
 	class ParallelRobotCallable implements Callable<Object> {
 
 		private Robot r;

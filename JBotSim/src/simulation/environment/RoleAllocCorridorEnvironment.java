@@ -136,7 +136,7 @@ public class RoleAllocCorridorEnvironment extends Environment {
         }
         
         
-        nest = new Nest(simulator, null, corridorLength + 0.02, 0, 0.02);
+        nest = new Nest(simulator, null, corridorLength - 0.01, 0, 0.02);
         super.addObject(nest);
 
         
