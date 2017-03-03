@@ -36,6 +36,12 @@ public class CooperativeNestForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="preyMass", help="prey mass", defaultValue="1")
     private Double preyMass;
     
+    private static final int VARY_PREY_MASS = 0;
+    @ArgumentsAnnotation(name="varyPreyMass", help="if set to 1 the prey mass varies betwee preyMass and preyMass+2", defaultValue="0")
+    private Boolean varyPreyMass;
+    
+    
+    
     
     
     private static final Double CLOSEST_RADIUS = 0.07;
@@ -75,6 +81,13 @@ public class CooperativeNestForagingEnvironment extends Environment {
     private final boolean randomizeRobotsPosition;
     
     
+    private static final int PREYS_GATHERED = 0;
+    @ArgumentsAnnotation(name="preysGathered", defaultValue="0", help="if set to 1, all preys are close to a randomized location")
+    private final boolean preysGathered;
+    
+    
+    
+    
     @ArgumentsAnnotation(name="forbiddenarea", defaultValue="5.0")
     private double forbiddenArea;
 
@@ -92,7 +105,8 @@ public class CooperativeNestForagingEnvironment extends Environment {
     private int numberOfFoodSuccessfullyForaged = 0;        
     private Random random;
 
-    
+    private Vector2d preysGatherLocation;       //location to gather preys 
+                                                //if preys are to be gathered
     
     private Wall wall;                          //environment wall, if exists
     
@@ -107,6 +121,8 @@ public class CooperativeNestForagingEnvironment extends Environment {
             
             this.simulator      = simulator;
             this.args           = arguments;
+            this.random         = simulator.getRandom();
+            
             
             nestLimit           = arguments.getArgumentIsDefined("nestlimit") ? arguments.getArgumentAsDouble("nestlimit")       : .5;
             forageLimit         = arguments.getArgumentIsDefined("foragelimit") ? arguments.getArgumentAsDouble("foragelimit")       : 2.0;
@@ -117,6 +133,12 @@ public class CooperativeNestForagingEnvironment extends Environment {
             
             randomizeRobotsPosition = arguments.getArgumentAsIntOrSetDefault("randomizeRobotsPosition", RANDOMIZE_ROBOTS_POSITION) == 1;
             
+            preysGathered = arguments.getArgumentAsIntOrSetDefault("preysGathered", PREYS_GATHERED) == 1; 
+            if ( preysGathered ) {
+                double radius = random.nextDouble() * (forageLimit-forageStartLimit) + forageStartLimit;
+                double angle = random.nextDouble()*2*Math.PI;
+                preysGatherLocation = new Vector2d ( radius * Math.cos(angle), radius * Math.sin(angle) );
+            }
             
             closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
             teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
@@ -125,6 +147,9 @@ public class CooperativeNestForagingEnvironment extends Environment {
             
             
             preyMass            = arguments.getArgumentAsDoubleOrSetDefault("preyMass", PREY_MASS);
+            
+            varyPreyMass        = arguments.getArgumentAsIntOrSetDefault("varyPreyMass", VARY_PREY_MASS) == 1;
+            
             preyRadius          = arguments.getArgumentAsDoubleOrSetDefault("preyRadius", PREY_RADIUS);
             
             lastPreyCaptureTime = 0.0;
@@ -144,7 +169,7 @@ public class CooperativeNestForagingEnvironment extends Environment {
                 r.setOrientation(0);
         }
         
-        this.random = simulator.getRandom();
+        
 
         
         if ( !randomizeNestPosition ) {                         
@@ -190,6 +215,9 @@ public class CooperativeNestForagingEnvironment extends Environment {
             }
         }else{
             for ( Robot robot : simulator.getRobots() ) {       //place robots at nest
+                if ( robot.getId() % 2 == 0 ) {     //every other robot has triple the range in the prey sensor
+                    ((PreySensor)robot.getSensorByType( PreySensor.class )).setRange(  3 * ((PreySensor)robot.getSensorByType( PreySensor.class )).getRange() );
+                }
                 robot.setPosition( nest.getPosition().getX(), nest.getPosition().getY());
                 robot.setOrientation( simulator.getRandom().nextDouble() * 2 * Math.PI );
             }
@@ -221,11 +249,15 @@ public class CooperativeNestForagingEnvironment extends Environment {
         numberOfPreys = args.getArgumentAsIntOrSetDefault("numberofpreys", NUMBER_OF_PREYS);
 
 
+        Double mass;
         for(int i = 0; i < numberOfPreys; i++ ){
-                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius));
+            if ( varyPreyMass ) {
+                mass = preyMass + simulator.getRandom().nextDouble() * 2;
+                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, mass.intValue(), preyRadius*(mass.intValue()) ));
+            }else{
+                addPrey(new Prey(simulator, "Prey "+i, newRandomPosition(), 0, preyMass, preyRadius*(preyMass.intValue()) ));
+            } 
         }
-        
-        
         
         
         
@@ -242,24 +274,33 @@ public class CooperativeNestForagingEnvironment extends Environment {
             
             wall = new Wall( simulator, 0, wallSize, 2*wallSize, 0.10);
             super.addObject( wall );
-            
-            
-            
         }
         
-
-            
             
     }
 
     
+    /**
+     * Generates a new random position within
+     * the environment
+     * @return a Vector2d representing
+     * the position
+     */
     private Vector2d newRandomPosition() {
         
-        double radius = random.nextDouble() * (forageLimit-forageStartLimit) + forageStartLimit;
-        //double radius = forageLimit;
-        double angle = random.nextDouble()*2*Math.PI;
+        double radius, angle;
         
-        return new Vector2d( radius * Math.cos(angle), radius * Math.sin(angle) );
+        if ( preysGathered ) {                                  //gather preys at a spot
+            double xDelta = (random.nextDouble() - 0.5) * 1;
+            double yDelta = (random.nextDouble() - 0.5) * 1;
+            return new Vector2d( preysGatherLocation.x + xDelta, preysGatherLocation.y + yDelta );
+        }
+        else{                                                   //randomly place preys anywhere
+            radius = random.nextDouble() * (forageLimit-forageStartLimit) + forageStartLimit;
+            angle = random.nextDouble()*2*Math.PI;
+            return new Vector2d( radius * Math.cos(angle), radius * Math.sin(angle) );
+        }
+        
     
     }
 	

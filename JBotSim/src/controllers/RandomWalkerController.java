@@ -24,7 +24,10 @@ public class RandomWalkerController extends Controller {
     
     private Simulator simulator;                //the simulator
     
-    
+    private double maxDistanceFromCenter;       //maximum distance the robot
+                                                //can be of the center; the robot
+                                                //turns around when this distance
+                                                //is reached
     
     
     
@@ -36,8 +39,7 @@ public class RandomWalkerController extends Controller {
         
         maxSpeed = ((TwoWheelActuator)robot.getActuatorByType( TwoWheelActuator.class )).getMaxSpeed();
         
-        
-        
+        maxDistanceFromCenter = args.getArgumentAsDouble("maxDistToCenter");
         
     }
     
@@ -49,8 +51,8 @@ public class RandomWalkerController extends Controller {
     @Override
     public void controlStep( double time ) {
         
-        if ( robot.getPosition().distanceTo( new Vector2d(0, 0) ) >= 2.5 ){     //too far away from nest
-            robot.setOrientation( robot.getOrientation() + Math.PI );           //turn around
+        if ( robot.getPosition().distanceTo( new Vector2d(0, 0) ) >= maxDistanceFromCenter ){   //too far away from nest
+            robot.setOrientation( robot.getOrientation() + Math.PI );                           //turn around
         }
         
         
@@ -59,11 +61,11 @@ public class RandomWalkerController extends Controller {
         double deltaLeftMax, deltaRightMax;
         
         if ( robot.getId() % 2 == 0 ) {             //split robots in two groups
-            deltaLeftMax     = 0.5;                 //one group turns right
-            deltaRightMax    = 0.4;
-        }else{
-            deltaLeftMax     = 0.4;                 //other group turns left
+            deltaLeftMax     = 0.6;                 //one group turns right
             deltaRightMax    = 0.5;
+        }else{
+            deltaLeftMax     = 0.3;                 //other group turns left
+            deltaRightMax    = 0.4;
         }
         
         

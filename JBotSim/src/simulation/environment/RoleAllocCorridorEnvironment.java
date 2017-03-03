@@ -154,7 +154,7 @@ public class RoleAllocCorridorEnvironment extends Environment {
         
         
         for (Robot robot : simulator.getRobots()) {
-            robot.setPosition( (random.nextDouble() * 2 - 1) * width*0.2 - arenaHeight/2,
+            robot.setPosition( (random.nextDouble() * 2 - 1) * width*0.2 - arenaHeight/2*0.8,
                                (random.nextDouble() * 2 - 1) * arenaHeight/2*0.8);
             robot.setOrientation( random.nextDouble() * Math.PI);
             //((TwoWheelActuator) robot.getActuatorByType(TwoWheelActuator.class)).setMaxSpeed(0.0);
