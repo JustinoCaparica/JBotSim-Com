@@ -1,5 +1,6 @@
 package simulation.environment;
 
+import java.util.ArrayList;
 import java.util.Random;
 import mathutils.Vector2d;
 import simulation.Simulator;
@@ -90,10 +91,11 @@ public class RoleAllocCorridorEnvironment extends Environment {
         double wallThick = 0.01;
         
         
+        double leftWallX = 0.0;
         
         if ( walled ) {
             
-            double leftWallX = -arenaWidth / 2;
+            leftWallX = -arenaWidth / 2;
             wall = new Wall( simulator, leftWallX, 0, wallThick, arenaHeight);
             super.addObject( wall );                        //left wall
             
@@ -154,9 +156,24 @@ public class RoleAllocCorridorEnvironment extends Environment {
         
         
         for (Robot robot : simulator.getRobots()) {
-            robot.setPosition( (random.nextDouble() * 2 - 1) * width*0.2 - arenaHeight/2,
-                               (random.nextDouble() * 2 - 1) * arenaHeight/2*0.8);
-            robot.setOrientation( random.nextDouble() * Math.PI);
+            robot.setPosition(0, 0);
+        }
+        
+        //TODO use the robot diameter to set the minimum distance 
+        //from obstacles
+        for (Robot robot : simulator.getRobots()) {
+            
+            //make sure robot is positioned at least
+            //at half its own body diameter from any wall
+            do{
+                robot.setPosition( (random.nextDouble() * 2 - 1) * (arenaHeight/2  - robot.getDiameter()) - Math.abs(leftWallX + arenaHeight/2) ,
+                                 (  random.nextDouble() * 2 - 1) * (arenaHeight/2 - robot.getDiameter()) );
+                robot.setOrientation( random.nextDouble() * Math.PI);
+            }
+            while( !robotAtSafePosition(robot, getRobots(), robot.getDiameter()*1.5 ) );
+               
+            //while( false );    
+            
             //((TwoWheelActuator) robot.getActuatorByType(TwoWheelActuator.class)).setMaxSpeed(0.0);
         }
         
@@ -195,6 +212,34 @@ public class RoleAllocCorridorEnvironment extends Environment {
      */
     public Nest getNest() {
         return nest;
+    }
+
+    
+    /**
+     * Determines if a position
+     * is at more than a distance from
+     * all other robots
+     * @param robot the robot
+     * @param robots all other robots
+     * @param distance the distance, excl
+     * @return 
+     */
+    private boolean robotAtSafePosition( Robot robot, 
+                                         ArrayList<Robot> robots,
+                                         Double distance ) {
+        
+        boolean atSafePosition = true;
+        for (int i = 0; i < robots.size() && atSafePosition; i++) {
+            if ( !robot.equals(robots.get(i)) ) {
+                double dist = robot.getPosition().distanceTo(robots.get(i).getPosition());
+                if ( robot.getPosition().distanceTo(robots.get(i).getPosition()) <= distance ) {
+                    atSafePosition = false;
+                }
+            }
+        }
+        
+        return atSafePosition;
+        
     }
 
 
