@@ -66,6 +66,8 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
     @Override
     public double getFitness() {
         
+        //double testFit = currentFitness * 2 - 1;
+        
         return currentFitness;        
         
     }
@@ -153,6 +155,8 @@ public class RoleAllocCorridorCommEvaluationFunction extends EvaluationFunction{
         
         //debug
         //cfc = 0.0;
+        
+       
         
         currentFitness += 0.60 * (bfc1/totalSteps) + 0.20 * (bfc2/totalSteps) + 0.2 * (cfc/totalSteps);
         

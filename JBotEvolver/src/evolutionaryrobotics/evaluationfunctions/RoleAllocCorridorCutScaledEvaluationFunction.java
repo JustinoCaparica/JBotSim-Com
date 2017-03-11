@@ -9,7 +9,7 @@ import simulation.robot.Robot;
 import simulation.robot.actuators.RoleActuator;
 import simulation.util.Arguments;
 
-public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
+public class RoleAllocCorridorCutScaledEvaluationFunction extends EvaluationFunction{
 	
     
     protected Vector2d   nestPosition = new Vector2d(0, 0);
@@ -45,7 +45,7 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
                                             //fitness components
     
     
-    public RoleAllocCorridorEvaluationFunction(Arguments args) {
+    public RoleAllocCorridorCutScaledEvaluationFunction(Arguments args) {
             super(args);	
             
             currentFitness  = 0.0;
@@ -124,9 +124,11 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
 //        System.out.println("bfc2=" + (bfc2/totalSteps) );
 //        
         
-       
+        double fit = 0.75 * (bfc1/totalSteps) + 0.25 * (bfc2/totalSteps);
+        fit = fit * (2) - (1.0/totalSteps);
+        currentFitness += fit < 0 ? 0 : fit;
         
-        currentFitness += 0.75 * (bfc1/totalSteps) + 0.25 * (bfc2/totalSteps);
+        //currentFitness += 0.75 * (bfc1/totalSteps) + 0.25 * (bfc2/totalSteps);
         
         
         getFitnessInfo().put("bfc1", getFitnessInfo().get("bfc1") + bfc1/totalSteps);
