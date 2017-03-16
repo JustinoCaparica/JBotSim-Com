@@ -25,12 +25,21 @@ public class GenerationalTask extends JBotEvolverTask {
 
 	private Map<String, Double> fitInfo;    //fitness info
         
-        
+        /**
+         * 
+         * @param jBotEvolver
+         * @param samples number of trials to test
+         * the controller
+         * @param chromosome the controller description,
+         * used to generate the controller
+         * @param seed the generation random seed, used to
+         * generate random numbers for each trial
+         */
 	public GenerationalTask(JBotEvolver jBotEvolver, int samples, Chromosome chromosome, long seed) {
 		super(jBotEvolver);
 		this.samples = samples;
 		this.chromosome = chromosome;
-		this.random = new Random(seed);
+		this.random = new Random(seed);    
                 
                 fitInfo = new HashMap<>();
                 
@@ -40,11 +49,15 @@ public class GenerationalTask extends JBotEvolverTask {
 	@Override
 	public void run() {
 		
+            Long seed;
+            
 		for(int i = 0 ; i < samples ; i++) {
 			
 			jBotEvolver.getArguments().get("--environment").setArgument("fitnesssample", i);
 			
-			Simulator simulator = jBotEvolver.createSimulator(random.nextLong());
+                        seed = random.nextLong();                               //generate trial's seed
+			Simulator simulator = jBotEvolver.createSimulator(seed);  
+                        
 			
 			simulator.setFileProvider(getFileProvider());
 			
@@ -60,6 +73,10 @@ public class GenerationalTask extends JBotEvolverTask {
 			
 			fitness+= eval.getFitness();
                         
+                        //System.out.println("seed:" + seed);
+                        fitInfo.put("trialSeed" + i, seed.doubleValue() );      //store trial's seed
+                        fitInfo.put("trialFitness" + i, eval.getFitness() );        //store trial's fitness
+                        
                         //average the values for the fitness information
                         Iterator<String> it = eval.getFitnessInfo().keySet().iterator();
                         while( it.hasNext() ){
@@ -73,6 +90,8 @@ public class GenerationalTask extends JBotEvolverTask {
                         }
                         
 		}
+                
+                
 	}
         
         

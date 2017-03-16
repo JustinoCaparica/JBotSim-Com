@@ -3,6 +3,8 @@ package evolutionaryrobotics.evaluationfunctions;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import simulation.Updatable;
 import simulation.util.Arguments;
@@ -16,14 +18,20 @@ public abstract class EvaluationFunction implements Serializable, Updatable {
                                                     //map values are the values
                                                     //associated with each parameter
         
+        
 	public EvaluationFunction(Arguments args) {
             fitnessInfo = new HashMap<>();
+           
         }
 
 	public double getFitness() {
 		return fitness;
 	}
 
+        
+        
+        
+        
         /**
          * Gets a structure that stores
          * additional fitness information

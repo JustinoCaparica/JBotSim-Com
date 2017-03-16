@@ -25,17 +25,17 @@ public class MainNEATPostEvaluation {
     
     public static void main( String[] args ){
         
-        
+        String experimentDir = "roleAlloc-corridor-shortRange-stopWhenCollide";
         
         arguments = new String[10];
         
-        arguments[0] = "dir=../EvolutionAutomator/role-alloc-corridor/wallAndRobotSensor/roleAlloc-corridor-shortRange-NestRange/roleAlloc-corridor-shortRange-NestRange/1";
+        arguments[0] = "dir=../EvolutionAutomator/role-alloc-corridor/wallAndRobotSensor/" + experimentDir + "/" + experimentDir + "/1";
         arguments[1] = "samples=10";
         arguments[2] = "fitnesssamples=1";
         arguments[3] = "targetfitness=0.0";
         arguments[4] = "singleevaluation=1";
         arguments[5] = "localevaluation=1";
-        arguments[6] = "steps=400";
+        arguments[6] = "steps=2000";
         arguments[7] = "showoutput=1";
         arguments[8] = "sampleincrement=1";
         arguments[9] = "saveoutput=1";

@@ -100,6 +100,7 @@ public class NEATPopulation extends Population implements Serializable {
                     bestChromosome = chromosome;
                     bestFitness = Math.max(bestFitness,fitness);
                     this.bestFitnessInfo = fitnessInfo;
+                    this.bestFitnessInfo.put("controllerID", chromosome.getID()*1.0 );
             }
         };
 

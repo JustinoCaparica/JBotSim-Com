@@ -185,7 +185,7 @@ public class DiskStorage implements Serializable{
 			
 			fitnessLog = openForWriting(outputDirectory + "/" + fitnessLogFilename, append);
 			fitnessLog.println("# Evoluation started on " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-			fitnessLog.println("# Generation\t   Best \t   Average \t   Worst");
+			fitnessLog.println("# Generation\t   BestControllerID \t   Best \t   Average \t   Worst");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -199,7 +199,7 @@ public class DiskStorage implements Serializable{
 			
 			fitnessInfoLog = openForWriting(outputDirectory + "/" + fitnessInfoLogFilename, append);
 			fitnessInfoLog.println("# Evoluation started on " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-			fitnessInfoLog.println("# Generation\t   bfc1 \t   bfc2 \t   cfc \t   bfc \t   fit ");
+			fitnessInfoLog.println("# Generation\t   BestControllerID \t   bfc1 \t   bfc2 \t   cfc \t   bfc \t   fit \t   trialsSeeds \t   trialFitness");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -251,8 +251,9 @@ public class DiskStorage implements Serializable{
 		if(population.getNumberOfCurrentGeneration() == 0) {
 			openFitnessLog(false);
 		}
-		fitnessLog.printf("\t%3d\t\t%8.3f\t%8.3f\t%8.3f%n",
-				population.getNumberOfCurrentGeneration(),
+		fitnessLog.printf("\t%3d\t%8.0f\t%8.3f\t%8.3f\t%8.3f%n",
+				population.getNumberOfCurrentGeneration(), 
+                                population.getBestChromosome().getID()*1.0,
 				population.getHighestFitness(), population.getAverageFitness(),
 				population.getLowestFitness());
 		fitnessLog.flush();
@@ -278,11 +279,28 @@ public class DiskStorage implements Serializable{
 //                System.out.println("fitInfo.get(\"cfc\")" + fitInfo.get("cfc"));
 //                System.out.println("fitInfo.get(\"bfc\")" + fitInfo.get("bfc"));
                 
-                fitnessInfoLog.printf("\t%3d\t%8.3f\t%8.3f\t%8.3f\t%8.3f\t%8.3f%n",
+                String trialSeeds = "";
+                for (String key : fitInfo.keySet()) {
+                    if ( key.startsWith("trialSeed") ) {
+                        trialSeeds += key + ":" + String.valueOf( fitInfo.get(key).longValue() ) + ",";
+                        //trialSeeds += key + ":" + "blablabla" + " ";
+                    }
+                }
+                
+                String trialFitness = "";
+                for (String key : fitInfo.keySet()) {
+                    if ( key.startsWith("trialFitness") ) {
+                        trialFitness += key + ":" + String.valueOf( fitInfo.get(key) ) + ",";
+                        //trialSeeds += key + ":" + "blablabla" + " ";
+                    }
+                }
+                
+                fitnessInfoLog.printf("\t%3d\t%8.0f\t%8.3f\t%8.3f\t%8.3f\t%8.3f\t%8.3f\t %s \t %s %n",
                                 population.getNumberOfCurrentGeneration(),
+                                fitInfo.get("controllerID"),
                                 fitInfo.get("bfc1"), fitInfo.get("bfc2"),
                                 fitInfo.get("cfc"), fitInfo.get("bfc"), 
-                                fitInfo.get("fit"));
+                                fitInfo.get("fit"), trialSeeds, trialFitness);
                 fitnessInfoLog.flush();
                 
             }

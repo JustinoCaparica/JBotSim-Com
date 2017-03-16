@@ -264,7 +264,7 @@ public abstract class Population implements Serializable {
 	 * 
 	 * This will cancel any previously set increasing number of samples (see {@link #enableIncreasingSamplesPerChromosome}).     
 	 * 
-     * @param argumentAsInt the number of fitness samples per chromosome.
+     * @param samples the number of fitness samples per chromosome.
      */
     public void setNumberOfSamplesPerChromosome(int samples) {
     	this.numberOfSamplesPerChromosome = samples;
