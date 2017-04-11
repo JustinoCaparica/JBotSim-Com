@@ -53,6 +53,9 @@ public class MuLambdaPopulation extends Population implements Serializable {
 		numberOfSamplesPerChromosome = arguments.getArgumentAsIntOrSetDefault("samples",5);
 		mutationRate = arguments.getArgumentAsDoubleOrSetDefault("mutationrate", 0.1);
 		
+                numberOfElites = arguments.getArgumentAsIntOrSetDefault("numberOfElites", 5);
+                lambda = arguments.getArgumentAsIntOrSetDefault("lambda", 5);
+                
 		genomelength = arguments.getArgumentAsInt("genomelength");
 		
 		fixedInitialPopulation = arguments.getArgumentAsIntOrSetDefault("fixedinitialpopulation", 0) == 1;
