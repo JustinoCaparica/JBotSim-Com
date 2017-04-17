@@ -1,0 +1,6 @@
+digraph G {
+node [shape=circle,fixedsize=true,width=0.9];size="13,13"; ranksep="2.2 equally"{rank=source;1 [label=i1WallAndRobot]2 [label=i2WallAndRobot]3 [label=i3WallAndRobot]4 [label=i4WallAndRobot]5 [label=i5WallAndRobot]6 [label=i6WallAndRobot]7 [label=i7WallAndRobot]8 [label=i8WallAndRobot]9 [label=i9RoleHighest]10 [label=i10Nest]11 [label=i11Nest]12 [label=i12Nest]13 [label=i13Nest]14 [label=i14Nest]15 [label=i15Nest]16 [label=i16Nest]17 [label=i17Nest];}{rank=sink;18 [label=o18TwoWheel]19 [label=o19TwoWheel]20 [label=o20Role];}
+17 -> 18[ label=0.6 ];
+10 -> 19[ label=0.3 ];
+7 -> 20[ label=0.4 ];
+}

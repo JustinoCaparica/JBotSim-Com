@@ -676,6 +676,7 @@ public class ResultViewerGui extends Gui implements Updatable {
 	}
 
 	protected void plotFitness() {
+            
 		TreePath[] selectedFiles = fileTree.getSelectedFilesPaths();
 		ArrayList<String> paths = new ArrayList<String>();
 
@@ -715,7 +716,7 @@ public class ResultViewerGui extends Gui implements Updatable {
 				ArrayList<String> files = new ArrayList<String>();
 				for (String folder : mainFolders) {
 					String[] fs = getFitnessFiles(folder).split("###");
-
+                                        
 					for (String str : fs) {
 						if (!str.isEmpty()) {
 							files.add(str);

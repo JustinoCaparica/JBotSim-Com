@@ -185,7 +185,7 @@ public class DiskStorage implements Serializable{
 			
 			fitnessLog = openForWriting(outputDirectory + "/" + fitnessLogFilename, append);
 			fitnessLog.println("# Evoluation started on " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-			fitnessLog.println("# Generation\t   BestControllerID \t   Best \t   Average \t   Worst");
+			fitnessLog.println("# Generation\t   Best \t   Average \t   Worst");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -251,9 +251,8 @@ public class DiskStorage implements Serializable{
 		if(population.getNumberOfCurrentGeneration() == 0) {
 			openFitnessLog(false);
 		}
-		fitnessLog.printf("\t%3d\t%8.0f\t%8.3f\t%8.3f\t%8.3f%n",
+		fitnessLog.printf("\t%3d\t%8.3f\t%8.3f\t%8.3f%n",
 				population.getNumberOfCurrentGeneration(), 
-                                population.getBestChromosome().getID()*1.0,
 				population.getHighestFitness(), population.getAverageFitness(),
 				population.getLowestFitness());
 		fitnessLog.flush();

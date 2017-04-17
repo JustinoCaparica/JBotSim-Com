@@ -193,7 +193,6 @@ public class GraphPlotter extends JFrame implements Updatable {
 				Scanner sc = new Scanner(generationsFile);
 				
 				totalGenerations = Math.max(sc.nextInt() + 1,totalGenerations);
-				
 				sc.close();
 				
 		        sc = new Scanner(fitnessFile);
@@ -213,6 +212,7 @@ public class GraphPlotter extends JFrame implements Updatable {
 		            		Double value = Double.valueOf(lineValues[1]);
 		            		dataList[generation] = value;
 		            	}
+                                
 		            }
 		            	
 		        }

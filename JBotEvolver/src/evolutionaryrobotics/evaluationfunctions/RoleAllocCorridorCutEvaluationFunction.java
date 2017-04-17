@@ -128,12 +128,52 @@ public class RoleAllocCorridorCutEvaluationFunction extends EvaluationFunction{
         //fit = fit * (2) - (1.0/totalSteps);
         currentFitness += fit < 0.5/totalSteps ? 0 : fit;
         
-        //currentFitness += 0.75 * (bfc1/totalSteps) + 0.25 * (bfc2/totalSteps);
+        
+        
+        //* communication fitness component
+        maxOutput = 0.0;                    //reinitialize maximum output
+        
+        RoleActuator act;                   //actuator that stores the output
+        
+        int robotIndex = 0;
+        for ( Robot r : simulator.getRobots() ) {
+            act = (RoleActuator) r.getActuatorByType( RoleActuator.class );
+                                                    //get output value
+            outputs[robotIndex] = act.getValue();   //of robot with index i
+
+            //System.out.println("robot " + robotIndex + " output:" + act.getValue() );
+            
+            if ( act.getValue() > maxOutput ) {     //store the max output
+               maxOutput = act.getValue();          //in a variable
+            }
+            robotIndex++;
+        }
+        //System.out.println("maxOutput:" + maxOutput);
+        
+        
+        
+        Double diffsSum = 0.0;                  //sum of all differences between
+                                                //maxoutput and all outputs
+        
+        
+        
+        
+        
+        for (Double output : outputs) {         //determine sum of
+            diffsSum += (maxOutput - output);   //all differences
+        }
+        
+        
+        double cfc = ( diffsSum / ( (numOfRobots - 1) ) );
+        
+        
+        
+        
         
         
         getFitnessInfo().put("bfc1", getFitnessInfo().get("bfc1") + bfc1/totalSteps);
         getFitnessInfo().put("bfc2", getFitnessInfo().get("bfc2") + bfc2/totalSteps);
-        getFitnessInfo().put("cfc", 0.0);
+        getFitnessInfo().put("cfc", getFitnessInfo().get("cfc")   + cfc/totalSteps);
         getFitnessInfo().put("bfc", getFitnessInfo().get("bfc") + ((0.75*bfc1/totalSteps) + (0.25*bfc2/totalSteps)) );
         getFitnessInfo().put("fit", currentFitness);
         
