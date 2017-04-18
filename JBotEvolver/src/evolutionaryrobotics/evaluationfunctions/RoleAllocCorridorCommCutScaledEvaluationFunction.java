@@ -164,11 +164,11 @@ public class RoleAllocCorridorCommCutScaledEvaluationFunction extends Evaluation
         //currentFitness += 0.60 * (bfc1/totalSteps) + 0.20 * (bfc2/totalSteps) + 0.2 * (cfc/totalSteps);
         
         
-        getFitnessInfo().put("bfc1", getFitnessInfo().get("bfc1") + bfc1/totalSteps);
-        getFitnessInfo().put("bfc2", getFitnessInfo().get("bfc2") + bfc2/totalSteps);
-        getFitnessInfo().put("cfc", getFitnessInfo().get("cfc")   + cfc/totalSteps);
-        getFitnessInfo().put("bfc", getFitnessInfo().get("bfc")   + ((0.75*bfc1/totalSteps) + (0.25*bfc2/totalSteps)) );
-        getFitnessInfo().put("fit", currentFitness);
+        setFitnessInfoValue("bfc1", getFitnessInfoValue("bfc1") + bfc1/totalSteps);
+        setFitnessInfoValue("bfc2", getFitnessInfoValue("bfc2") + bfc2/totalSteps);
+        setFitnessInfoValue("cfc", getFitnessInfoValue("cfc")   + cfc/totalSteps);
+        setFitnessInfoValue("bfc", getFitnessInfoValue("bfc")   + ((0.75*bfc1/totalSteps) + (0.25*bfc2/totalSteps)) );
+        setFitnessInfoValue("fit", currentFitness);
         
         
 //        bfc1Accum += bfc1/totalSteps;

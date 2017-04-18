@@ -2,25 +2,21 @@ package evolutionaryrobotics.evaluationfunctions;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import simulation.Updatable;
 import simulation.util.Arguments;
 
 public abstract class EvaluationFunction implements Serializable, Updatable {
 	protected double fitness;
 
-        private final Map<String, Double> fitnessInfo;    //structure to store
-                                                    //aditional fitness info
-                                                    //map keys are the parameters
-                                                    //map values are the values
-                                                    //associated with each parameter
+        private final EvaluationFunctionInfo fitnessInfo;   //structure to store
+                                                            //aditional fitness info
+                                                            //map keys are the parameters
+                                                            //map values are the values
+                                                            //associated with each parameter
         
         
 	public EvaluationFunction(Arguments args) {
-            fitnessInfo = new HashMap<>();
+            fitnessInfo = new EvaluationFunctionInfo();
            
         }
 
@@ -35,20 +31,34 @@ public abstract class EvaluationFunction implements Serializable, Updatable {
         /**
          * Gets a structure that stores
          * additional fitness information
-         * @return a map where keys are the
-         * info parameters and map values are the 
-         * values associated with each parameter
+         * @return an EvaluationFunctionInfo
+         * object
          */
-        public Map<String, Double> getFitnessInfo() {
+        public EvaluationFunctionInfo getFitnessInfo() {
             return fitnessInfo;
         }
 	
+        /**
+        * Associates a string to a given value.
+        * If the string is already associated 
+        * with a value, the previous value is
+        * replaced by the new value
+        * @param key the string
+        * @param value the value
+        */
         public void setFitnessInfoValue( String parameter, Double value ){
-            fitnessInfo.put(parameter, value);
+            fitnessInfo.setFitnessInfoValue(parameter, value);
         }
         
+        /**
+        * Gets the value associated with a
+        * given string
+        * @param key the string
+        * @return the value associated with
+        * a string or null is there is none
+        */
         public Double getFitnessInfoValue( String parameter ){
-            return fitnessInfo.get(parameter);
+            return fitnessInfo.getFitnessInfoValue(parameter);
         }
         
         

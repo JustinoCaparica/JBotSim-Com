@@ -1,5 +1,6 @@
 package evolutionaryrobotics.util;
 
+import evolutionaryrobotics.evaluationfunctions.EvaluationFunctionInfo;
 import evolutionaryrobotics.populations.NEATPopulation;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -270,8 +271,8 @@ public class DiskStorage implements Serializable{
                 
                 
                 //String line = "\t%3d\t\t%8.3f\t%8.3f\t%8.3f%n";
-                Map<String, Double> fitInfo;
-                fitInfo = ((NEATPopulation)population).getBestFitnessInfo();
+                EvaluationFunctionInfo fitInfo;
+                fitInfo = population.getBestFitnessInfo();
                 
 //                System.out.println("fitInfo.get(\"bfc1\")" + fitInfo.get("bfc1"));
 //                System.out.println("fitInfo.get(\"bfc2\")" + fitInfo.get("bfc2"));
@@ -281,7 +282,7 @@ public class DiskStorage implements Serializable{
                 String trialSeeds = "";
                 for (String key : fitInfo.keySet()) {
                     if ( key.startsWith("trialSeed") ) {
-                        trialSeeds += key + ":" + String.valueOf( fitInfo.get(key).longValue() ) + ",";
+                        trialSeeds += key + ":" + String.valueOf( fitInfo.getFitnessInfoValue(key).longValue() ) + ",";
                         //trialSeeds += key + ":" + "blablabla" + " ";
                     }
                 }
@@ -289,17 +290,19 @@ public class DiskStorage implements Serializable{
                 String trialFitness = "";
                 for (String key : fitInfo.keySet()) {
                     if ( key.startsWith("trialFitness") ) {
-                        trialFitness += key + ":" + String.valueOf( fitInfo.get(key) ) + ",";
+                        trialFitness += key + ":" + String.valueOf( fitInfo.getFitnessInfoValue(key) ) + ",";
                         //trialSeeds += key + ":" + "blablabla" + " ";
                     }
                 }
                 
                 fitnessInfoLog.printf("\t%3d\t%8.0f\t%8.3f\t%8.3f\t%8.3f\t%8.3f\t%8.3f\t %s \t %s %n",
                                 population.getNumberOfCurrentGeneration(),
-                                fitInfo.get("controllerID"),
-                                fitInfo.get("bfc1"), fitInfo.get("bfc2"),
-                                fitInfo.get("cfc"), fitInfo.get("bfc"), 
-                                fitInfo.get("fit"), trialSeeds, trialFitness);
+                                fitInfo.getFitnessInfoValue("controllerID"),
+                                fitInfo.getFitnessInfoValue("bfc1"), 
+                                fitInfo.getFitnessInfoValue("bfc2"),
+                                fitInfo.getFitnessInfoValue("cfc"), 
+                                fitInfo.getFitnessInfoValue("bfc"), 
+                                fitInfo.getFitnessInfoValue("fit"), trialSeeds, trialFitness);
                 fitnessInfoLog.flush();
                 
             }

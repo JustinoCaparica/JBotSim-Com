@@ -14,6 +14,7 @@ import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
 import simulation.util.Factory;
 import comm.FileProvider;
+import evolutionaryrobotics.evaluationfunctions.EvaluationFunctionInfo;
 import evolutionaryrobotics.neuralnetworks.Chromosome;
 import java.util.Map;
 
@@ -53,6 +54,11 @@ public abstract class Population implements Serializable {
 	
 	private LinkedList<Serializable> serializableObjects;
 	
+        private EvaluationFunctionInfo bestFitnessInfo;   //info associated with
+                                                            //the highest fitness 
+                                                            //chromossome
+        
+        
 	public Population(Arguments arguments) {
 		this.randomNumberGenerator = new Random(0);
 		
@@ -152,7 +158,7 @@ public abstract class Population implements Serializable {
      * info parameters and map values are the 
      * values associated with each parameter
      */
-    public abstract void setEvaluationResult(Chromosome chromosome, double fitness, Map<String, Double> fitnessInfo);
+    public abstract void setEvaluationResult(Chromosome chromosome, double fitness, EvaluationFunctionInfo fitnessInfo);
     
     
     
@@ -438,4 +444,28 @@ public abstract class Population implements Serializable {
 	
 	public abstract Chromosome[] getChromosomes();
 	
+        
+        /**
+         * Gets a structure that stores
+         * additional fitness information
+         * for the best chromosome
+         * @return an EvaluationFunctionInfo
+         * object
+         */
+        public EvaluationFunctionInfo getBestFitnessInfo() {
+            return bestFitnessInfo;
+        }
+        
+        /**
+         * Sets a structure that stores
+         * additional fitness information
+         * for the best chromosome
+         * @param bestFitnessInfo an EvaluationFunctionInfo
+         * object
+         */
+        public void setBestFitnessInfo( EvaluationFunctionInfo bestFitnessInfo ) {
+            this.bestFitnessInfo = bestFitnessInfo;
+        }
+        
+        
 }

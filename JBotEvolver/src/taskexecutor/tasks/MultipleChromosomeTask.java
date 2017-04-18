@@ -5,6 +5,7 @@ import java.util.Random;
 
 import evolutionaryrobotics.JBotEvolver;
 import evolutionaryrobotics.evaluationfunctions.EvaluationFunction;
+import evolutionaryrobotics.evaluationfunctions.EvaluationFunctionInfo;
 import evolutionaryrobotics.neuralnetworks.MultipleChromosome;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,7 +23,7 @@ public class MultipleChromosomeTask extends JBotEvolverTask{
 	private Random random;
 	private long seed;
 
-        private Map<String, Double> fitInfo;    //fitness info
+        private EvaluationFunctionInfo fitInfo;    //fitness info
         
         
 	public MultipleChromosomeTask(JBotEvolver jBotEvolver, int samples, MultipleChromosome chromosome, long seed) {
@@ -32,7 +33,7 @@ public class MultipleChromosomeTask extends JBotEvolverTask{
 		this.random = new Random(seed);
 		this.seed = seed;
                 
-                fitInfo = new HashMap<>();
+                fitInfo = new EvaluationFunctionInfo();
 	}
 
         
@@ -63,11 +64,11 @@ public class MultipleChromosomeTask extends JBotEvolverTask{
                         Iterator<String> it = eval.getFitnessInfo().keySet().iterator();
                         while( it.hasNext() ){
                             String key = it.next();
-                            if ( fitInfo.get(key) == null ) {
-                                fitInfo.put( key, eval.getFitnessInfo().get(key)/samples );
+                            if ( fitInfo.getFitnessInfoValue(key) == null ) {
+                                fitInfo.setFitnessInfoValue(key, eval.getFitnessInfo().getFitnessInfoValue(key)/samples );
                             }
                             else{
-                                fitInfo.put( key, fitInfo.get(key) + (eval.getFitnessInfo().get(key)/samples) );
+                                fitInfo.setFitnessInfoValue(key, fitInfo.getFitnessInfoValue(key) + (eval.getFitnessInfo().getFitnessInfoValue(key)/samples) );
                             }
                         }
 		}

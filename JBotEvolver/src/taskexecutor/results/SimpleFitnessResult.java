@@ -1,5 +1,6 @@
 package taskexecutor.results;
 
+import evolutionaryrobotics.evaluationfunctions.EvaluationFunctionInfo;
 import java.util.Map;
 import result.Result;
 
@@ -7,7 +8,7 @@ public class SimpleFitnessResult extends Result {
 	private int chromosomeId;
 	private double fitness = 0;
         
-        private Map<String, Double> fitnessInfo;
+        private EvaluationFunctionInfo fitnessInfo;
 	
 
 	public SimpleFitnessResult(int taskId, int chromosomeId, double fitness) {
@@ -16,7 +17,7 @@ public class SimpleFitnessResult extends Result {
 		this.fitness = fitness;
 	}
 
-        public SimpleFitnessResult(int taskId, int chromosomeId, double fitness, Map<String, Double> fitnessInfo) {
+        public SimpleFitnessResult(int taskId, int chromosomeId, double fitness, EvaluationFunctionInfo fitnessInfo) {
 		super(taskId);
 		this.chromosomeId = chromosomeId;
 		this.fitness = fitness;
@@ -34,11 +35,10 @@ public class SimpleFitnessResult extends Result {
         /**
          * Gets a structure that stores
          * additional fitness information
-         * @return a map where keys are the
-         * info parameters and map values are the 
-         * values associated with each parameter
+         * @return an EvaluationFunctionInfo
+         * object
          */
-        public Map<String, Double> getFitnessInfo() {
+        public EvaluationFunctionInfo getFitnessInfo() {
             return fitnessInfo;
         }
 	

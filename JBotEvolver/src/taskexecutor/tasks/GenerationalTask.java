@@ -5,6 +5,7 @@ import java.util.Random;
 
 import evolutionaryrobotics.JBotEvolver;
 import evolutionaryrobotics.evaluationfunctions.EvaluationFunction;
+import evolutionaryrobotics.evaluationfunctions.EvaluationFunctionInfo;
 import evolutionaryrobotics.neuralnetworks.Chromosome;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +24,7 @@ public class GenerationalTask extends JBotEvolverTask {
 	private Random random;
         
 
-	private Map<String, Double> fitInfo;    //fitness info
+	private EvaluationFunctionInfo fitInfo;    //fitness info
         
         /**
          * 
@@ -41,7 +42,7 @@ public class GenerationalTask extends JBotEvolverTask {
 		this.chromosome = chromosome;
 		this.random = new Random(seed);    
                 
-                fitInfo = new HashMap<>();
+                fitInfo = new EvaluationFunctionInfo();
                 
                 
         }
@@ -74,18 +75,18 @@ public class GenerationalTask extends JBotEvolverTask {
 			fitness+= eval.getFitness();
                         
                         //System.out.println("seed:" + seed);
-                        fitInfo.put("trialSeed" + i, seed.doubleValue() );      //store trial's seed
-                        fitInfo.put("trialFitness" + i, eval.getFitness() );        //store trial's fitness
+                        fitInfo.setFitnessInfoValue("trialSeed" + i, seed.doubleValue() );      //store trial's seed
+                        fitInfo.setFitnessInfoValue("trialFitness" + i, eval.getFitness() );    //store trial's fitness
                         
                         //average the values for the fitness information
                         Iterator<String> it = eval.getFitnessInfo().keySet().iterator();
                         while( it.hasNext() ){
                             String key = it.next();
-                            if ( fitInfo.get(key) == null ) {
-                                fitInfo.put( key, eval.getFitnessInfo().get(key)/samples );
+                            if ( fitInfo.getFitnessInfoValue(key) == null ) {
+                                fitInfo.setFitnessInfoValue(key, eval.getFitnessInfo().getFitnessInfoValue(key)/samples );
                             }
                             else{
-                                fitInfo.put( key, fitInfo.get(key) + (eval.getFitnessInfo().get(key)/samples) );
+                                fitInfo.setFitnessInfoValue(key, fitInfo.getFitnessInfoValue(key) + (eval.getFitnessInfo().getFitnessInfoValue(key)/samples) );
                             }
                         }
                         

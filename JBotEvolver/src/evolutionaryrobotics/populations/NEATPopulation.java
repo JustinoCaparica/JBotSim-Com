@@ -1,5 +1,6 @@
 package evolutionaryrobotics.populations;
 
+import evolutionaryrobotics.evaluationfunctions.EvaluationFunctionInfo;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,9 +27,7 @@ public class NEATPopulation extends Population implements Serializable {
 	protected Chromosome chromosomes[];
 	
 	protected double bestFitness;
-        protected Map<String, Double> bestFitnessInfo;  //info associated with
-                                                        //the highest fitness 
-                                                        //chromossome
+        
         
 	protected double accumulatedFitness;
 	protected double worstFitness = Double.MAX_VALUE;
@@ -37,7 +36,7 @@ public class NEATPopulation extends Population implements Serializable {
 	public NEATPopulation(Arguments arguments) {
 		super(arguments);
 		size = arguments.getArgumentAsIntOrSetDefault("size",size);
-                bestFitnessInfo = new HashMap<>();
+
 	}
 	
 	public void setNEATPopulation4J(NEATPopulation4J pop) {
@@ -91,7 +90,7 @@ public class NEATPopulation extends Population implements Serializable {
         
         
         @Override
-        public void setEvaluationResult(Chromosome chromosome, double fitness, Map<String, Double> fitnessInfo){
+        public void setEvaluationResult(Chromosome chromosome, double fitness, EvaluationFunctionInfo fitnessInfo){
             numberOfChromosomesEvaluated++;
             accumulatedFitness+=fitness;
             worstFitness = Math.min(worstFitness,fitness);
@@ -99,22 +98,13 @@ public class NEATPopulation extends Population implements Serializable {
             if(bestFitness < fitness || bestChromosome == null) {
                     bestChromosome = chromosome;
                     bestFitness = Math.max(bestFitness,fitness);
-                    this.bestFitnessInfo = fitnessInfo;
-                    this.bestFitnessInfo.put("controllerID", chromosome.getID()*1.0 );
+                    setBestFitnessInfo( fitnessInfo );
+                    getBestFitnessInfo().setFitnessInfoValue("controllerID", chromosome.getID()*1.0 );
             }
         };
 
         
-        /**
-         * Gets a structure that stores
-         * additional fitness information
-         * @return a map where keys are the
-         * info parameters and map values are the 
-         * values associated with each parameter
-         */
-        public Map<String, Double> getBestFitnessInfo() {
-            return bestFitnessInfo;
-        }
+       
         
         
         

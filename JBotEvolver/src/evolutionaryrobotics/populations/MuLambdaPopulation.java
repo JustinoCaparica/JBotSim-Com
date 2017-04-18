@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import controllers.FixedLenghtGenomeEvolvableController;
+import evolutionaryrobotics.evaluationfunctions.EvaluationFunctionInfo;
 import evolutionaryrobotics.neuralnetworks.Chromosome;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +32,6 @@ public class MuLambdaPopulation extends Population implements Serializable {
 	protected Chromosome chromosomes[];
 
 	protected double bestFitness;
-        protected Map<String, Double> bestFitnessInfo;  //info associated with
-                                                        //the highest fitness 
-                                                        //chromossome
         
 	protected double accumulatedFitness;
 	protected double worstFitness;
@@ -68,7 +66,7 @@ public class MuLambdaPopulation extends Population implements Serializable {
 					initialWeights[i] = Double.parseDouble(rawArray[i]);
 			} 
 		}
-                bestFitnessInfo = new HashMap<>();
+
 	}
 
 	@Override
@@ -277,7 +275,7 @@ public class MuLambdaPopulation extends Population implements Serializable {
         
         
         @Override
-        public void setEvaluationResult(Chromosome chromosome, double fitness, Map<String, Double> fitnessInfo){
+        public void setEvaluationResult(Chromosome chromosome, double fitness, EvaluationFunctionInfo fitnessInfo){
             if (chromosome.getFitnessSet()) {
 			throw new java.lang.RuntimeException("Fitness of " + chromosome
 					+ " already set -- trying to set it again");
@@ -290,7 +288,7 @@ public class MuLambdaPopulation extends Population implements Serializable {
 		if (fitness > bestFitness) {
 			bestChromosome = chromosome;
 			bestFitness = fitness;
-                        this.bestFitnessInfo = fitnessInfo;
+                        setBestFitnessInfo( fitnessInfo );
 		}
 
 		if (fitness < worstFitness) {
@@ -299,16 +297,7 @@ public class MuLambdaPopulation extends Population implements Serializable {
         };
 
         
-        /**
-         * Gets a structure that stores
-         * additional fitness information
-         * @return a map where keys are the
-         * info parameters and map values are the 
-         * values associated with each parameter
-         */
-        public Map<String, Double> getBestFitnessInfo() {
-            return bestFitnessInfo;
-        }
+        
 
 	@Override
 	public void setEvaluationResultForId(int pos, double fitness) {

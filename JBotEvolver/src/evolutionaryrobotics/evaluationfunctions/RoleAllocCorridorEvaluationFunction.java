@@ -129,11 +129,46 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
         currentFitness += 0.75 * (bfc1/totalSteps) + 0.25 * (bfc2/totalSteps);
         
         
-        getFitnessInfo().put("bfc1", getFitnessInfo().get("bfc1") + bfc1/totalSteps);
-        getFitnessInfo().put("bfc2", getFitnessInfo().get("bfc2") + bfc2/totalSteps);
-        getFitnessInfo().put("cfc", 0.0);
-        getFitnessInfo().put("bfc", getFitnessInfo().get("bfc") + ((0.75*bfc1/totalSteps) + (0.25*bfc2/totalSteps)) );
-        getFitnessInfo().put("fit", currentFitness);
+        //* communication fitness component
+        maxOutput = 0.0;                    //reinitialize maximum output
+        
+        RoleActuator act;                   //actuator that stores the output
+        
+        int robotIndex = 0;
+        for ( Robot r : simulator.getRobots() ) {
+            act = (RoleActuator) r.getActuatorByType( RoleActuator.class );
+                                                    //get output value
+            outputs[robotIndex] = act.getValue();   //of robot with index i
+
+            //System.out.println("robot " + robotIndex + " output:" + act.getValue() );
+            
+            if ( act.getValue() > maxOutput ) {     //store the max output
+               maxOutput = act.getValue();          //in a variable
+            }
+            robotIndex++;
+        }
+        //System.out.println("maxOutput:" + maxOutput);
+        
+        
+        
+        Double diffsSum = 0.0;                  //sum of all differences between
+                                                //maxoutput and all outputs
+        
+        
+        
+        for (Double output : outputs) {         //determine sum of
+            diffsSum += (maxOutput - output);   //all differences
+        }
+        
+        double cfc = ( diffsSum / ( (numOfRobots - 1) ) );
+        
+        
+        
+        setFitnessInfoValue("bfc1", getFitnessInfoValue("bfc1") + bfc1/totalSteps);
+        setFitnessInfoValue("bfc2", getFitnessInfoValue("bfc2") + bfc2/totalSteps);
+        setFitnessInfoValue("cfc", getFitnessInfoValue("cfc")   + cfc/totalSteps);
+        setFitnessInfoValue("bfc", getFitnessInfoValue("bfc") + ((0.75*bfc1/totalSteps) + (0.25*bfc2/totalSteps)) );
+        setFitnessInfoValue("fit", currentFitness);
         
     }
 
