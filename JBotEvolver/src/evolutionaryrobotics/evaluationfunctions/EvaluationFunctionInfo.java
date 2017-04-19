@@ -5,6 +5,7 @@
  */
 package evolutionaryrobotics.evaluationfunctions;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,7 @@ import java.util.Set;
  * associating Strings to Double 
  * @author guest
  */
-public class EvaluationFunctionInfo {
+public class EvaluationFunctionInfo implements Serializable {
     
     private final Map<String, Double> storage;      //structure to store
                                                     //fitness info

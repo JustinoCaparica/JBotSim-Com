@@ -5,6 +5,9 @@
  */
 package evolutionaryrobotics;
 
+import evolutionaryrobotics.evolution.Evolution;
+import evolutionaryrobotics.populations.Population;
+
 /**
  * A class to execute post evaluation for
  * NEAT networks
@@ -42,10 +45,6 @@ public class MainNEATPostEvaluation {
         
         
         postEvaluator = new NEATPostEvaluation(arguments);
-        
-        
-        
-        
         postEvaluator.runPostEval();
         
         
