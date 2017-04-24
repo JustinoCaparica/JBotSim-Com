@@ -137,14 +137,20 @@ public class RoleAllocCorridorEvaluationFunction extends EvaluationFunction{
         int robotIndex = 0;
         for ( Robot r : simulator.getRobots() ) {
             act = (RoleActuator) r.getActuatorByType( RoleActuator.class );
-                                                    //get output value
-            outputs[robotIndex] = act.getValue();   //of robot with index i
-
-            //System.out.println("robot " + robotIndex + " output:" + act.getValue() );
-            
-            if ( act.getValue() > maxOutput ) {     //store the max output
-               maxOutput = act.getValue();          //in a variable
+                                                    
+            if ( act == null ) {
+                outputs[robotIndex] = 0.0;
             }
+            else{
+                outputs[robotIndex] = act.getValue();   //of robot with index i
+
+                //System.out.println("robot " + robotIndex + " output:" + act.getValue() );
+
+                if ( act.getValue() > maxOutput ) {     //store the max output
+                   maxOutput = act.getValue();          //in a variable
+                }
+            }
+                                                        //get output value
             robotIndex++;
         }
         //System.out.println("maxOutput:" + maxOutput);
