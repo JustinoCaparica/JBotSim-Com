@@ -7,6 +7,7 @@ import simulation.Simulator;
 import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.Wall;
 import simulation.robot.Robot;
+import simulation.robot.actuators.RoleActuator;
 import simulation.robot.actuators.TwoWheelActuator;
 import simulation.util.Arguments;
 import simulation.util.ArgumentsAnnotation;
@@ -33,6 +34,11 @@ public class RoleAllocCorridorEnvironment extends Environment {
     
     
     
+                                                            //minimum distance to wall for any robot
+    private static final double DIST_FROM_WALL = 0.0;
+    @ArgumentsAnnotation(name="distFromWall", defaultValue="0.0", help="minimum distance to wall for any robot")   
+    private double distFromWall = 0.0;                              
+    
     
     
     private Nest nest;                          //the nest 
@@ -58,7 +64,9 @@ public class RoleAllocCorridorEnvironment extends Environment {
             
             
             walled              = arguments.getArgumentAsIntOrSetDefault("wall", WALLED) == 1;
+            distFromWall        = arguments.getArgumentAsDoubleOrSetDefault("distFromWall", DIST_FROM_WALL);
             
+            //distFromWall = 0.18;//test line; remove when test is done
             
     }
 	
@@ -163,14 +171,63 @@ public class RoleAllocCorridorEnvironment extends Environment {
         //from obstacles
         for (Robot robot : simulator.getRobots()) {
             
-            //make sure robot is positioned at least
-            //at half its own body diameter from any wall
-            do{
-                robot.setPosition( (random.nextDouble() * 2 - 1) * (arenaHeight/2  - robot.getDiameter()) - Math.abs(leftWallX + arenaHeight/2) ,
-                                 (  random.nextDouble() * 2 - 1) * (arenaHeight/2 - robot.getDiameter()) );
-                robot.setOrientation( random.nextDouble() * Math.PI);
+            //test code start
+//            if ( robot.getId() == 0 ) {
+//                robot.setPosition( -0.38 , 0.13 );
+//                robot.setOrientation( 0.0 * Math.PI );
+//                //((TwoWheelActuator) robot.getActuatorByType(TwoWheelActuator.class)).setMaxSpeed(0.0);
+//            }
+//            else if( robot.getId() == 1 ){
+//                robot.setPosition( -0.12 , 0.13 );
+//                robot.setOrientation( 0.0 * Math.PI );
+//                //((TwoWheelActuator) robot.getActuatorByType(TwoWheelActuator.class)).setMaxSpeed(0.0);
+//            }
+//            else if( robot.getId() == 2 ){
+//                robot.setPosition( -0.12 , -0.13 );
+//                robot.setOrientation( 0.0 * Math.PI );
+//                //((TwoWheelActuator) robot.getActuatorByType(TwoWheelActuator.class)).setMaxSpeed(0.0);
+//            }
+//            else if( robot.getId() == 3 ){
+//                robot.setPosition( -0.38 , -0.13 );
+//                robot.setOrientation( 0.0 * Math.PI );
+//                //((TwoWheelActuator) robot.getActuatorByType(TwoWheelActuator.class)).setMaxSpeed(0.0);
+//            }
+//            else{
+//                do{
+//                    robot.setPosition( (random.nextDouble() * 2 - 1) * 0.1 - 0.2, ( random.nextDouble() * 2 - 1) * 0.075 );
+//                    robot.setOrientation( random.nextDouble() * Math.PI);
+//                }
+//                while( !robotAtSafePosition(robot, getRobots(), robot.getDiameter()*1.5 ) );
+//            }
+            //test code end
+            
+            
+            if ( distFromWall != 0.0 ) {
+                //make sure robot is positioned at least
+                //at half its own body diameter from any wall
+                do{
+                    robot.setPosition( (random.nextDouble() * 2 - 1) * (arenaHeight/2  - distFromWall) - Math.abs(leftWallX + arenaHeight/2) ,
+                                     (  random.nextDouble() * 2 - 1) * (arenaHeight/2 - distFromWall) );
+                    robot.setOrientation( random.nextDouble() * Math.PI);
+                }
+                while( !robotAtSafePosition(robot, getRobots(), robot.getDiameter()*1.5 ) );
             }
-            while( !robotAtSafePosition(robot, getRobots(), robot.getDiameter()*1.5 ) );
+            else{
+                //make sure robot is positioned at least
+                //at half its own body diameter from any wall
+                do{
+                    robot.setPosition( (random.nextDouble() * 2 - 1) * (arenaHeight/2  - robot.getDiameter()) - Math.abs(leftWallX + arenaHeight/2) ,
+                                     (  random.nextDouble() * 2 - 1) * (arenaHeight/2 - robot.getDiameter()) );
+                    robot.setOrientation( random.nextDouble() * Math.PI);
+                }
+                while( !robotAtSafePosition(robot, getRobots(), robot.getDiameter()*1.5 ) );
+            }
+            
+            
+            
+            
+            
+            
                
             //while( false );    
             
@@ -217,12 +274,14 @@ public class RoleAllocCorridorEnvironment extends Environment {
     
     /**
      * Determines if a position
-     * is at more than a distance from
+     * is at more than a distance to
      * all other robots
      * @param robot the robot
      * @param robots all other robots
      * @param distance the distance, excl
-     * @return 
+     * @return true if a position is at
+     * more than the distance to all
+     * other robots
      */
     private boolean robotAtSafePosition( Robot robot, 
                                          ArrayList<Robot> robots,

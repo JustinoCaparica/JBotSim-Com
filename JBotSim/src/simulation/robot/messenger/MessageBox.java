@@ -34,7 +34,7 @@ public class MessageBox {
                                                         //in the last cycle
     
     
-    private int messagesCount;                        //number of total
+    private int messagesCount;                          //number of total
                                                         //messages received
     
     
