@@ -3,6 +3,7 @@ package evolutionaryrobotics.evaluationfunctions;
 import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.environment.CooperativeForagingEnvironment;
+import simulation.environment.CooperativeNestForagingEnvironment;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
@@ -44,11 +45,11 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
     public void update(Simulator simulator) {
 
         //TODO next two lines are ugly, fix it when time is a surplus
-        preys = ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getNumberOfPreys(); 
+        preys = ((CooperativeNestForagingEnvironment)(simulator.getEnvironment())).getNumberOfPreys(); 
         teamSize = simulator.getRobots().size();
         
         
-        preysCaptured = ((CooperativeForagingEnvironment)(simulator.getEnvironment())).getNumberOfFoodSuccessfullyForaged();
+        preysCaptured = ((CooperativeNestForagingEnvironment)(simulator.getEnvironment())).getNumberOfFoodSuccessfullyForaged();
 
     }
 }
