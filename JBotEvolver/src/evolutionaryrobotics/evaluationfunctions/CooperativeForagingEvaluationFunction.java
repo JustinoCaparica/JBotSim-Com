@@ -22,21 +22,36 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
     private int preysCaptured;              //number of preys captured
 
     
-
+    private Double fitCutValue;             //fitness cut value: if
+                                            //fitness below cut value
+                                            //then fitness becomes 0
+    
+    //temp variables: declared here for performance
+    private Double fit;
     
     
     public CooperativeForagingEvaluationFunction( Arguments args ) {
             super(args);	
             
             preysCaptured = 0;
-            
+            fitCutValue = 0.13;
     }
 
     
     
     @Override
     public double getFitness() {
-        return  ( 1.0 * preysCaptured / preys );
+        
+        fit = 1.0 * preysCaptured / preys;          //fitness before cut
+        
+        
+        if ( fit < fitCutValue ) {      //cut
+            return fit/100.0;
+        }
+        
+        
+                                        //scale
+        return  ( fit - fitCutValue ) / ( 1.0 - fitCutValue );
     }
 
     
