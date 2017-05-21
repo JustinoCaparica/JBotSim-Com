@@ -329,10 +329,11 @@ public class CooperativeNestForagingEnvironment extends Environment {
 
             enabledRobots.clear();
             
-            if( currentPrey.getPosition().distanceTo( nest.getPosition() ) <= nest.getRadius() ) {            
+            if( currentPrey.getHolder() == null &&
+                    currentPrey.getPosition().distanceTo( nest.getPosition() ) <= nest.getRadius() ) {            
                                                                 //prey is at nest
                                                                 //move prey to
-                //currentPrey.teleportTo( newRandomPosition() );//new position
+                //currentPrey.teleportTo( newRandomPreyPosition() );//new position
 
                 currentPrey.teleportTo( new Vector2d(100, 100) );
                 numberOfFoodSuccessfullyForaged++;              //account for
