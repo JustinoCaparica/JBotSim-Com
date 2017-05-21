@@ -46,7 +46,7 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
         
         
         if ( fit < fitCutValue ) {      //cut
-            return fit/100.0;
+            return 0.0;
         }
         
         
