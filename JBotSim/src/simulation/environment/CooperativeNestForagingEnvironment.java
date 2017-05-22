@@ -21,7 +21,8 @@ import simulation.util.ArgumentsAnnotation;
  * Prey might be clustered in a location (TODO).
  * @author gus
  */
-public class CooperativeNestForagingEnvironment extends Environment {
+public class CooperativeNestForagingEnvironment extends Environment
+                implements ForagingEnvironment {
 
     
     /** Prey parameters **/
@@ -382,7 +383,7 @@ public class CooperativeNestForagingEnvironment extends Environment {
     
     
     
-    public int getNumberOfFoodSuccessfullyForaged() {
+    public int getCapturedPreyCount() {
             return numberOfFoodSuccessfullyForaged;
     }
 
@@ -398,15 +399,11 @@ public class CooperativeNestForagingEnvironment extends Environment {
             return forbiddenArea;
     }
     
-    /**
-     * Gets the initial number of
-     * preys
-     * @return the initial number 
-     * of preys 
-     */
-    public int getNumberOfPreys(){
+    @Override
+    public int getInitialPreyCount(){
         return numberOfPreys;
     }
+
     
     
     
