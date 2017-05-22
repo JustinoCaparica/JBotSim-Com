@@ -45,6 +45,10 @@ public class CooperativeNestForagingEnvironment extends Environment {
     @ArgumentsAnnotation(name="numberofpreys", defaultValue="10", help="number of preys in the environment")
     private int numberOfPreys;
     
+    private static final int CAPTURED_PREY_REBORN = 0;
+    @ArgumentsAnnotation(name="capturedPreyReborn", defaultValue="0", help="if set to 1 captured prey reborn in a new random position, otherwise placed out of reach")
+    private boolean capturedPreyReborn;
+    
     private static final double FORAGE_OUT_RADIUS = 2.0;
     @ArgumentsAnnotation(name="forageOutRadius", defaultValue="2.0", help="outer radius for prey positions")
     private final double forageOutRadius;
@@ -155,7 +159,7 @@ public class CooperativeNestForagingEnvironment extends Environment {
                 preysGatherLocation.setLength( radius );
             }
             
-            closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
+            //closestRadius       = arguments.getArgumentAsDoubleOrSetDefault("closestRadius", CLOSEST_RADIUS);
             teamSize            = arguments.getArgumentAsIntOrSetDefault("teamSize", TEAM_SIZE);
             
             walled              = arguments.getArgumentAsIntOrSetDefault("wall", WALLED) == 1;
@@ -166,6 +170,8 @@ public class CooperativeNestForagingEnvironment extends Environment {
             varyPreyMass        = arguments.getArgumentAsIntOrSetDefault("varyPreyMass", VARY_PREY_MASS) == 1;
             
             preyRadius          = arguments.getArgumentAsDoubleOrSetDefault("preyRadius", PREY_RADIUS);
+            
+            capturedPreyReborn  = arguments.getArgumentAsIntOrSetDefault("capturedPreyReborn", CAPTURED_PREY_REBORN) == 1;
             
             lastPreyCaptureTime = 0.0;
             numberOfFoodSuccessfullyForaged = 0; 
@@ -329,13 +335,21 @@ public class CooperativeNestForagingEnvironment extends Environment {
 
             enabledRobots.clear();
             
-            if( currentPrey.getHolder() == null &&
-                    currentPrey.getPosition().distanceTo( nest.getPosition() ) <= nest.getRadius() ) {            
-                                                                //prey is at nest
-                                                                //move prey to
-                //currentPrey.teleportTo( newRandomPreyPosition() );//new position
+                                                            
+            if( currentPrey.getHolder() == null &&          //prey is not being hold
+                currentPrey.getPosition().distanceTo( nest.getPosition() ) <= nest.getRadius() ) {            
+                                                            //and prey is at nest
+                
+                                                                
+                if ( capturedPreyReborn ) {                    //captured prey reborn in
+                    currentPrey.teleportTo( newRandomPreyPosition() );  //new position
+                }
+                else{                                       //captured prey get
+                    currentPrey.setEnabled( false );        //placed out of reach
+                    currentPrey.teleportTo( new Vector2d(1000, 1000) );   
+                }
 
-                currentPrey.teleportTo( new Vector2d(100, 100) );
+                
                 numberOfFoodSuccessfullyForaged++;              //account for
                                                                 //foraged prey
                 lastPreyCaptureTime = time;
