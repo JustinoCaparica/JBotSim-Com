@@ -89,9 +89,9 @@ public class RoleHighestSensor extends Sensor {
             
             if ( closeRobot != robot ) {                            //avoid choosing robot itself
                 roleAct = (RoleActuator) closeRobot.getActuatorByType( RoleActuator.class );
-                System.out.println("roleAct.getValue():" + roleAct.getValue());
+                //System.out.println("roleAct.getValue():" + roleAct.getValue());
                 actVal = addNoise( roleAct.getValue() );
-                System.out.println("actVal:" + actVal);
+                //System.out.println("actVal:" + actVal);
                 if ( actVal > maxOutput ) {             
                     maxOutput = actVal;
                 }
