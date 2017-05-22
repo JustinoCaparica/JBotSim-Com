@@ -4,21 +4,18 @@ import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.environment.CooperativeForagingEnvironment;
 import simulation.environment.CooperativeNestForagingEnvironment;
+import simulation.environment.ForagingEnvironment;
 import simulation.robot.Robot;
 import simulation.util.Arguments;
 
 public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
 	
     
-    protected Vector2d   nestPosition = new Vector2d(0, 0);
         
     
     private int preys;                      //initial number of preys
                                             //in the environment
     
-    private int teamSize;                   //number of robots
-        
-        
     private int preysCaptured;              //number of preys captured
 
     
@@ -59,12 +56,10 @@ public class CooperativeForagingEvaluationFunction extends EvaluationFunction{
     @Override
     public void update(Simulator simulator) {
 
-        //TODO next two lines are ugly, fix it when time is a surplus
-        preys = ((CooperativeNestForagingEnvironment)(simulator.getEnvironment())).getNumberOfPreys(); 
-        teamSize = simulator.getRobots().size();
+        //TODO next line is ugly, fix it when time is a surplus
+        preys = ((ForagingEnvironment)(simulator.getEnvironment())).getInitialPreyCount(); 
         
-        
-        preysCaptured = ((CooperativeNestForagingEnvironment)(simulator.getEnvironment())).getNumberOfFoodSuccessfullyForaged();
+        preysCaptured = ((ForagingEnvironment)(simulator.getEnvironment())).getCapturedPreyCount();
 
     }
 }
