@@ -9,7 +9,11 @@ import mathutils.Vector2d;
 import simulation.Simulator;
 import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.Prey;
+import simulation.physicalobjects.TaskSim;
+import simulation.physicalobjects.TaskSimSteady;
 import simulation.physicalobjects.Wall;
+import simulation.physicalobjects.collisionhandling.knotsandbolts.CircularShape;
+import simulation.physicalobjects.collisionhandling.knotsandbolts.Shape;
 import simulation.robot.Robot;
 import simulation.robot.sensors.PreySensor;
 import simulation.util.Arguments;
@@ -18,7 +22,7 @@ import simulation.util.ArgumentsAnnotation;
 
 /**
  * An Environment where preys must be transported to the nest.
- * Prey might be clustered in a location (TODO).
+ * Preys might be clustered in a location.
  * @author gus
  */
 public class CooperativeNestForagingEnvironment extends Environment
@@ -90,17 +94,16 @@ public class CooperativeNestForagingEnvironment extends Environment
     
     
     
-    
-    
-    
-    
-    
-    
-    
     private static final int RANDOMIZE_ROBOTS_POSITION = 0;
     @ArgumentsAnnotation(name="randomizeRobotsPosition", defaultValue="0", help="if set to 1, all robots positions are randomized")
     private final boolean randomizeRobotsPosition;
     
+    
+    
+    private static final String TASK_NAME = "";
+    @ArgumentsAnnotation(name="taskName", defaultValue="", help="name of the task class to be placed in the environment")
+    private final String taskName;
+    private TaskSim task;
     
     
     
@@ -122,6 +125,12 @@ public class CooperativeNestForagingEnvironment extends Environment
                                                     //prey was captured
     
     private int numberOfFoodSuccessfullyForaged;      
+    private int storagedResources;                  //resources storaged by foraging preys
+    private int preyToResourcesFactor;              //number of resources that
+                                                    //each foraged prey generates
+    
+    
+    
     private Random random;
 
     private Vector2d preysGatherLocation;       //location to gather preys 
@@ -176,6 +185,14 @@ public class CooperativeNestForagingEnvironment extends Environment
             
             lastPreyCaptureTime = 0.0;
             numberOfFoodSuccessfullyForaged = 0; 
+            
+            
+            taskName                = arguments.getArgumentAsStringOrSetDefault("taskName", TASK_NAME);
+            task                    = null;
+            storagedResources       = 0;
+            preyToResourcesFactor   = 1000;
+            
+            
     }
 	
     
@@ -201,6 +218,13 @@ public class CooperativeNestForagingEnvironment extends Environment
         addObject(nest);
         
         
+        if ( taskName.equals( "TaskSimSteady" )) {
+            Shape shape;
+            shape = new CircularShape(simulator, taskName, nest, 0, 0, 0, nest.getRadius());
+            task = new TaskSimSteady(simulator, taskName, nest.getPosition().x, nest.getPosition().y, 
+                                    shape, 0.0, 0.0, 1.0, 0.00001);
+            addObject( task );
+        }
         
         
         
@@ -293,6 +317,8 @@ public class CooperativeNestForagingEnvironment extends Environment
     }
 
     
+    
+    
     /**
      * Generates a new random position 
      * for a prey
@@ -342,7 +368,7 @@ public class CooperativeNestForagingEnvironment extends Environment
                                                             //and prey is at nest
                 
                                                                 
-                if ( capturedPreyReborn ) {                    //captured prey reborn in
+                if ( capturedPreyReborn ) {                    //captured prey reborns in
                     currentPrey.teleportTo( newRandomPreyPosition() );  //new position
                 }
                 else{                                       //captured prey get
@@ -354,6 +380,7 @@ public class CooperativeNestForagingEnvironment extends Environment
                 numberOfFoodSuccessfullyForaged++;              //account for
                                                                 //foraged prey
                 lastPreyCaptureTime = time;
+                storagedResources += preyToResourcesFactor;     //increase storaged resources 
                 
                 
 //                if ( numberOfFoodSuccessfullyForaged == numberOfPreys ) {
@@ -361,6 +388,26 @@ public class CooperativeNestForagingEnvironment extends Environment
 //                }                                       //stop simulation, save time
             }
         }
+        
+        
+        if ( task != null ) {                   //there is a task to to in the nest
+                                                //if there is a robot inside the task, execute the task
+            for (Robot robot : simulator.getRobots() ) {
+                if ( robot.getPosition().distanceTo( task.getPosition() ) < task.getRadius() ) {
+                    if ( storagedResources > 0 ) {
+                        task.execute();
+                        storagedResources--;
+                    }
+                    
+                }
+            }
+            
+        }
+        
+        
+        
+        
+        
     }
 
     
@@ -376,8 +423,10 @@ public class CooperativeNestForagingEnvironment extends Environment
 	
     
     
-    
-    
+   
+    public TaskSim getTaskSim(){
+        return task;
+    }
     
     
     

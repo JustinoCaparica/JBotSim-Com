@@ -18,13 +18,13 @@ import simulation.util.Arguments;
  * currently completed
  * @author guest
  */
-public class TaskToDo extends PhysicalObject{
+public abstract class TaskSim extends PhysicalObject{
     
     
     private Double currentLevel;                //the current level
     private Double minLevel;                    //minimum level the task can achieve
     private Double maxLevel;                    //maximum level the task can achieve
-    private Double initialLevel;                //the initial level
+    private final Double initialLevel;          //the initial level
     
     
     /**
@@ -40,7 +40,7 @@ public class TaskToDo extends PhysicalObject{
      * @param maxLevel the maximum level
      */
     
-    public TaskToDo(Simulator simulator, String name,
+    public TaskSim(Simulator simulator, String name,
                     Double x, Double y, Shape shape,
                     Double currentLevel, Double minLevel, Double maxLevel) {
         
@@ -54,7 +54,6 @@ public class TaskToDo extends PhysicalObject{
         this.minLevel           = minLevel;
         
         
-        
     }
 
     /**
@@ -62,18 +61,20 @@ public class TaskToDo extends PhysicalObject{
      * of completeness
      * @return 
      */
-    public double getCurrentLevel() {
+    public Double getCurrentLevel() {
         return currentLevel;
     }
 
-    
     /**
      * Sets the current level
-     * @param currentLevel 
+     * @param level the new value
+     * for the current level
      */
-    public void setInitialLevel( double currentLevel ) {
-        this.currentLevel = currentLevel;
+    public void setCurrentLevel(Double level) {
+        this.currentLevel = level;
     }
+
+    
     
     
     /**
@@ -119,7 +120,11 @@ public class TaskToDo extends PhysicalObject{
     }
     
     
-    
+    /**
+     * Implementation of the consequences
+     * of executing the task
+     */
+    public abstract void execute();
     
     
     

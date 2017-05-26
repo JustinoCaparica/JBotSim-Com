@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RadialGradientPaint;
+import java.awt.Stroke;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
@@ -28,6 +29,7 @@ import simulation.physicalobjects.Marker;
 import simulation.physicalobjects.Nest;
 import simulation.physicalobjects.PhysicalObject;
 import simulation.physicalobjects.Prey;
+import simulation.physicalobjects.TaskSim;
 import simulation.physicalobjects.Wall;
 import simulation.physicalobjects.Wall.Edge;
 import simulation.robot.Robot;
@@ -136,6 +138,8 @@ public class TwoDRenderer extends Renderer
 				case MARKER:
 					drawMarker(graphics, (Marker) m);
 					break;
+                                case TASK:
+                                        drawTaskSim(graphics, (TaskSim) m);
 				default:
 					break;
 				}
@@ -880,4 +884,36 @@ public class TwoDRenderer extends Renderer
 		}
 		componentResized(null);
 	}
+
+        
+        /**
+         * Draws the visual representation of a TaskSim
+         * @param graphics the graphics with methods for
+         * drawing
+         * @param task the task to be drawn 
+         */
+        private void drawTaskSim( Graphics graphics, TaskSim task ) {
+            int circleDiameter = (int) Math.round(0.5 + task.getDiameter() * scale);
+            int x = transformX(task.getPosition().getX()) - circleDiameter / 2;
+            int y = transformY(task.getPosition().getY()) - circleDiameter / 2;
+
+            
+            //creates a copy of the Graphics instance
+            Graphics2D g2d = (Graphics2D) graphics.create();
+
+            //set the stroke of the copy, not the original 
+            Stroke dashed = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
+            g2d.setStroke(dashed);
+            
+            g2d.setColor( Color.BLACK );
+            g2d.drawOval(x, y, circleDiameter, circleDiameter);
+            g2d.drawString( new DecimalFormat("0.00000").format(task.getCurrentLevel()), 
+                            transformX(task.getPosition().x), 
+                            transformY(task.getPosition().y - task.getRadius()*1.25) );
+            
+            //gets rid of the copy
+            g2d.dispose();
+            
+            //graphics.setColor(Color.BLACK); //unecessary?
+        }
 }

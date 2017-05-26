@@ -5,6 +5,8 @@
  */
 package simulation.environment;
 
+import simulation.physicalobjects.TaskSim;
+
 /**
  * An interface to declare methods that
  * foraging environments should have
@@ -28,5 +30,13 @@ public interface ForagingEnvironment {
      */
     public int getCapturedPreyCount();
     
+    
+    
+    /**
+     * Gets the TaskSim 
+     * @return the TaskSim 
+     * or null if there is none
+     */
+    public TaskSim getTaskSim();
     
 }
