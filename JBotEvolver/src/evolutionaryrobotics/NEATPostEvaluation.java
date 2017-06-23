@@ -15,8 +15,8 @@ import taskexecutor.tasks.NEATMultipleSamplePostEvaluationTask;
 
 public class NEATPostEvaluation {
 	
-	protected int startTrial = 0;
-	protected int maxTrial = 0;
+	protected int runsFirstId = 0;
+	protected int runsCount = 0;
 	protected int samples = 100;
 	protected int sampleIncrement = 100;
 	protected int fitnesssamples = 1;
@@ -28,18 +28,18 @@ public class NEATPostEvaluation {
 	protected boolean localEvaluation = false;
 	
 	protected TaskExecutor taskExecutor;
-	protected String[] args;
+	protected String[] evolutionArgs;
 	
 	protected boolean showOutput = false;
 	protected boolean saveOutput = true;
 	
 	public NEATPostEvaluation(String[] args, String[] extraArgs) {
 		this(args);
-		this.args = extraArgs;
+		this.evolutionArgs = extraArgs;
 	}
 	
-	public NEATPostEvaluation(String[] args) {
-		for(String s : args) {
+	public NEATPostEvaluation(String[] postEvalArguments) {
+		for(String s : postEvalArguments) {
 			String[] a = s.split("=");
 			if(a[0].equals("dir")) dir = a[1];
 			if(a[0].equals("samples")) samples = Integer.parseInt(a[1]);
@@ -54,9 +54,9 @@ public class NEATPostEvaluation {
 		}
 		
 		if(steps != 0) {
-			this.args = new String[]{"--environment","+steps="+steps,"--evaluation","+posteval=1"};
+			this.evolutionArgs = new String[]{"--environment","+steps="+steps,"--evaluation","+posteval=1"};
 		}else {
-			this.args = new String[]{"--evaluation","+posteval=1"};
+			this.evolutionArgs = new String[]{"--evaluation","+posteval=1"};
 		}
 		
 		if(!dir.endsWith("/"))
@@ -69,11 +69,11 @@ public class NEATPostEvaluation {
 			subFolder = new File(dir+currentFolder);
 		}while(subFolder.exists());
 		
-		startTrial = 1;
-		maxTrial = --currentFolder;
+		runsFirstId = 1;
+		runsCount = --currentFolder;
 		
 		if(singleEvaluation)
-			maxTrial = 1;
+			runsCount = 1;
 	}
 	
 	
@@ -88,20 +88,20 @@ public class NEATPostEvaluation {
 				file=dir+"/_showbest_current.conf";
 				generationNumber = getGenerationNumberFromFile(dir+"/_generationnumber");
 			}else{
-				file=dir+startTrial+"/_showbest_current.conf";
-				generationNumber = getGenerationNumberFromFile(dir+startTrial+"/_generationnumber");
+				file=dir+runsFirstId+"/_showbest_current.conf";
+				generationNumber = getGenerationNumberFromFile(dir+runsFirstId+"/_generationnumber");
 			}
 			
-			result = new double[maxTrial][generationNumber][fitnesssamples];
+			result = new double[runsCount][generationNumber][fitnesssamples];
 			
-			String[] newArgs = args != null ? new String[args.length+1] : new String[1];
+			String[] newEvolutionArgs = evolutionArgs != null ? new String[evolutionArgs.length+1] : new String[1];
 			
-			newArgs[0] = file;
+			newEvolutionArgs[0] = file;
 			
-			for(int i = 1 ; i < newArgs.length ; i++)
-				newArgs[i] = args[i-1];
+			for(int i = 1 ; i < newEvolutionArgs.length ; i++)
+				newEvolutionArgs[i] = evolutionArgs[i-1];
 				
-			JBotEvolver jBotEvolver = new JBotEvolver(newArgs);
+			JBotEvolver jBotEvolver = new JBotEvolver(newEvolutionArgs);
 			
 			if (jBotEvolver.getArguments().get("--executor") != null) {
 				if(localEvaluation)
@@ -120,7 +120,10 @@ public class NEATPostEvaluation {
 			if(saveOutput)
 				 fw = new FileWriter(new File(dir+"/post_details.txt"));
 			
-			for(int i = startTrial ; i <= maxTrial ; i++) {
+                        /**
+                         * post evaluate each run
+                         */
+			for(int i = runsFirstId ; i <= runsCount ; i++) {
 				if(singleEvaluation)
 					file = dir+"/show_best/";
 				else
@@ -131,19 +134,19 @@ public class NEATPostEvaluation {
 				int numberOfGenerations = directory.listFiles().length;
 				
 				if(!setNumberOfTasks) {
-					totalTasks = (maxTrial - startTrial + 1)*fitnesssamples*samples*numberOfGenerations/sampleIncrement;
+					totalTasks = (runsCount - runsFirstId + 1)*fitnesssamples*samples*numberOfGenerations/sampleIncrement;
 					taskExecutor.setTotalNumberOfTasks(totalTasks);
 					setNumberOfTasks = true;
 				}
 				
-				File[] files = directory.listFiles();
-				sortByNumber(files);
+				File[] bestControllersFiles = directory.listFiles();
+				sortByNumber(bestControllersFiles);
 				
-				for (File f : files) {
-					int generation = Integer.valueOf(f.getName().substring(8, f.getName().indexOf(".")));
+				for (File bestControllerFile : bestControllersFiles) {
+					int generation = Integer.valueOf(bestControllerFile.getName().substring(8, bestControllerFile.getName().indexOf(".")));
 					
-					newArgs[0] = file + f.getName();
-					jBotEvolver = new JBotEvolver(newArgs);
+					newEvolutionArgs[0] = file + bestControllerFile.getName();
+					jBotEvolver = new JBotEvolver(newEvolutionArgs);
 					
 					for(int fitnesssample = 0 ; fitnesssample < fitnesssamples ; fitnesssample++) {
 						for(int sample = 0 ; sample < samples ; sample+=sampleIncrement) {
@@ -193,7 +196,7 @@ public class NEATPostEvaluation {
 			}
 			
 			/*
-			for(int i = startTrial ; i <= maxTrial ; i++) {
+			for(int i = runsFirstId ; i <= runsCount ; i++) {
 				
 				if(singleEvaluation)
 					file = dir+"/show_best/";
