@@ -48,9 +48,9 @@ public class ClassLoadHelper {
 	    			if(f.getName().endsWith(".class")){
 	    				String path = "";
 	    				
-	    				if(System.getProperty("os.name").contains("Windows"))
-	    					path = f.getAbsolutePath().replace("\\", "/").split("/bin/")[1].replaceAll(".class", "").replaceAll("/", ".");
-	    				else
+	    				if(System.getProperty("os.name").contains("Windows")){
+	    					path = f.getAbsolutePath().replace("\\", "/").split("/build/classes/")[1].replaceAll(".class", "").replaceAll("/", ".");
+                                        }else
 	    					path = f.getAbsolutePath().split("/build/classes/")[1].replaceAll(".class", "").replaceAll("/", ".");
 	    				
 		    			Class<?> cl = Class.forName(path);
