@@ -82,22 +82,26 @@ public class NEATPostEvaluation {
 		
 		try{
 			String file = "";
-			int generationNumber = 0;
+			int generationsCount = 0;
 			
 			if(singleEvaluation){
 				file=dir+"/_showbest_current.conf";
-				generationNumber = getGenerationNumberFromFile(dir+"/_generationnumber");
+				generationsCount = getGenerationNumberFromFile(dir+"/_generationnumber");
 			}else{
 				file=dir+runsFirstId+"/_showbest_current.conf";
-				generationNumber = getGenerationNumberFromFile(dir+runsFirstId+"/_generationnumber");
+				generationsCount = getGenerationNumberFromFile(dir+runsFirstId+"/_generationnumber");
 			}
 			
-			result = new double[runsCount][generationNumber][fitnesssamples];
+			result = new double[runsCount][generationsCount][fitnesssamples];
 			
 			String[] newEvolutionArgs = evolutionArgs != null ? new String[evolutionArgs.length+1] : new String[1];
 			
 			newEvolutionArgs[0] = file;
 			
+                        //TODO change the fitness function from the one
+                        //used in the evolution to the one we want to 
+                        //use in the post-evaluation
+                        
 			for(int i = 1 ; i < newEvolutionArgs.length ; i++)
 				newEvolutionArgs[i] = evolutionArgs[i-1];
 				
@@ -121,7 +125,7 @@ public class NEATPostEvaluation {
 				 fw = new FileWriter(new File(dir+"/post_details.txt"));
 			
                         /**
-                         * post evaluate each run
+                         * post-evaluate each run
                          */
 			for(int i = runsFirstId ; i <= runsCount ; i++) {
 				if(singleEvaluation)
@@ -142,6 +146,7 @@ public class NEATPostEvaluation {
 				File[] bestControllersFiles = directory.listFiles();
 				sortByNumber(bestControllersFiles);
 				
+                                //post-evaluate best controller of each generation
 				for (File bestControllerFile : bestControllersFiles) {
 					int generation = Integer.valueOf(bestControllerFile.getName().substring(8, bestControllerFile.getName().indexOf(".")));
 					
