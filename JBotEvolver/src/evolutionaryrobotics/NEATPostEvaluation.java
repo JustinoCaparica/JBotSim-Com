@@ -32,12 +32,18 @@ public class NEATPostEvaluation {
 	
 	protected boolean showOutput = false;
 	protected boolean saveOutput = true;
+        
 	
 	public NEATPostEvaluation(String[] args, String[] extraArgs) {
 		this(args);
 		this.evolutionArgs = extraArgs;
 	}
 	
+        /**
+         * 
+         * @param postEvalArguments arguments for the post evaluation,
+         * obtained from the .conf file in the --postevaluation item
+         */
 	public NEATPostEvaluation(String[] postEvalArguments) {
 		for(String s : postEvalArguments) {
 			String[] a = s.split("=");
@@ -98,13 +104,26 @@ public class NEATPostEvaluation {
 			
 			newEvolutionArgs[0] = file;
 			
-                        //TODO change the fitness function from the one
+//   !!!!!!!            //TODO change the fitness function from the one
                         //used in the evolution to the one we want to 
                         //use in the post-evaluation
                         
 			for(int i = 1 ; i < newEvolutionArgs.length ; i++)
 				newEvolutionArgs[i] = evolutionArgs[i-1];
 				
+                        
+                    //debug
+                    System.out.println("newEvolutionArgs.length=" + newEvolutionArgs.length);
+                    for(int i = 0 ; i < newEvolutionArgs.length ; i++){
+                        System.out.println("newEvolutionArgs[" + i + "]=" + newEvolutionArgs[i]);
+                    }
+                    
+                    for(int i = 0 ; i < evolutionArgs.length ; i++){
+                        System.out.println("evolutionArgs[" + i + "]=" + evolutionArgs[i]);
+                    }
+                    //end debug
+                        
+                        
 			JBotEvolver jBotEvolver = new JBotEvolver(newEvolutionArgs);
 			
 			if (jBotEvolver.getArguments().get("--executor") != null) {
@@ -128,68 +147,75 @@ public class NEATPostEvaluation {
                          * post-evaluate each run
                          */
 			for(int i = runsFirstId ; i <= runsCount ; i++) {
-				if(singleEvaluation)
-					file = dir+"/show_best/";
-				else
-					file = dir+i+"/show_best/";
+                            if ( showOutput ) {
+                                System.out.println("Run " + i);
+                            }
+                            if(singleEvaluation)
+                                    file = dir+"/show_best/";
+                            else
+                                    file = dir+i+"/show_best/";
+
+                            File directory = new File(file);
+
+                            int numberOfGenerations = directory.listFiles().length;
+
+                            if(!setNumberOfTasks) {
+                                    totalTasks = (runsCount - runsFirstId + 1)*fitnesssamples*samples*numberOfGenerations/sampleIncrement;
+                                    taskExecutor.setTotalNumberOfTasks(totalTasks);
+                                    setNumberOfTasks = true;
+                            }
+
+                            File[] bestControllersFiles = directory.listFiles();
+                            sortByNumber(bestControllersFiles);
+
+                            //post-evaluate best controller of each generation
+                            for (File bestControllerFile : bestControllersFiles) {
+                                    int generation = Integer.valueOf(bestControllerFile.getName().substring(8, bestControllerFile.getName().indexOf(".")));
+
+                                if ( showOutput ) {
+                                    System.out.println("Controller FileName:" + bestControllerFile.getName());
+                                }
+                                    
+                                    newEvolutionArgs[0] = file + bestControllerFile.getName();
+                                    jBotEvolver = new JBotEvolver(newEvolutionArgs);
+
+                                    for(int fitnesssample = 0 ; fitnesssample < fitnesssamples ; fitnesssample++) {
+                                            for(int sample = 0 ; sample < samples ; sample+=sampleIncrement) {
+                                                    JBotEvolver newJBot = new JBotEvolver(jBotEvolver.getArgumentsCopy(),jBotEvolver.getRandomSeed());
+                                                    Population pop = newJBot.getPopulation();
+                                                    evolutionaryrobotics.neuralnetworks.Chromosome chr = pop.getBestChromosome();
+                                                    NEATMultipleSamplePostEvaluationTask t = new NEATMultipleSamplePostEvaluationTask(i,generation,newJBot,fitnesssample,chr,sample,sample+sampleIncrement,targetfitness);
+                                                    taskExecutor.addTask(t);
+                                                    if(showOutput)
+                                                            System.out.print("sample:" + sample + " ");
+                                            }
+                                            if(showOutput)
+                                                    System.out.println("fitnessSample:" + fitnesssample);
+                                    }
+
+                                    taskExecutor.setDescription(dir+i+"/"+(generation+1)+" out of "+numberOfGenerations+" (total tasks: "+totalTasks+")");
+
+                                    if(showOutput)
+                                            System.out.println();
+                            }
 				
-				File directory = new File(file);
-				
-				int numberOfGenerations = directory.listFiles().length;
-				
-				if(!setNumberOfTasks) {
-					totalTasks = (runsCount - runsFirstId + 1)*fitnesssamples*samples*numberOfGenerations/sampleIncrement;
-					taskExecutor.setTotalNumberOfTasks(totalTasks);
-					setNumberOfTasks = true;
-				}
-				
-				File[] bestControllersFiles = directory.listFiles();
-				sortByNumber(bestControllersFiles);
-				
-                                //post-evaluate best controller of each generation
-				for (File bestControllerFile : bestControllersFiles) {
-					int generation = Integer.valueOf(bestControllerFile.getName().substring(8, bestControllerFile.getName().indexOf(".")));
-					
-					newEvolutionArgs[0] = file + bestControllerFile.getName();
-					jBotEvolver = new JBotEvolver(newEvolutionArgs);
-					
-					for(int fitnesssample = 0 ; fitnesssample < fitnesssamples ; fitnesssample++) {
-						for(int sample = 0 ; sample < samples ; sample+=sampleIncrement) {
-							JBotEvolver newJBot = new JBotEvolver(jBotEvolver.getArgumentsCopy(),jBotEvolver.getRandomSeed());
-							Population pop = newJBot.getPopulation();
-							evolutionaryrobotics.neuralnetworks.Chromosome chr = pop.getBestChromosome();
-							NEATMultipleSamplePostEvaluationTask t = new NEATMultipleSamplePostEvaluationTask(i,generation,newJBot,fitnesssample,chr,sample,sample+sampleIncrement,targetfitness);
-							taskExecutor.addTask(t);
-							if(showOutput)
-								System.out.print(".");
-						}
-						if(showOutput)
-							System.out.println();
-					}
-					
-					taskExecutor.setDescription(dir+i+"/"+(generation+1)+" out of "+numberOfGenerations+" (total tasks: "+totalTasks+")");
-					
-					if(showOutput)
-						System.out.println();
-				}
-				
-				for(int gen = 0 ; gen < numberOfGenerations ; gen++) {
-				
-					for(int fitnesssample = 0 ; fitnesssample < fitnesssamples ; fitnesssample++) {
-						
-						for(int sample = 0 ; sample < samples ; sample+=sampleIncrement) {
-							
-							NEATPostEvaluationResult sfr = (NEATPostEvaluationResult)taskExecutor.getResult();
-							result[sfr.getRun()-1][sfr.getGeneration()][sfr.getFitnesssample()]+= sfr.getFitness()*sampleIncrement/samples;
-							String line = sfr.getRun()+" "+sfr.getGeneration()+" "+sfr.getFitnesssample()+" "+sfr.getSample()+" "+sfr.getFitness()+"\n";
-							data.append(line);
-							
-							if(showOutput) {
-								System.out.print(line);
-							}
-						}
-					}
-				}
+                            for(int gen = 0 ; gen < numberOfGenerations ; gen++) {
+
+                                    for(int fitnesssample = 0 ; fitnesssample < fitnesssamples ; fitnesssample++) {
+
+                                            for(int sample = 0 ; sample < samples ; sample+=sampleIncrement) {
+
+                                                    NEATPostEvaluationResult sfr = (NEATPostEvaluationResult)taskExecutor.getResult();
+                                                    result[sfr.getRun()-1][sfr.getGeneration()][sfr.getFitnesssample()]+= sfr.getFitness()*sampleIncrement/samples;
+                                                    String line = sfr.getRun()+" "+sfr.getGeneration()+" "+sfr.getFitnesssample()+" "+sfr.getSample()+" "+sfr.getFitness()+"\n";
+                                                    data.append(line);
+
+                                                    if(showOutput) {
+                                                            System.out.print(line);
+                                                    }
+                                            }
+                                    }
+                            }
 			}
 			
 			if(showOutput)
