@@ -8,6 +8,10 @@ import java.util.Comparator;
 import java.util.Scanner;
 
 import evolutionaryrobotics.populations.Population;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
 import simulation.util.Arguments;
 import taskexecutor.TaskExecutor;
 import taskexecutor.results.NEATPostEvaluationResult;
@@ -33,6 +37,10 @@ public class NEATPostEvaluation {
 	protected boolean showOutput = false;
 	protected boolean saveOutput = true;
         
+        private String evalFunctionClassName;           //evaluation function
+                                                        //classname if different
+                                                        //from the one used 
+                                                        //previously in evolution
 	
 	public NEATPostEvaluation(String[] args, String[] extraArgs) {
 		this(args);
@@ -45,6 +53,8 @@ public class NEATPostEvaluation {
          * obtained from the .conf file in the --postevaluation item
          */
 	public NEATPostEvaluation(String[] postEvalArguments) {
+                evalFunctionClassName = null;
+            
 		for(String s : postEvalArguments) {
 			String[] a = s.split("=");
 			if(a[0].equals("dir")) dir = a[1];
@@ -57,8 +67,9 @@ public class NEATPostEvaluation {
 			if(a[0].equals("showoutput")) showOutput = (Integer.parseInt(a[1]) == 1);
 			if(a[0].equals("sampleincrement")) sampleIncrement = Integer.parseInt(a[1]);
 			if(a[0].equals("saveoutput")) saveOutput = Integer.parseInt(a[1]) == 1;
+                        if(a[0].equals("evalFunctionClassName")) evalFunctionClassName = a[1];
 		}
-		
+                
 		if(steps != 0) {
 			this.evolutionArgs = new String[]{"--environment","+steps="+steps,"--evaluation","+posteval=1"};
 		}else {
@@ -143,10 +154,25 @@ public class NEATPostEvaluation {
 			if(saveOutput)
 				 fw = new FileWriter(new File(dir+"/post_details.txt"));
 			
+                        
+                        int bestRunID = getBestRunID( dir + "/bestControllerByRun.txt" );
+                        int bestGenerationID = getBestGenerationID( dir + "/bestControllerByRun.txt" );
+                        
+                        
+                        if (showOutput ) {
+                            System.out.println("best run:" + bestRunID );
+                            System.out.println("best generation:" + bestGenerationID );
+                    }
+                        
+                        
                         /**
-                         * post-evaluate each run
+                         * post-evaluate only the best run
                          */
-			for(int i = runsFirstId ; i <= runsCount ; i++) {
+			for(int i = runsFirstId ; i <= runsCount; i++) {
+                            if ( i != bestRunID ) {
+                                continue;           //ugly!
+                            }
+                            
                             if ( showOutput ) {
                                 System.out.println("Run " + i);
                             }
@@ -172,6 +198,10 @@ public class NEATPostEvaluation {
                             for (File bestControllerFile : bestControllersFiles) {
                                     int generation = Integer.valueOf(bestControllerFile.getName().substring(8, bestControllerFile.getName().indexOf(".")));
 
+                                    if ( generation != bestGenerationID ) {
+                                        continue;           //this is ugly!
+                                    }
+                                    
                                 if ( showOutput ) {
                                     System.out.println("Controller FileName:" + bestControllerFile.getName());
                                 }
@@ -181,13 +211,26 @@ public class NEATPostEvaluation {
 
                                     for(int fitnesssample = 0 ; fitnesssample < fitnesssamples ; fitnesssample++) {
                                             for(int sample = 0 ; sample < samples ; sample+=sampleIncrement) {
-                                                    JBotEvolver newJBot = new JBotEvolver(jBotEvolver.getArgumentsCopy(),jBotEvolver.getRandomSeed());
+                                                    HashMap<String, Arguments> argsCopy = jBotEvolver.getArgumentsCopy();
+                                                    if ( evalFunctionClassName != null ) {
+                                                        argsCopy.put( "--evaluation", new Arguments("posteval=1,classname=" + evalFunctionClassName));
+                                                    }
+                                                    
+                                                    JBotEvolver newJBot = new JBotEvolver(argsCopy,jBotEvolver.getRandomSeed());
+                                                    
+                                                    //debug
+//                                                    System.out.println("argsCopy");
+//                                                    for (String s :argsCopy.keySet() ) {
+//                                                        System.out.println( s + ":" + argsCopy.get(s) );
+//                                                    }
+                                                    //end debug
+                                                    
                                                     Population pop = newJBot.getPopulation();
                                                     evolutionaryrobotics.neuralnetworks.Chromosome chr = pop.getBestChromosome();
                                                     NEATMultipleSamplePostEvaluationTask t = new NEATMultipleSamplePostEvaluationTask(i,generation,newJBot,fitnesssample,chr,sample,sample+sampleIncrement,targetfitness);
                                                     taskExecutor.addTask(t);
                                                     if(showOutput)
-                                                            System.out.print("sample:" + sample + " ");
+                                                            System.out.print( sample + " " );
                                             }
                                             if(showOutput)
                                                     System.out.println("fitnessSample:" + fitnesssample);
@@ -299,6 +342,40 @@ public class NEATPostEvaluation {
 		}
 		return 0;
 	}
+
+        
+        /**
+         * Gets the ID of the best run from a file
+         * @param path the path to the file
+         * @return the id of the best run
+         */
+    private int getBestRunID( String path ) throws FileNotFoundException, IOException {
+        
+        File file = new File( path );
+        BufferedReader fr = new BufferedReader( new FileReader(file) );
+        fr.readLine();
+        String bestRunLine = fr.readLine();
+        return Integer.parseInt( bestRunLine.split(",")[0] );
+        
+    }
+
+    
+    /**
+         * Gets the ID of the best generation of 
+         * the best run from a file
+         * @param path the path to the file
+         * @return the id of the best generation
+         * of the best run
+         */
+    private int getBestGenerationID( String path ) throws FileNotFoundException, IOException {
+        
+        File file = new File( path );
+        BufferedReader fr = new BufferedReader( new FileReader(file) );
+        fr.readLine();
+        String bestRunLine = fr.readLine();
+        return Integer.parseInt( bestRunLine.split(",")[1] );
+        
+    }
 
 
 }
