@@ -115,9 +115,6 @@ public class NEATPostEvaluation {
 			
 			newEvolutionArgs[0] = file;
 			
-//   !!!!!!!            //TODO change the fitness function from the one
-                        //used in the evolution to the one we want to 
-                        //use in the post-evaluation
                         
 			for(int i = 1 ; i < newEvolutionArgs.length ; i++)
 				newEvolutionArgs[i] = evolutionArgs[i-1];
@@ -155,36 +152,36 @@ public class NEATPostEvaluation {
 				 fw = new FileWriter(new File(dir+"/post_details.txt"));
 			
                         
-                        int bestRunID = getBestRunID( dir + "/bestControllerByRun.txt" );
-                        int bestGenerationID = getBestGenerationID( dir + "/bestControllerByRun.txt" );
+                        //int bestRunID = getBestRunID( dir + "/bestControllerByRun.txt" );
+                        //int bestGenerationID = getBestGenerationID( dir + "/bestControllerByRun.txt" );
+                        int bestGenerationID;
+                        HashMap<Integer, Integer> bestGenerationByRun;
+                        bestGenerationByRun = loadBestGenerationByRunFile( dir + "/bestControllerByRun.txt" );
                         
                         
-                        if (showOutput ) {
-                            System.out.println("best run:" + bestRunID );
-                            System.out.println("best generation:" + bestGenerationID );
-                    }
+//                        if (showOutput ) {
+//                            System.out.println("best run:" + bestRunID );
+//                            System.out.println("best generation:" + bestGenerationID );
+//                    }
                         
                         
                         /**
-                         * post-evaluate only the best run
+                         * post-evaluate all runs
                          */
-			for(int i = runsFirstId ; i <= runsCount; i++) {
-                            if ( i != bestRunID ) {
-                                continue;           //ugly!
-                            }
-                            
+			for(int runID = runsFirstId ; runID <= runsCount; runID++) {
                             if ( showOutput ) {
-                                System.out.println("Run " + i);
+                                System.out.println("Run " + runID);
                             }
                             if(singleEvaluation)
                                     file = dir+"/show_best/";
                             else
-                                    file = dir+i+"/show_best/";
+                                    file = dir+runID+"/show_best/";
 
                             File directory = new File(file);
 
-                            int numberOfGenerations = directory.listFiles().length;
-
+                            //int numberOfGenerations = directory.listFiles().length;
+                            int numberOfGenerations = 1;
+                            
                             if(!setNumberOfTasks) {
                                     totalTasks = (runsCount - runsFirstId + 1)*fitnesssamples*samples*numberOfGenerations/sampleIncrement;
                                     taskExecutor.setTotalNumberOfTasks(totalTasks);
@@ -194,9 +191,13 @@ public class NEATPostEvaluation {
                             File[] bestControllersFiles = directory.listFiles();
                             sortByNumber(bestControllersFiles);
 
-                            //post-evaluate best controller of each generation
+                            bestGenerationID = bestGenerationByRun.get( runID );
+                            
+                            int generation;
+                            
+                            //post-evaluate controller of the best generation
                             for (File bestControllerFile : bestControllersFiles) {
-                                    int generation = Integer.valueOf(bestControllerFile.getName().substring(8, bestControllerFile.getName().indexOf(".")));
+                                    generation = Integer.valueOf(bestControllerFile.getName().substring(8, bestControllerFile.getName().indexOf(".")));
 
                                     if ( generation != bestGenerationID ) {
                                         continue;           //this is ugly!
@@ -227,7 +228,7 @@ public class NEATPostEvaluation {
                                                     
                                                     Population pop = newJBot.getPopulation();
                                                     evolutionaryrobotics.neuralnetworks.Chromosome chr = pop.getBestChromosome();
-                                                    NEATMultipleSamplePostEvaluationTask t = new NEATMultipleSamplePostEvaluationTask(i,generation,newJBot,fitnesssample,chr,sample,sample+sampleIncrement,targetfitness);
+                                                    NEATMultipleSamplePostEvaluationTask t = new NEATMultipleSamplePostEvaluationTask(runID,generation,newJBot,fitnesssample,chr,sample,sample+sampleIncrement,targetfitness);
                                                     taskExecutor.addTask(t);
                                                     if(showOutput)
                                                             System.out.print( sample + " " );
@@ -236,7 +237,7 @@ public class NEATPostEvaluation {
                                                     System.out.println("fitnessSample:" + fitnesssample);
                                     }
 
-                                    taskExecutor.setDescription(dir+i+"/"+(generation+1)+" out of "+numberOfGenerations+" (total tasks: "+totalTasks+")");
+                                    taskExecutor.setDescription(dir+runID+"/"+(generation+1)+" out of "+numberOfGenerations+" (total tasks: "+totalTasks+")");
 
                                     if(showOutput)
                                             System.out.println();
@@ -374,6 +375,43 @@ public class NEATPostEvaluation {
         fr.readLine();
         String bestRunLine = fr.readLine();
         return Integer.parseInt( bestRunLine.split(",")[1] );
+        
+    }
+
+    
+    /**
+     * Loads the best generation by run file
+     * to a data structure. If there are
+     * more than one generations tied as
+     * the best, only one of them gets loaded;
+     * the others are ignored.
+     * @param path path to the file
+     * @return a Map where the keys are
+     * the runs IDs and the values are
+     * the generations IDs
+     */
+    private HashMap<Integer, Integer> loadBestGenerationByRunFile( String path ) 
+                        throws FileNotFoundException, IOException {
+        
+        HashMap<Integer, Integer> map;              //map to hold loaded file
+        map = new HashMap<>();
+        
+        File file = new File( path );               //load the file
+        BufferedReader fr = new BufferedReader( new FileReader(file) );
+        
+        fr.readLine();                              //skip the header line
+        String bestRunLine = fr.readLine();         //read first data line
+        
+        
+        int run, generation;
+        while( bestRunLine != null ){
+            run = Integer.parseInt( bestRunLine.split(",")[0] );
+            generation = Integer.parseInt( bestRunLine.split(",")[1] );
+            map.put( run, generation );             //load data to map
+            bestRunLine = fr.readLine();            
+        }
+
+        return map;
         
     }
 
