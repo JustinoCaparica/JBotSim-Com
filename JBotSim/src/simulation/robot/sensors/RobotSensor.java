@@ -29,8 +29,6 @@ public class RobotSensor extends LightTypeSensor {
     @Override
     protected double calculateContributionToSensor(int sensorNumber, PhysicalObjectDistance source) {
         
-        
-        
         boolean enabledDebug;
         enabledDebug = source.getObject().isEnabled();
         
@@ -39,14 +37,22 @@ public class RobotSensor extends LightTypeSensor {
             return 0.0;
         }
         
-
         GeometricInfo sensorInfo = getSensorGeometricInfo(sensorNumber, source);
-
-        if ((sensorInfo.getDistance() < getCutOff())
+        
+        
+        //the distance between robots, excluding two body radius (one body diameter)
+        // is less than sensor range (cutOff is the range)
+        // NOTE: we assume that all robots have the same body diameter
+        if (( sensorInfo.getDistance() - robot.getDiameter() < getCutOff())
                 && (sensorInfo.getAngle() < (openingAngle / 2.0))
                 && (sensorInfo.getAngle() > (-openingAngle / 2.0))) {
-            return (getRange() - sensorInfo.getDistance()) / getRange();
+            
+            if ( getRange() - sensorInfo.getDistance() - robot.getDiameter() < 0) {
+                return 1.0;     //if robots are *very* close return 1.0
+            }
+            return (getRange() - sensorInfo.getDistance() - robot.getDiameter() ) / getRange();
         }
+        
         return 0;
     }
 

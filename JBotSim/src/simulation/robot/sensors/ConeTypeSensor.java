@@ -212,16 +212,17 @@ public abstract class ConeTypeSensor extends Sensor {
                 
 
 		try { 
-			for(int j = 0; j < readings.length; j++){
-				readings[j] = 0.0;
-                                detectedObjects[j] = null;
+			for(int j = 0; j < readings.length; j++){   //reset
+				readings[j] = 0.0;                  //sensors 
+                                detectedObjects[j] = null;          //readings to 0
 			}
+                        
 			CloseObjectIterator iterator = getCloseObjects().iterator();
 			while(iterator.hasNext()){
 				PhysicalObjectDistance source=iterator.next();
-				if(source.getObject().isInvisible())
+				if( source.getObject().isInvisible() )
 					continue;
-				if (source.getObject().isEnabled()){
+				if ( source.getObject().isEnabled() ){
 					calculateSourceContributions(source);
 					iterator.updateCurrentDistance(this.geoCalc.getDistanceBetween(sensorPosition, source.getObject(), time));
 				}

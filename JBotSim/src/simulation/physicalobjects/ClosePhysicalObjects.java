@@ -150,10 +150,10 @@ public class ClosePhysicalObjects implements Serializable {
 
 		public void updateCurrentDistance(Double distanceBetween) {
 			double d = range - distanceBetween;
-			if(d < 0) //far away
-				currentObject.setTime(time-(d/twiceSpeed));	
+			if( d < 0 ) //far away
+				currentObject.setTime( time-(d/twiceSpeed) );	
 			else
-				currentObject.setTime(time);
+				currentObject.setTime( time );
 		}
 	}
 }

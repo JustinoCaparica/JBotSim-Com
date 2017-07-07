@@ -39,7 +39,7 @@ public class WallAndRobotSensor extends Sensor {
         //* the id argument passed to the sensors created bellow
         // should not be the same for both sensors
         robotSensor = new RobotSensor(simulator, id, robot, args);
-        wallSensor  = new WallRaySensor(simulator, id+500, robot, args);
+        wallSensor  = new WallRaySensor(simulator, id+5000, robot, args);
         
     }
     
