@@ -42,6 +42,7 @@ import simulation.robot.sensors.RecruiterConesSensor;
 import simulation.robot.sensors.RecruiterSensor;
 import simulation.robot.sensors.Sensor;
 import simulation.robot.sensors.TwoWheelActuatorEnergySensor;
+import simulation.robot.sensors.WallAndRobotSensor;
 import simulation.util.Arguments;
 
 public class TwoDRenderer extends Renderer
@@ -595,17 +596,6 @@ public class TwoDRenderer extends Renderer
                 
                 
                 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
 		//graphics.setColor(robot.getBodyColor());
 		graphics.fillOval(x, y, circleDiameter, circleDiameter);
 
@@ -739,6 +729,7 @@ public class TwoDRenderer extends Renderer
                 }
                 
                 
+                drawWallAndRobotSensor(robot, graphics);
                 
                 
                 
@@ -916,4 +907,34 @@ public class TwoDRenderer extends Renderer
             
             //graphics.setColor(Color.BLACK); //unecessary?
         }
+
+        
+        /**
+         * Draws a representation of the WallAndRobotSensor range
+         * around the robot body
+         * @param robot
+         * @param graphics 
+         */
+    private void drawWallAndRobotSensor(Robot robot, Graphics graphics) {
+        
+        Color previousColor = graphics.getColor();
+        
+        WallAndRobotSensor obstacleSensor;
+        obstacleSensor = (WallAndRobotSensor) robot.getSensorByType( WallAndRobotSensor.class );
+        double range = obstacleSensor.getRange();
+        
+        int circleDiameter = (int) Math.round(0.5 + (robot.getDiameter() + range) * scale);
+        int x = transformX(robot.getPosition().getX()) - circleDiameter / 2;
+        int y = transformY(robot.getPosition().getY()) - circleDiameter / 2;
+        
+        graphics.setColor(new Color( 0, 0, 0) );
+        graphics.drawOval(  x, 
+                            y, 
+                            circleDiameter, 
+                            circleDiameter 
+                        );
+        
+        graphics.setColor( previousColor );
+        
+    }
 }

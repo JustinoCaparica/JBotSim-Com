@@ -78,6 +78,15 @@ public class WallAndRobotSensor extends Sensor {
     }
     
     
+    /**
+     * Gets the sensor range
+     * @return a double representing
+     * the sensor range
+     */
+    public double getRange(){
+        return robotSensor.getRange();
+    }
+    
     
     
 }
