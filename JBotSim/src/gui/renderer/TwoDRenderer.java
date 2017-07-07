@@ -923,8 +923,6 @@ public class TwoDRenderer extends Renderer
         obstacleSensor = (WallAndRobotSensor) robot.getSensorByType( WallAndRobotSensor.class );
         double range = obstacleSensor.getRange();
         
-        System.out.println("range:" + range);
-        
         int circleDiameter = (int) Math.round(0.5 + ( range * 2 + robot.getDiameter() ) * scale);
         int x = transformX(robot.getPosition().getX()) - circleDiameter / 2;
         int y = transformY(robot.getPosition().getY()) - circleDiameter / 2;
