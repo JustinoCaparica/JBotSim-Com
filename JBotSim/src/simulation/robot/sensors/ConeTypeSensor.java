@@ -293,15 +293,15 @@ public abstract class ConeTypeSensor extends Sensor {
 	
 	protected void calculatedObstacleContributions(PhysicalObjectDistance source) {
 		for(int j = 0; j < obstacleReadings.length; j++){
-			obstacleReadings[j] = FastMath.max(calculateContributionToSensor(j, source)*1/*(1 + random.nextGaussian()* NOISESTDEV)*/, readings[j]);
+			obstacleReadings[j] = FastMath.max(calculateContributionToSensor(j, source)*(1 + random.nextGaussian()* NOISESTDEV), readings[j]);
 		}
 	}
 
 	protected void calculateSourceContributions(PhysicalObjectDistance source) {
 		for(int j = 0; j < readings.length; j++){
 			if(openingAngle > 0.018){ //1degree
-				readings[j] = FastMath.max(calculateContributionToSensor(j, source)*1/*(1 + 
-						random.nextGaussian()* NOISESTDEV)*/, readings[j]);
+				readings[j] = FastMath.max(calculateContributionToSensor(j, source)*(1 + 
+						random.nextGaussian()* NOISESTDEV), readings[j]);
 			}
 		}
 	}
