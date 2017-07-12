@@ -476,6 +476,15 @@ public class TwoDRenderer extends Renderer
 
 		graphics.setColor(nest.getColor());
 		graphics.fillOval(x, y, circleDiameter, circleDiameter);
+                
+                
+                //draw 30cm circle around the nest
+                circleDiameter = (int) Math.round(0.5 + 0.6 * scale);
+		x = transformX(nest.getPosition().getX()) - circleDiameter / 2;
+		y = transformY(nest.getPosition().getY()) - circleDiameter / 2;
+                graphics.drawOval(x, y, circleDiameter, circleDiameter);
+                
+                
 		graphics.setColor(Color.BLACK);
 
 	}
